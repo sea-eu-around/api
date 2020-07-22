@@ -1,6 +1,7 @@
 # Awesome NestJS v7 Boilerplate
 
 [![Awesome NestJS](https://img.shields.io/badge/Awesome-NestJS-blue.svg?longCache=true&style=flat-square)](https://github.com/juliandavidmr/awesome-nestjs)
+![Node.js CI](https://github.com/ladislas14/aas-backend/workflows/Node.js%20CI/badge.svg)
 
 > This is an ever-evolving, very opinionated architecture and dev environment for new node projects using [NestJS](https://nestjs.com). Questions, feedback, and for now, even bikeshedding are welcome. 😄
 
