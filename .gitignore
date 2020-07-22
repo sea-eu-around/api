@@ -75,3 +75,9 @@ mongo
 
 # Docker compose ganarated files
 db-data
+
+.development.env
+
+*.env
+
+.vscode/
