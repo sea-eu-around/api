@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { FindConditions } from 'typeorm';
 
 import { PageMetaDto } from '../../common/dto/PageMetaDto';
+import { UserEntity } from '../../entities/user.entity';
 import { FileNotImageException } from '../../exceptions/file-not-image.exception';
 import { IFile } from '../../interfaces/IFile';
 import { AwsS3Service } from '../../shared/services/aws-s3.service';
@@ -9,7 +10,6 @@ import { ValidatorService } from '../../shared/services/validator.service';
 import { UserRegisterDto } from '../auth/dto/UserRegisterDto';
 import { UsersPageDto } from './dto/UsersPageDto';
 import { UsersPageOptionsDto } from './dto/UsersPageOptionsDto';
-import { UserEntity } from './user.entity';
 import { UserRepository } from './user.repository';
 
 @Injectable()

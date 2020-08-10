@@ -19,11 +19,11 @@ import {
 
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { ApiFile } from '../../decorators/swagger.schema';
+import { UserDto } from '../../dto/UserDto';
+import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
 import { IFile } from '../../interfaces/IFile';
-import { UserDto } from '../user/dto/UserDto';
-import { UserEntity } from '../user/user.entity';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { LoginPayloadDto } from './dto/LoginPayloadDto';
