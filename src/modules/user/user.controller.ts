@@ -16,12 +16,12 @@ import { I18nService } from 'nestjs-i18n';
 import { RoleType } from '../../common/constants/role-type';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { Roles } from '../../decorators/roles.decorator';
+import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
 import { UsersPageDto } from './dto/UsersPageDto';
 import { UsersPageOptionsDto } from './dto/UsersPageOptionsDto';
-import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -45,7 +45,7 @@ export class UserController {
                 lang: 'en',
             },
         );
-        return `${translation} ${user.firstName}`;
+        return `${translation} ${user.phone}`;
     }
 
     @Get('users')

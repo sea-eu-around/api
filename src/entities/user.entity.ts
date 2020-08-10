@@ -1,17 +1,11 @@
 import { Column, Entity } from 'typeorm';
 
-import { AbstractEntity } from '../../common/abstract.entity';
-import { RoleType } from '../../common/constants/role-type';
-import { UserDto } from './dto/UserDto';
+import { AbstractEntity } from '../common/abstract.entity';
+import { RoleType } from '../common/constants/role-type';
+import { UserDto } from '../dto/UserDto';
 
-@Entity({ name: 'users' })
+@Entity({ name: 'user' })
 export class UserEntity extends AbstractEntity<UserDto> {
-    @Column({ nullable: true })
-    firstName: string;
-
-    @Column({ nullable: true })
-    lastName: string;
-
     @Column({ type: 'enum', enum: RoleType, default: RoleType.USER })
     role: RoleType;
 
