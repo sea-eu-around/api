@@ -23,16 +23,12 @@ export class UserDto extends AbstractDto {
     email: string;
 
     @ApiPropertyOptional()
-    avatar: string;
-
-    @ApiPropertyOptional()
     phone: string;
 
     constructor(user: UserEntity) {
         super(user);
         this.role = user.role;
         this.email = user.email;
-        this.avatar = user.avatar;
         this.phone = user.phone;
     }
 }
