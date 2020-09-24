@@ -1,10 +1,12 @@
 /* tslint:disable:naming-convention */
-
 import {
     registerDecorator,
     ValidationArguments,
     ValidationOptions,
 } from 'class-validator';
+
+import { PARTNER_UNIVERSITIES } from '../common/constants/sea';
+import { ConfigService } from '../shared/services/config.service';
 
 export function IsPassword(
     validationOptions?: ValidationOptions,
@@ -19,6 +21,34 @@ export function IsPassword(
             validator: {
                 validate(value: string, _args: ValidationArguments) {
                     return /^[a-zA-Z0-9!@#$%^&*]*$/.test(value);
+                },
+            },
+        });
+    };
+}
+
+export function IsSEAEmail(
+    validationOptions?: ValidationOptions,
+): PropertyDecorator {
+    return (object: any, propertyName: string) => {
+        registerDecorator({
+            propertyName,
+            name: 'isSEAEmail',
+            target: object.constructor,
+            constraints: [],
+            options: validationOptions,
+            validator: {
+                validate(value: string, _args: ValidationArguments) {
+                    const domain = value.split('@')[1];
+                    const configService = new ConfigService();
+                    if (configService.isProduction) {
+                        return (
+                            PARTNER_UNIVERSITIES.map(
+                                (university) => university.domain,
+                            ).filter((x) => x === domain).length > 0
+                        );
+                    }
+                    return true;
                 },
             },
         });
