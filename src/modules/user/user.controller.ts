@@ -14,9 +14,7 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { I18nService } from 'nestjs-i18n';
 
 import { RoleType } from '../../common/constants/role-type';
-import { AuthUser } from '../../decorators/auth-user.decorator';
 import { Roles } from '../../decorators/roles.decorator';
-import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
@@ -34,19 +32,6 @@ export class UserController {
         private _userService: UserService,
         private readonly _i18n: I18nService,
     ) {}
-
-    @Get('admin')
-    @Roles(RoleType.USER)
-    @HttpCode(HttpStatus.OK)
-    async admin(@AuthUser() user: UserEntity): Promise<string> {
-        const translation = await this._i18n.translate(
-            'translations.keywords.admin',
-            {
-                lang: 'en',
-            },
-        );
-        return `${translation} ${user.phone}`;
-    }
 
     @Get('users')
     @Roles(RoleType.ADMIN)

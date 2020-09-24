@@ -1,41 +1,29 @@
 'use strict';
 
 import { ApiProperty } from '@nestjs/swagger';
-import {
-    IsEmail,
-    IsNotEmpty,
-    IsOptional,
-    IsPhoneNumber,
-    IsString,
-    MinLength,
-} from 'class-validator';
-import { Column } from 'typeorm';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+
+import { IsSEAEmail } from '../../../decorators/validators.decorator';
 
 export class UserRegisterDto {
     @IsString()
-    @IsNotEmpty()
-    @ApiProperty()
-    readonly firstName: string;
-
-    @IsString()
-    @IsNotEmpty()
-    @ApiProperty()
-    readonly lastName: string;
-
-    @IsString()
-    @IsEmail()
+    @IsEmail(
+        {},
+        {
+            message: 'Incorrect email format.',
+        },
+    )
+    @IsSEAEmail({
+        message: 'Incorrect SEA email.',
+    })
     @IsNotEmpty()
     @ApiProperty()
     readonly email: string;
 
     @IsString()
-    @MinLength(6)
-    @ApiProperty({ minLength: 6 })
+    @MinLength(8, {
+        message: 'Password is too short.',
+    })
+    @ApiProperty({ minLength: 8 })
     readonly password: string;
-
-    @Column()
-    @IsPhoneNumber('ZZ')
-    @IsOptional()
-    @ApiProperty()
-    phone: string;
 }
