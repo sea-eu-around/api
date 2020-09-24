@@ -27,4 +27,4 @@ COPY . /usr/src/app
 
 EXPOSE $PORT
 
-CMD [ "yarn", "start:prod" ]
+CMD [ "yarn", "start:dev" ]
