@@ -20,7 +20,12 @@ module.exports = {
                 exclude: /node_modules/,
                 options: {
                     getCustomTransformers: (program) => ({
-                        before: [require('@nestjs/swagger/plugin').before({}, program)]
+                        before: [
+                            require('@nestjs/swagger/plugin').before(
+                                {},
+                                program,
+                            ),
+                        ],
                     }),
                 },
             },
@@ -34,7 +39,8 @@ module.exports = {
         new webpack.ProgressPlugin(),
         new CleanWebpackPlugin(),
         new webpack.HotModuleReplacementPlugin(),
-        new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/])],
+        new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/]),
+    ],
     output: {
         path: path.join(__dirname, 'dist'),
         filename: 'main.js',
