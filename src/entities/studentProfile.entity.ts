@@ -1,31 +1,10 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { ChildEntity } from 'typeorm';
 
-import { AbstractEntity } from '../common/abstract.entity';
+import { RoleType } from '../common/constants/role-type';
 import { StudentProfileDto } from '../dto/StudentProfileDto';
-import { IProfile } from './interfaces/profile.interface';
-import { UserEntity } from './user.entity';
+import { ProfileEntity } from './profile.entity';
 
-@Entity({ name: 'student_profile' })
-export class StudentProfileEntity extends AbstractEntity<StudentProfileDto>
-    implements IProfile {
-    @Column()
-    firstName: string;
-
-    @Column()
-    lastName: string;
-
-    @Column()
-    username: string;
-
-    @Column()
-    city: string;
-
-    @Column()
-    university: string;
-
-    @OneToOne(() => UserEntity, (user) => user.studentProfile)
-    @JoinColumn()
-    user: UserEntity;
-
+@ChildEntity(RoleType.STUDENT)
+export class StudentProfileEntity extends ProfileEntity {
     dtoClass = StudentProfileDto;
 }
