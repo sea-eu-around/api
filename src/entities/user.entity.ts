@@ -1,11 +1,9 @@
-import { AfterLoad, Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, OneToOne } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { RoleType } from '../common/constants/role-type';
 import { UserDto } from '../dto/UserDto';
-import { IProfile } from './interfaces/profile.interface';
-import { StudentProfileEntity } from './studentProfile.entity';
-import { TeacherProfileEntity } from './teacherProfile.entity';
+import { ProfileEntity } from './profile.entity';
 
 @Entity({ name: 'user' })
 export class UserEntity extends AbstractEntity<UserDto> {
@@ -18,26 +16,8 @@ export class UserEntity extends AbstractEntity<UserDto> {
     @Column({ nullable: true })
     password: string;
 
-    @OneToOne(
-        () => StudentProfileEntity,
-        (studentProfile) => studentProfile.user,
-    )
-    studentProfile?: StudentProfileEntity;
-
-    @OneToOne(
-        () => TeacherProfileEntity,
-        (teacherProfile) => teacherProfile.user,
-    )
-    teacherProfile?: TeacherProfileEntity;
-
-    profile: IProfile;
-
-    @AfterLoad()
-    defineProfile(): void {
-        this.profile = this.studentProfile || this.teacherProfile;
-        delete this.studentProfile;
-        delete this.teacherProfile;
-    }
+    @OneToOne(() => ProfileEntity, (profile) => profile.id)
+    profile: ProfileEntity;
 
     dtoClass = UserDto;
 }
