@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { StudentProfileRepository } from '../../repositories/Studentprofile.repository';
+import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
 import { TeacherProfileRepository } from '../../repositories/teacherProfile.repository';
 import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
