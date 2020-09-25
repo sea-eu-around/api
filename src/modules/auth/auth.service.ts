@@ -30,13 +30,6 @@ export class AuthService {
         });
     }
 
-    async getUserWithprofile(user: UserEntity) {
-        return this.userRepository
-            .createQueryBuilder('user')
-            .leftJoinAndSelect('user.studentProfile', 'profile')
-            .getMany();
-    }
-
     async validateUser(userLoginDto: UserLoginDto): Promise<UserEntity> {
         const user = await this.userService.findOne({
             email: userLoginDto.email,
@@ -51,7 +44,7 @@ export class AuthService {
         return user;
     }
 
-    static setAuthUser(user: UserEntity) {
+    static setAuthUser(user: UserEntity): void {
         ContextService.set(AuthService._authUserKey, user);
     }
 
