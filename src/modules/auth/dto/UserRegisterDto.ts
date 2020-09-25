@@ -7,12 +7,7 @@ import { IsSEAEmail } from '../../../decorators/validators.decorator';
 
 export class UserRegisterDto {
     @IsString()
-    @IsEmail(
-        {},
-        {
-            message: 'Incorrect email format.',
-        },
-    )
+    @IsEmail()
     @IsSEAEmail({
         message: 'Incorrect SEA email.',
     })
@@ -21,9 +16,7 @@ export class UserRegisterDto {
     readonly email: string;
 
     @IsString()
-    @MinLength(8, {
-        message: 'Password is too short.',
-    })
+    @MinLength(8)
     @ApiProperty({ minLength: 8 })
     readonly password: string;
 }
