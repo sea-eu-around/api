@@ -9,13 +9,13 @@ import {
 } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
-import { RoleType } from '../common/constants/role-type';
+import { ProfileType } from '../common/constants/profile-type';
 import { ProfileDto } from '../dto/ProfileDto';
 import { InterestEntity } from './interest.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('profile')
-@TableInheritance({ column: { type: 'enum', name: 'type', enum: RoleType } })
+@TableInheritance({ column: { type: 'enum', name: 'type', enum: ProfileType } })
 export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
     @Column()
     firstName: string;
