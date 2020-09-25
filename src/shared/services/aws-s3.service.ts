@@ -18,7 +18,6 @@ export class AwsS3Service {
             apiVersion: '2010-12-01',
             region: 'eu-central-1',
         };
-
         const awsS3Config = configService.awsS3Config;
         if (awsS3Config.accessKeyId && awsS3Config.secretAccessKey) {
             options.credentials = awsS3Config;
