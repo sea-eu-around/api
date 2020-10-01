@@ -7,6 +7,7 @@ import { UserEntity } from '../../entities/user.entity';
 import { AwsS3Service } from '../../shared/services/aws-s3.service';
 import { ValidatorService } from '../../shared/services/validator.service';
 import { UserRegisterDto } from '../auth/dto/UserRegisterDto';
+import { UserVerificationQueryDto } from '../auth/dto/UserVerificationQueryDto';
 import { UsersPageDto } from './dto/UsersPageDto';
 import { UsersPageOptionsDto } from './dto/UsersPageOptionsDto';
 import { UserRepository } from './user.repository';
@@ -48,6 +49,22 @@ export class UserService {
         const user = this.userRepository.create({ ...userRegisterDto });
 
         return this.userRepository.save(user);
+    }
+
+    async verifyUser(
+        userVerificationQueryDto: UserVerificationQueryDto,
+    ): Promise<UserEntity> {
+        const user = await this.userRepository.findOne({
+            email: userVerificationQueryDto.email,
+            verificationToken: userVerificationQueryDto.token,
+        });
+
+        if (user) {
+            user.active = true;
+
+            return this.userRepository.save(user);
+        }
+        return null;
     }
 
     async getUsers(pageOptionsDto: UsersPageOptionsDto): Promise<UsersPageDto> {

@@ -185,7 +185,6 @@ module.exports = {
         'object-curly-spacing': ['error', 'always'],
         'no-multi-spaces': ['error'],
         'arrow-body-style': 'error',
-        complexity: ['warn', 4],
         'constructor-super': 'error',
         curly: 'error',
         'dot-notation': 'error',
