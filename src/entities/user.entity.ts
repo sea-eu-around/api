@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, Generated, OneToOne } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { RoleType } from '../common/constants/role-type';
@@ -18,6 +18,16 @@ export class UserEntity extends AbstractEntity<UserDto> {
 
     @OneToOne(() => ProfileEntity, (profile) => profile.id)
     profile: ProfileEntity;
+
+    @Column({ nullable: false })
+    @Generated('uuid')
+    verificationToken: string;
+
+    @Column({ nullable: false, default: false })
+    active: boolean;
+
+    @Column({ nullable: false, default: false })
+    onboarded: boolean;
 
     dtoClass = UserDto;
 }
