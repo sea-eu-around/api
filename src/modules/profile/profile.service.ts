@@ -21,15 +21,19 @@ export class ProfileService {
         type: ProfileType,
         user: UserEntity,
     ): Promise<StudentProfileEntity | StaffProfileEntity> {
-        const profileRepository =
-            type === ProfileType.STUDENT
-                ? this._studentProfileRepository
-                : this._staffProfileRepository;
+        if (type === ProfileType.STUDENT) {
+            const profile = this._studentProfileRepository.create();
+            Object.assign(profile, profileCreationDto);
+            profile.user = user;
 
-        const profile = profileRepository.create();
-        Object.assign(profile, profileCreationDto);
-        profile.user = user;
+            return this._studentProfileRepository.save(profile);
+        }
+        {
+            const profile = this._staffProfileRepository.create();
+            Object.assign(profile, profileCreationDto);
+            profile.user = user;
 
-        return profileRepository.save(profile);
+            return this._staffProfileRepository.save(profile);
+        }
     }
 }

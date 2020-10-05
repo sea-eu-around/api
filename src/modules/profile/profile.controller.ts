@@ -46,8 +46,8 @@ export class ProfileController {
     @ApiBearerAuth()
     @ApiExtraModels(StaffProfileCreationDto, StudentProfileCreationDto)
     @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Create profile',
+        status: HttpStatus.CREATED,
+        description: 'Profile successfully created',
         type: ProfileDto,
     })
     @ApiBody({
@@ -71,6 +71,9 @@ export class ProfileController {
             user,
         );
 
-        return createdProfile.toDto();
+        return {
+            description: 'Profile successfully created',
+            data: createdProfile,
+        };
     }
 }
