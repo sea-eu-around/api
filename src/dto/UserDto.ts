@@ -13,10 +13,13 @@ export class UserDto extends AbstractDto {
     @ApiPropertyOptional()
     email: string;
 
+    @ApiPropertyOptional()
     active: boolean;
 
+    @ApiPropertyOptional()
     onboarded: boolean;
 
+    @ApiPropertyOptional()
     verificationToken: string;
 
     constructor(user: UserEntity) {

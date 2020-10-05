@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
+import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { UserDto } from '../../dto/UserDto';
 import { UserEntity } from '../../entities/user.entity';
@@ -39,22 +40,32 @@ export class AuthController {
     })
     async userLogin(
         @Body() userLoginDto: UserLoginDto,
-    ): Promise<LoginPayloadDto> {
+    ): Promise<PayloadSuccessDto> {
         const userEntity = await this.authService.validateUser(userLoginDto);
 
         const token = await this.authService.createToken(userEntity);
-        return new LoginPayloadDto(userEntity.toDto(), token);
+
+        return {
+            description: 'User info with access token',
+            data: new LoginPayloadDto(userEntity.toDto(), token),
+        };
     }
 
     @Post('register')
     @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({ type: UserDto, description: 'Successfully Registered' })
+    @ApiOkResponse({
+        type: UserDto,
+        description: 'Successfully Registered',
+    })
     async userRegister(
         @Body() userRegisterDto: UserRegisterDto,
-    ): Promise<UserDto> {
+    ): Promise<PayloadSuccessDto> {
         const createdUser = await this.userService.createUser(userRegisterDto);
 
-        return createdUser.toDto();
+        return {
+            description: 'Successfully Registered',
+            data: createdUser,
+        };
     }
 
     @Post('verify')
@@ -62,12 +73,15 @@ export class AuthController {
     @ApiOkResponse({ type: UserDto, description: 'Successfully Verified' })
     async userVerification(
         @Query() userVerificationQueryDto: UserVerificationQueryDto,
-    ): Promise<UserDto> {
+    ): Promise<PayloadSuccessDto> {
         const verifiedUser = await this.userService.verifyUser(
             userVerificationQueryDto,
         );
 
-        return verifiedUser.toDto();
+        return {
+            description: 'Successfully Verified',
+            data: verifiedUser,
+        };
     }
 
     @Get('me')
@@ -76,7 +90,10 @@ export class AuthController {
     @UseInterceptors(AuthUserInterceptor)
     @ApiBearerAuth()
     @ApiOkResponse({ type: UserDto, description: 'current user info' })
-    getCurrentUser(@AuthUser() user: UserEntity): Promise<UserDto> {
-        return user.toDto();
+    getCurrentUser(@AuthUser() user: UserEntity): PayloadSuccessDto {
+        return {
+            description: 'current user info',
+            data: user,
+        };
     }
 }

@@ -12,10 +12,10 @@ import { STATUS_CODES } from 'http';
 import * as _ from 'lodash';
 
 @Catch(BadRequestException)
-export class HttpExceptionFilter implements ExceptionFilter {
+export class BadRequestExceptionFilter implements ExceptionFilter {
     constructor(public reflector: Reflector) {}
 
-    catch(exception: BadRequestException, host: ArgumentsHost) {
+    catch(exception: BadRequestException, host: ArgumentsHost): any {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
         let statusCode = exception.getStatus();
@@ -27,10 +27,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
             this._validationFilter(validationErrors);
         }
 
-        r.statusCode = statusCode;
-        r.error = STATUS_CODES[statusCode];
+        const responsePayload = {
+            success: false,
+            description: STATUS_CODES[statusCode],
+            codes: r.message,
+        };
 
-        response.status(statusCode).json(r);
+        response.status(statusCode).json(responsePayload);
     }
 
     private _validationFilter(validationErrors: ValidationError[]) {
