@@ -5,7 +5,6 @@ import {
     HttpCode,
     HttpStatus,
     Post,
-    Query,
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
@@ -72,7 +71,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({ type: UserDto, description: 'Successfully Verified' })
     async userVerification(
-        @Query() userVerificationQueryDto: UserVerificationQueryDto,
+        @Body() userVerificationQueryDto: UserVerificationQueryDto,
     ): Promise<PayloadSuccessDto> {
         const verifiedUser = await this.userService.verifyUser(
             userVerificationQueryDto,
