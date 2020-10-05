@@ -1,6 +1,6 @@
 'use strict';
 
 export enum ProfileType {
-    TEACHER = 'TEACHER',
+    STAFF = 'STAFF',
     STUDENT = 'STUDENT',
 }

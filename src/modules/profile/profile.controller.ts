@@ -29,8 +29,8 @@ import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
 import { ProfileCreationDto } from './dto/ProfileCreationDto';
+import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
 import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
-import { TeacherProfileCreationDto } from './dto/TeacherProfileCreationDto';
 import { ProfileService } from './profile.service';
 
 @Controller('profile')
@@ -44,7 +44,7 @@ export class ProfileController {
     @Post()
     @HttpCode(HttpStatus.OK)
     @ApiBearerAuth()
-    @ApiExtraModels(TeacherProfileCreationDto, StudentProfileCreationDto)
+    @ApiExtraModels(StaffProfileCreationDto, StudentProfileCreationDto)
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Create profile',
@@ -53,7 +53,7 @@ export class ProfileController {
     @ApiBody({
         schema: {
             oneOf: [
-                { $ref: getSchemaPath(TeacherProfileCreationDto) },
+                { $ref: getSchemaPath(StaffProfileCreationDto) },
                 { $ref: getSchemaPath(StudentProfileCreationDto) },
             ],
         },
