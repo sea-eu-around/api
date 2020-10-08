@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { StudentProfileRepository } from '../../repositories/Studentprofile.repository';
-import { TeacherProfileRepository } from '../../repositories/teacherProfile.repository';
+import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
+import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
 import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([StudentProfileRepository]),
-        TypeOrmModule.forFeature([TeacherProfileRepository]),
+        TypeOrmModule.forFeature([StaffProfileRepository]),
     ],
     controllers: [ProfileController],
     exports: [ProfileService],
