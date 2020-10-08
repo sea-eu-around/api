@@ -5,4 +5,5 @@ export enum StaffRoleType {
     ADMINISTRATIVE = 'ADMINISTRATIVE',
     TECHNICAL = 'TECHNICAL',
     AMBASSADOR = 'AMBASSADOR',
+    OTHER = 'OTHER',
 }

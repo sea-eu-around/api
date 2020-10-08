@@ -56,13 +56,14 @@ export class ProfileController {
                 { $ref: getSchemaPath(StaffProfileCreationDto) },
                 { $ref: getSchemaPath(StudentProfileCreationDto) },
             ],
+            discriminator: { propertyName: 'type' },
         },
     })
     @ApiQuery({ name: 'type', enum: ProfileType })
     async createProfile(
+        @Query('type') type: ProfileType,
         @Body()
         profileCreationDto: ProfileCreationDto,
-        @Query('type') type: ProfileType,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const createdProfile = await this._profileService.createProfile(

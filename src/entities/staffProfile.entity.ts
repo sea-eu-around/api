@@ -7,7 +7,7 @@ import { ProfileEntity } from './profile.entity';
 
 @ChildEntity(ProfileType.STAFF)
 export class StaffProfileEntity extends ProfileEntity {
-    @Column({ nullable: false })
+    @Column({ type: 'enum', enum: StaffRoleType })
     staffRole: StaffRoleType;
 
     dtoClass = StaffProfileDto;
