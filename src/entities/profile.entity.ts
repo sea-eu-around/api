@@ -9,6 +9,8 @@ import {
 } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
+import { GenderType } from '../common/constants/gender-type';
+import { NationalityType } from '../common/constants/nationality-type';
 import { ProfileType } from '../common/constants/profile-type';
 import { ProfileDto } from '../dto/ProfileDto';
 import { InterestEntity } from './interest.entity';
@@ -17,13 +19,13 @@ import { UserEntity } from './user.entity';
 @Entity('profile')
 @TableInheritance({ column: { type: 'enum', name: 'type', enum: ProfileType } })
 export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
-    @Column()
+    @Column({ nullable: false })
     firstName: string;
 
-    @Column()
+    @Column({ nullable: false })
     lastName: string;
 
-    @Column()
+    @Column({ nullable: false })
     university: string;
 
     @OneToOne(() => UserEntity, (user) => user.profile)
@@ -37,6 +39,19 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
         inverseJoinColumn: { name: 'profile_id', referencedColumnName: 'id' },
     })
     interests: InterestEntity[];
+
+    @Column({ nullable: false })
+    birthdate: Date;
+
+    @Column({ type: 'enum', enum: GenderType, default: GenderType.OTHER })
+    gender: GenderType;
+
+    @Column({
+        type: 'enum',
+        enum: NationalityType,
+        default: NationalityType.FR,
+    })
+    nationality: NationalityType;
 
     dtoClass = ProfileDto;
 }
