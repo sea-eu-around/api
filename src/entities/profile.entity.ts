@@ -49,7 +49,6 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
     @Column({
         type: 'enum',
         enum: NationalityType,
-        default: NationalityType.FR,
     })
     nationality: NationalityType;
 
