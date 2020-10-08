@@ -32,12 +32,8 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
     @JoinColumn()
     user: UserEntity;
 
-    @ManyToMany(() => InterestEntity, { cascade: true })
-    @JoinTable({
-        name: 'profile_use_interest',
-        joinColumn: { name: 'interest_id', referencedColumnName: 'id' },
-        inverseJoinColumn: { name: 'profile_id', referencedColumnName: 'id' },
-    })
+    @ManyToMany(() => InterestEntity, (interests) => interests.profile)
+    @JoinTable()
     interests: InterestEntity[];
 
     @Column({ nullable: false })
