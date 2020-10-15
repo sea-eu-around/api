@@ -4,6 +4,7 @@ import {
     JoinColumn,
     JoinTable,
     ManyToMany,
+    OneToMany,
     OneToOne,
     TableInheritance,
 } from 'typeorm';
@@ -14,6 +15,7 @@ import { NationalityType } from '../common/constants/nationality-type';
 import { ProfileType } from '../common/constants/profile-type';
 import { ProfileDto } from '../dto/ProfileDto';
 import { InterestEntity } from './interest.entity';
+import { ProfileToLanguageEntity } from './profileToLanguage.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('profile')
@@ -47,6 +49,12 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
         enum: NationalityType,
     })
     nationality: NationalityType;
+
+    @OneToMany(
+        () => ProfileToLanguageEntity,
+        (profileToLanguage) => profileToLanguage.profile,
+    )
+    profileToLanguages: ProfileToLanguageEntity[];
 
     dtoClass = ProfileDto;
 }
