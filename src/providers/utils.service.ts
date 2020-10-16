@@ -31,6 +31,19 @@ export class UtilsService {
         return new model(entity, options);
     }
 
+    public static isDto = (obj) => {
+        if (obj && obj.dtoClass) {
+            return true;
+        }
+        return false;
+    };
+
+    public static isDtos = (obj) => {
+        if (obj && obj.dtoClass) {
+            return true;
+        }
+        return false;
+    };
     /**
      * generate hash from password or string
      * @param {string} password
