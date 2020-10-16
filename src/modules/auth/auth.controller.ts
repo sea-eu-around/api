@@ -89,10 +89,14 @@ export class AuthController {
     @UseInterceptors(AuthUserInterceptor)
     @ApiBearerAuth()
     @ApiOkResponse({ type: UserDto, description: 'current user info' })
-    getCurrentUser(@AuthUser() user: UserEntity): PayloadSuccessDto {
+    async getCurrentUser(
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const userWithProfile = await this.authService.getUserWithProfile(user);
+
         return {
             description: 'current user info',
-            data: user,
+            data: userWithProfile,
         };
     }
 }
