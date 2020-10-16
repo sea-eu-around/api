@@ -15,7 +15,7 @@ import { NationalityType } from '../common/constants/nationality-type';
 import { ProfileType } from '../common/constants/profile-type';
 import { ProfileDto } from '../dto/ProfileDto';
 import { InterestEntity } from './interest.entity';
-import { ProfileToLanguageEntity } from './profileToLanguage.entity';
+import { ProfileLanguageEntity } from './profileLanguage.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('profile')
@@ -38,7 +38,7 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
     @JoinTable()
     interests: InterestEntity[];
 
-    @Column({ nullable: false })
+    @Column({ nullable: false, type: 'timestamp without time zone' })
     birthdate: Date;
 
     @Column({ type: 'enum', enum: GenderType, default: GenderType.OTHER })
@@ -51,10 +51,10 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
     nationality: NationalityType;
 
     @OneToMany(
-        () => ProfileToLanguageEntity,
+        () => ProfileLanguageEntity,
         (profileToLanguage) => profileToLanguage.profile,
     )
-    profileToLanguages: ProfileToLanguageEntity[];
+    profileLanguages: ProfileLanguageEntity[];
 
     dtoClass = ProfileDto;
 }

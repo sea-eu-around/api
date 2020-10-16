@@ -3,7 +3,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { AbstractEntity } from '../common/abstract.entity';
 import { LanguageType } from '../common/constants/language-type';
 import { LanguageDto } from '../dto/LanguageDto';
-import { ProfileToLanguageEntity } from './profileToLanguage.entity';
+import { ProfileLanguageEntity } from './profileLanguage.entity';
 
 @Entity('language')
 export class LanguageEntity extends AbstractEntity<LanguageDto> {
@@ -14,10 +14,10 @@ export class LanguageEntity extends AbstractEntity<LanguageDto> {
     code: LanguageType;
 
     @OneToMany(
-        () => ProfileToLanguageEntity,
+        () => ProfileLanguageEntity,
         (profileToLanguage) => profileToLanguage.language,
     )
-    profileToLanguages: ProfileToLanguageEntity[];
+    profileLanguages: ProfileLanguageEntity[];
 
     dtoClass = LanguageDto;
 }
