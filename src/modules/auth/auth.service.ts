@@ -51,8 +51,7 @@ export class AuthService {
     ): Promise<UserEntity | UserDto> {
         const userWithProfile = await this._profileRepository
             .createQueryBuilder('profile')
-            .leftJoinAndSelect('profile.profileLanguages', 'profileLanguage')
-            .leftJoinAndSelect('profileLanguage.language', 'language')
+            .leftJoinAndSelect('profile.languages', 'languages')
             .where('profile.user_id = :userId', { userId: user.id })
             .getOne();
 
