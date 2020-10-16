@@ -15,7 +15,7 @@ import { NationalityType } from '../common/constants/nationality-type';
 import { ProfileType } from '../common/constants/profile-type';
 import { ProfileDto } from '../dto/ProfileDto';
 import { InterestEntity } from './interest.entity';
-import { ProfileLanguageEntity } from './profileLanguage.entity';
+import { LanguageEntity } from './language.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('profile')
@@ -50,11 +50,8 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
     })
     nationality: NationalityType;
 
-    @OneToMany(
-        () => ProfileLanguageEntity,
-        (profileToLanguage) => profileToLanguage.profile,
-    )
-    profileLanguages: ProfileLanguageEntity[];
+    @OneToMany(() => LanguageEntity, (language) => language.profile)
+    languages: LanguageEntity[];
 
     dtoClass = ProfileDto;
 }
