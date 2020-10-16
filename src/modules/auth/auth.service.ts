@@ -21,7 +21,7 @@ export class AuthService {
         public readonly jwtService: JwtService,
         public readonly configService: ConfigService,
         public readonly userService: UserService,
-        public readonly userRepository: UserRepository,
+        private readonly _userRepository: UserRepository,
         private readonly _profileRepository: ProfileRepository,
     ) {}
 
@@ -46,18 +46,13 @@ export class AuthService {
         return user;
     }
 
-    async getUserWithProfile(
-        user: UserEntity | UserDto,
-    ): Promise<UserEntity | UserDto> {
-        const userWithProfile = await this._profileRepository
-            .createQueryBuilder('profile')
+    async getUserWithProfile(user: UserEntity | UserDto): Promise<UserEntity> {
+        return this._userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.profile', 'profile')
             .leftJoinAndSelect('profile.languages', 'languages')
-            .where('profile.user_id = :userId', { userId: user.id })
+            .where('user.id= :userId', { userId: user.id })
             .getOne();
-
-        // console.log(userWithProfile);
-
-        return user;
     }
 
     static setAuthUser(user: UserEntity): void {

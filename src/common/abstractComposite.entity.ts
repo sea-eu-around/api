@@ -3,10 +3,10 @@
 import { CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 import { UtilsService } from '../providers/utils.service';
-import { AbstractDto } from './dto/AbstractDto';
+import { AbstractCompositeDto } from './dto/AbstractCompositeDto';
 
 export abstract class AbstractCompositeEntity<
-    T extends AbstractDto = AbstractDto
+    T extends AbstractCompositeDto = AbstractCompositeDto
 > {
     @CreateDateColumn({
         type: 'timestamp without time zone',
