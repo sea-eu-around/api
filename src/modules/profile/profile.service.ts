@@ -2,13 +2,14 @@
 import { Injectable } from '@nestjs/common';
 
 import { ProfileType } from '../../common/constants/profile-type';
+import { StaffProfileDto } from '../../dto/StaffProfileDto';
+import { StudentProfileDto } from '../../dto/StudentProfileDto';
 import { StaffProfileEntity } from '../../entities/staffProfile.entity';
 import { StudentProfileEntity } from '../../entities/studentProfile.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { LanguageRepository } from '../../repositories/language.repository';
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
-import { ProfileCreationDto } from './dto/ProfileCreationDto';
 
 @Injectable()
 export class ProfileService {
@@ -19,7 +20,7 @@ export class ProfileService {
     ) {}
 
     async createProfile(
-        profileCreationDto: ProfileCreationDto,
+        profileCreationDto: StudentProfileDto | StaffProfileDto,
         type: ProfileType,
         user: UserEntity,
     ): Promise<StudentProfileEntity | StaffProfileEntity> {
@@ -39,14 +40,16 @@ export class ProfileService {
             savedProfile = await this._staffProfileRepository.save(profile);
         }
 
-        await this._languageRepository.save(
-            savedProfile.languages.map((language) =>
-                Object.assign(this._languageRepository.create(), {
-                    ...language,
-                    profile: savedProfile.id,
-                }),
-            ),
-        );
+        if (savedProfile.languages) {
+            await this._languageRepository.save(
+                savedProfile.languages.map((language) =>
+                    Object.assign(this._languageRepository.create(), {
+                        ...language,
+                        profile: savedProfile.id,
+                    }),
+                ),
+            );
+        }
 
         return savedProfile;
     }

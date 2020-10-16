@@ -24,11 +24,12 @@ import { ProfileType } from '../../common/constants/profile-type';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { ProfileDto } from '../../dto/ProfileDto';
+import { StaffProfileDto } from '../../dto/StaffProfileDto';
+import { StudentProfileDto } from '../../dto/StudentProfileDto';
 import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
-import { ProfileCreationDto } from './dto/ProfileCreationDto';
 import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
 import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
 import { ProfileService } from './profile.service';
@@ -63,7 +64,7 @@ export class ProfileController {
     async createProfile(
         @Query('type') type: ProfileType,
         @Body()
-        profileCreationDto: ProfileCreationDto,
+        profileCreationDto: StudentProfileDto | StaffProfileDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const createdProfile = await this._profileService.createProfile(
