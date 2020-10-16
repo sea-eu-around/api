@@ -8,7 +8,7 @@ import { ProfileEntity } from './profile.entity';
 @ChildEntity(ProfileType.STUDENT)
 export class StudentProfileEntity extends ProfileEntity {
     @Column({ nullable: false, type: 'enum', enum: DegreeType })
-    level: DegreeType;
+    degree: DegreeType;
 
     dtoClass = StudentProfileDto;
 }

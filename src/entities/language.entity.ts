@@ -18,6 +18,7 @@ export class LanguageEntity extends AbstractCompositeEntity<LanguageDto> {
     @PrimaryColumn({ type: 'uuid', name: 'profile_id' })
     @ManyToOne(() => ProfileEntity, (profile) => profile.languages, {
         primary: true,
+        cascade: true,
     })
     profile: ProfileEntity;
 
