@@ -6,10 +6,10 @@ import { ProfileDto } from './ProfileDto';
 
 export class StudentProfileDto extends ProfileDto {
     @ApiPropertyOptional()
-    level: DegreeType;
+    degree: DegreeType;
 
     constructor(profile: StudentProfileEntity) {
         super(profile);
-        this.level = profile.level;
+        this.degree = profile.degree;
     }
 }

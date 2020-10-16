@@ -18,7 +18,7 @@ declare global {
 
 Array.prototype.toDtos = function <
     B extends AbstractDto | AbstractCompositeDto
->(options?: any): B[] {
+>(options?): B[] {
     // tslint:disable-next-line:no-invalid-this
     return <B[]>_(this)
         .map((item) => item.toDto(options))
