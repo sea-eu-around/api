@@ -2,6 +2,7 @@ import { forwardRef, Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { ProfileRepository } from '../../repositories/profile.repository';
 import { UserModule } from '../user/user.module';
 import { UserRepository } from '../user/user.repository';
 import { AuthController } from './auth.controller';
@@ -12,7 +13,7 @@ import { JwtStrategy } from './jwt.strategy';
     imports: [
         forwardRef(() => UserModule),
         PassportModule.register({ defaultStrategy: 'jwt' }),
-        TypeOrmModule.forFeature([UserRepository]),
+        TypeOrmModule.forFeature([UserRepository, ProfileRepository]),
     ],
     controllers: [AuthController],
     providers: [AuthService, JwtStrategy],
