@@ -6,6 +6,7 @@ import { UserEntity } from '../../entities/user.entity';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception';
 import { ContextService } from '../../providers/context.service';
 import { UtilsService } from '../../providers/utils.service';
+import { ProfileRepository } from '../../repositories/profile.repository';
 import { ConfigService } from '../../shared/services/config.service';
 import { UserRepository } from '../user/user.repository';
 import { UserService } from '../user/user.service';
@@ -21,6 +22,7 @@ export class AuthService {
         public readonly configService: ConfigService,
         public readonly userService: UserService,
         public readonly userRepository: UserRepository,
+        private readonly _profileRepository: ProfileRepository,
     ) {}
 
     async createToken(user: UserEntity | UserDto): Promise<TokenPayloadDto> {
@@ -41,6 +43,21 @@ export class AuthService {
         if (!user || !isPasswordValid) {
             throw new UserNotFoundException();
         }
+        return user;
+    }
+
+    async getUserWithProfile(
+        user: UserEntity | UserDto,
+    ): Promise<UserEntity | UserDto> {
+        const userWithProfile = await this._profileRepository
+            .createQueryBuilder('profile')
+            .leftJoinAndSelect('profile.profileLanguages', 'profileLanguage')
+            .leftJoinAndSelect('profileLanguage.language', 'language')
+            .where('profile.user_id = :userId', { userId: user.id })
+            .getOne();
+
+        // console.log(userWithProfile);
+
         return user;
     }
 
