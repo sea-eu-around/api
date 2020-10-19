@@ -1,17 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { InterestEntity } from '../../../entities/interest.entity';
-import { ProfileEntity } from '../../../entities/profile.entity';
-
 export class AddInterestToProfileDto {
     @ApiProperty()
-    readonly interests: InterestEntity[];
+    readonly interestIds: string[];
 
     @ApiProperty()
-    readonly profile: ProfileEntity;
+    readonly profileId: string;
 
-    constructor(interests: InterestEntity[], profile: ProfileEntity) {
-        this.interests = interests;
-        this.profile = profile;
+    constructor(interestIds: string[], profileId: string) {
+        this.interestIds = interestIds;
+        this.profileId = profileId;
     }
 }

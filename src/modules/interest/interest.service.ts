@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { map } from 'lodash';
 import { FindConditions } from 'typeorm';
 
 // import { FindConditions } from 'typeorm';
@@ -19,17 +20,28 @@ export class InterestService {
     }
 
     async createInterest(name: string): Promise<InterestEntity> {
-        const interest = this.interestRepository.create({ name });
-
-        return this.interestRepository.save(interest);
+        const test = await this.interestRepository.findOne({ name });
+        if (!test) {
+            const interest = this.interestRepository.create({ name });
+            return this.interestRepository.save(interest);
+        }
+        return test;
     }
 
     async addInterestToProfile(
-        userProfile: ProfileEntity,
-        interests: InterestEntity[],
+        profileId: string,
+        interestIds: string[],
     ): Promise<ProfileEntity> {
-        const profile = await this.profileRepository.findOne(userProfile);
-        for (const interest of interests) {
+        const profile = await this.profileRepository.findOneOrFail(profileId);
+        const interests = [];
+
+        for (const id of map(interestIds)) {
+            const interest = this.interestRepository.findOneOrFail(id);
+            interests.push(interest);
+        }
+        const interestsList = await Promise.all(interests);
+
+        for (const interest of interestsList) {
             if (!profile.interests.includes(interest)) {
                 profile.interests.push(interest);
             }
@@ -37,10 +49,12 @@ export class InterestService {
         return this.profileRepository.save(profile);
     }
 
-    async getProfileInterests(
-        userProfile: ProfileEntity,
-    ): Promise<InterestEntity[]> {
-        const profile = await this.profileRepository.findOne(userProfile);
+    async getAllInterests(): Promise<InterestEntity[]> {
+        return this.interestRepository.find();
+    }
+
+    async getProfileInterests(profileId: string): Promise<InterestEntity[]> {
+        const profile = await this.profileRepository.findOneOrFail(profileId);
         return profile.interests;
     }
 }
