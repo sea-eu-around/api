@@ -30,15 +30,15 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
+import { AddInterestToProfileDto } from './dto/AddInterestToProfileDto';
 import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
 import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
 import { ProfileService } from './profile.service';
 
-@Controller('profile')
-@ApiTags('profile')
+@Controller('profiles')
+@ApiTags('profiles')
 @UseGuards(AuthGuard, RolesGuard)
 @UseInterceptors(AuthUserInterceptor)
-@ApiBearerAuth()
 export class ProfileController {
     constructor(private _profileService: ProfileService) {}
 
@@ -78,4 +78,47 @@ export class ProfileController {
             data: createdProfile,
         };
     }
+
+    @Post('/interests')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiResponse({
+        type: ProfileDto,
+        status: HttpStatus.CREATED,
+        description: 'Add new interests to profile',
+    })
+    async addInterestToProfile(
+        @Body() addInterestToProfileDto: AddInterestToProfileDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const profile = await this._profileService.addInterestToProfile(
+            addInterestToProfileDto,
+            user,
+        );
+
+        return {
+            description: 'Successfully added interests to user',
+            data: profile,
+        };
+    }
+
+    /*@Get('/interests')
+    @HttpCode(HttpStatus.OK)
+    @ApiResponse({
+        type: ProfileDto,
+        status: HttpStatus.OK,
+        description: "get a profile's interests",
+    })
+    async getProfileInterests(
+        @Param('profileId') profileId: string,
+    ): Promise<PayloadSuccessDto> {
+        const interests = await this._interestService.getProfileInterests(
+            profileId,
+        );
+
+        return {
+            description: "Profile's interests",
+            data: interests,
+        };
+    }*/
 }
