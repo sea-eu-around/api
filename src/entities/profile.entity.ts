@@ -34,7 +34,9 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
     @JoinColumn()
     user: UserEntity;
 
-    @ManyToMany(() => InterestEntity, (interests) => interests.profile)
+    @ManyToMany(() => InterestEntity, (interests) => interests.profile, {
+        eager: true,
+    })
     @JoinTable()
     interests: InterestEntity[];
 
@@ -50,7 +52,9 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
     })
     nationality: NationalityType;
 
-    @OneToMany(() => LanguageEntity, (language) => language.profile)
+    @OneToMany(() => LanguageEntity, (language) => language.profile, {
+        eager: true,
+    })
     languages: LanguageEntity[];
 
     dtoClass = ProfileDto;
