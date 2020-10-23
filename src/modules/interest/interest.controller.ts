@@ -4,34 +4,31 @@ import {
     Get,
     HttpCode,
     HttpStatus,
-    Param,
     Post,
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { InterestDto } from '../../dto/InterestDto';
-import { ProfileDto } from '../../dto/ProfileDto';
 import { InterestEntity } from '../../entities/interest.entity';
+import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
-import { AddInterestToProfileDto } from './dto/addInterestToProfileDto';
 import { CreateInterestDto } from './dto/createInterestDto';
 import { InterestService } from './interest.service';
 
-@Controller('interest')
-@ApiTags('interest')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@UseInterceptors(AuthUserInterceptor)
-@ApiBearerAuth()
+@Controller('interests')
+@ApiTags('interests')
 export class InterestController {
     constructor(private _interestService: InterestService) {}
 
-    @Post('create')
+    @Post()
     @HttpCode(HttpStatus.OK)
+    @UseGuards(AuthGuard, RolesGuard)
+    @UseInterceptors(AuthUserInterceptor)
+    @ApiBearerAuth()
     @ApiOkResponse({
         type: InterestDto,
         description: 'Create new interest',
@@ -49,46 +46,7 @@ export class InterestController {
         };
     }
 
-    @Post('profile/add')
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({
-        type: ProfileDto,
-        description: 'Add new interests to profile',
-    })
-    async addInterestToProfile(
-        @Body() addInterestToProfileDto: AddInterestToProfileDto,
-    ): Promise<PayloadSuccessDto> {
-        const profile = await this._interestService.addInterestToProfile(
-            addInterestToProfileDto.profileId,
-            addInterestToProfileDto.interestIds,
-        );
-
-        return {
-            description: 'Successfully added interests to user',
-            data: profile,
-        };
-    }
-
-    @Get('profile/:profileId')
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({
-        type: InterestDto,
-        description: "get a profile's interests",
-    })
-    async getProfileInterests(
-        @Param('profileId') profileId: string,
-    ): Promise<PayloadSuccessDto> {
-        const interests = await this._interestService.getProfileInterests(
-            profileId,
-        );
-
-        return {
-            description: "Profile's interests",
-            data: interests,
-        };
-    }
-
-    @Get('all')
+    @Get()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({
         type: InterestEntity,

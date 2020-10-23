@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { map } from 'lodash';
 import { FindConditions } from 'typeorm';
 
 // import { FindConditions } from 'typeorm';
 import { InterestEntity } from '../../entities/interest.entity';
-import { ProfileEntity } from '../../entities/profile.entity';
+import { InterestRepository } from '../../repositories/interest.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
-import { InterestRepository } from './interest.repository';
 
 @Injectable()
 export class InterestService {
@@ -26,27 +24,6 @@ export class InterestService {
             return this.interestRepository.save(interest);
         }
         return test;
-    }
-
-    async addInterestToProfile(
-        profileId: string,
-        interestIds: string[],
-    ): Promise<ProfileEntity> {
-        const profile = await this.profileRepository.findOneOrFail(profileId);
-        const interests = [];
-
-        for (const id of map(interestIds)) {
-            const interest = this.interestRepository.findOneOrFail(id);
-            interests.push(interest);
-        }
-        const interestsList = await Promise.all(interests);
-
-        for (const interest of interestsList) {
-            if (!profile.interests.includes(interest)) {
-                profile.interests.push(interest);
-            }
-        }
-        return this.profileRepository.save(profile);
     }
 
     async getAllInterests(): Promise<InterestEntity[]> {
