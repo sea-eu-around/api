@@ -1,7 +1,6 @@
 import {
     Column,
     Entity,
-    JoinColumn,
     JoinTable,
     ManyToMany,
     OneToMany,
@@ -30,8 +29,7 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
     @Column({ nullable: false })
     university: string;
 
-    @OneToOne(() => UserEntity, (user) => user.profile)
-    @JoinColumn()
+    @OneToOne(() => UserEntity, (user) => user.profile, { cascade: true })
     user: UserEntity;
 
     @ManyToMany(() => InterestEntity, (interests) => interests.profile, {
@@ -54,6 +52,7 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
 
     @OneToMany(() => LanguageEntity, (language) => language.profile, {
         eager: true,
+        cascade: true,
     })
     languages: LanguageEntity[];
 

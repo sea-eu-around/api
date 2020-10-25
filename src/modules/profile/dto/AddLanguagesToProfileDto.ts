@@ -1,9 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNotEmpty } from 'class-validator';
 
-export class AddInterestToProfileDto {
+import { LanguageDto } from '../../../dto/LanguageDto';
+
+export class AddLanguagesToProfileDto {
     @ApiProperty()
     @IsArray()
     @IsNotEmpty()
-    interestIds: string[];
+    languages: LanguageDto[];
 }
