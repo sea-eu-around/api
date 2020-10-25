@@ -2,9 +2,6 @@
 import { Injectable } from '@nestjs/common';
 
 import { ProfileType } from '../../common/constants/profile-type';
-import { LanguageDto } from '../../dto/LanguageDto';
-import { StaffProfileDto } from '../../dto/StaffProfileDto';
-import { StudentProfileDto } from '../../dto/StudentProfileDto';
 import { ProfileEntity } from '../../entities/profile.entity';
 import { StaffProfileEntity } from '../../entities/staffProfile.entity';
 import { StudentProfileEntity } from '../../entities/studentProfile.entity';
@@ -14,7 +11,10 @@ import { LanguageRepository } from '../../repositories/language.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
-import { AddInterestToProfileDto } from './dto/AddInterestToProfileDto';
+import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
+import { AddLanguagesToProfileDto } from './dto/AddLanguagesToProfileDto';
+import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
+import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
 
 @Injectable()
 export class ProfileService {
@@ -27,15 +27,18 @@ export class ProfileService {
     ) {}
 
     async createProfile(
-        profileCreationDto: StudentProfileDto | StaffProfileDto,
+        profileCreationDto: StaffProfileCreationDto | StudentProfileCreationDto,
         type: ProfileType,
         user: UserEntity,
-    ): Promise<StudentProfileEntity | StaffProfileEntity> {
-        let savedProfile: StudentProfileEntity | StaffProfileEntity;
-
+    ): Promise<StudentProfileEntity | StaffProfileEntity | ProfileEntity> {
+        let savedProfile:
+            | StudentProfileEntity
+            | StaffProfileEntity
+            | ProfileEntity;
         if (type === ProfileType.STUDENT) {
             const profile = this._studentProfileRepository.create();
             Object.assign(profile, profileCreationDto);
+            delete profile.languages;
             profile.user = user;
 
             savedProfile = await this._studentProfileRepository.save(profile);
@@ -47,9 +50,20 @@ export class ProfileService {
             savedProfile = await this._staffProfileRepository.save(profile);
         }
 
-        if (savedProfile.languages) {
-            await this.addLanguagesToProfile(
-                savedProfile.languages,
+        if (profileCreationDto.languages) {
+            savedProfile = await this.addLanguagesToProfile(
+                <AddLanguagesToProfileDto>{
+                    languages: profileCreationDto.languages,
+                },
+                savedProfile.id,
+            );
+        }
+
+        if (profileCreationDto.interests) {
+            savedProfile = await this.addInterestToProfile(
+                <AddInterestsToProfileDto>{
+                    interests: profileCreationDto.interests,
+                },
                 savedProfile.id,
             );
         }
@@ -58,12 +72,16 @@ export class ProfileService {
     }
 
     async addInterestToProfile(
-        addInterestToProfile: AddInterestToProfileDto,
-        user: UserEntity,
+        addInterestsToProfileDto: AddInterestsToProfileDto,
+        profileId?: string,
+        user?: UserEntity,
     ): Promise<ProfileEntity> {
-        const profile = await this._profileRepository.findOneOrFail({ user });
+        const profile = await this._profileRepository.findOneOrFail({
+            id: profileId || user.profileId,
+        });
+
         const interests = await this._interestRepository.findByIds(
-            addInterestToProfile.interestIds,
+            addInterestsToProfileDto.interests,
         );
 
         profile.interests = interests;
@@ -72,16 +90,21 @@ export class ProfileService {
     }
 
     async addLanguagesToProfile(
-        languages: LanguageDto[],
-        profileId: string,
-    ): Promise<void> {
-        await this._languageRepository.save(
-            languages.map((language) =>
-                Object.assign(this._languageRepository.create(), {
-                    ...language,
-                    profile: profileId,
-                }),
-            ),
+        addLanguagesToProfileDto: AddLanguagesToProfileDto,
+        profileId?: string,
+        user?: UserEntity,
+    ): Promise<ProfileEntity> {
+        const profile = await this._profileRepository.findOneOrFail({
+            id: profileId || user.profileId,
+        });
+
+        profile.languages = addLanguagesToProfileDto.languages.map((language) =>
+            Object.assign(this._languageRepository.create(), {
+                ...language,
+                profile: profileId || user.profileId,
+            }),
         );
+
+        return this._profileRepository.save(profile);
     }
 }

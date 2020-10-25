@@ -1,5 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsEnum, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+    IsArray,
+    IsEnum,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+} from 'class-validator';
 
 import { GenderType } from '../../../common/constants/gender-type';
 import { NationalityType } from '../../../common/constants/nationality-type';
@@ -33,4 +39,10 @@ export abstract class ProfileCreationDto {
     @ApiProperty()
     @IsArray()
     languages: LanguageDto[];
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsArray()
+    @IsNotEmpty()
+    interests: string[];
 }

@@ -24,13 +24,12 @@ import { ProfileType } from '../../common/constants/profile-type';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { ProfileDto } from '../../dto/ProfileDto';
-import { StaffProfileDto } from '../../dto/StaffProfileDto';
-import { StudentProfileDto } from '../../dto/StudentProfileDto';
 import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
-import { AddInterestToProfileDto } from './dto/AddInterestToProfileDto';
+import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
+import { AddLanguagesToProfileDto } from './dto/AddLanguagesToProfileDto';
 import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
 import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
 import { ProfileService } from './profile.service';
@@ -64,7 +63,7 @@ export class ProfileController {
     async createProfile(
         @Query('type') type: ProfileType,
         @Body()
-        profileCreationDto: StudentProfileDto | StaffProfileDto,
+        profileCreationDto: StaffProfileCreationDto | StudentProfileCreationDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const createdProfile = await this._profileService.createProfile(
@@ -88,11 +87,36 @@ export class ProfileController {
         description: 'Add new interests to profile',
     })
     async addInterestToProfile(
-        @Body() addInterestToProfileDto: AddInterestToProfileDto,
+        @Body() addInterestToProfileDto: AddInterestsToProfileDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const profile = await this._profileService.addInterestToProfile(
             addInterestToProfileDto,
+            null,
+            user,
+        );
+
+        return {
+            description: 'Successfully added interests to user',
+            data: profile,
+        };
+    }
+
+    @Post('/languages')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiResponse({
+        type: ProfileDto,
+        status: HttpStatus.CREATED,
+        description: 'Add new interests to profile',
+    })
+    async addLanguagesToProfile(
+        @Body() addLanguagesToProfileDto: AddLanguagesToProfileDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const profile = await this._profileService.addLanguagesToProfile(
+            addLanguagesToProfileDto,
+            null,
             user,
         );
 
