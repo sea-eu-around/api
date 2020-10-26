@@ -1,8 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { OffersCategoryType } from '../common/constants/offers-category-type';
 import { OfferDto } from '../dto/OfferDto';
+import { ProfileOfferEntity } from './profileOffer.entity';
 
 @Entity('offer')
 export class OfferEntity extends AbstractEntity<OfferDto> {
@@ -17,6 +18,9 @@ export class OfferEntity extends AbstractEntity<OfferDto> {
 
     @Column()
     allowInterRole: boolean;
+
+    @OneToMany(() => ProfileOfferEntity, (profileOffer) => profileOffer.offer)
+    profileOffers: ProfileOfferEntity[];
 
     dtoClass = OfferDto;
 }
