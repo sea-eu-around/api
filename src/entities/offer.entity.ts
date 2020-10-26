@@ -9,7 +9,7 @@ export class OfferEntity extends AbstractEntity<OfferDto> {
     @Column()
     key: string;
 
-    @Column()
+    @Column({ type: 'integer' })
     target: number;
 
     @Column({ type: 'enum', enum: OffersCategoryType })
