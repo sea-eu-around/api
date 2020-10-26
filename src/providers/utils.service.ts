@@ -63,4 +63,67 @@ export class UtilsService {
     static validateHash(password: string, hash: string): Promise<boolean> {
         return bcrypt.compare(password, hash || '');
     }
+
+    /**
+     * Convert an integer to binary
+     * @param {number} dec
+     * @returns {string}
+     */
+    public static decimalToBinary(dec: number): string {
+        try {
+            if (!Number.isInteger(dec)) {
+                throw new Error('dec must be an integer');
+            }
+
+            // eslint-disable-next-line no-bitwise
+            return (dec >>> 0).toString(2);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    /**
+     * Convert an binary to integer
+     * @param {string} binary
+     * @returns {number}
+     */
+    public static binaryToDecimal(binary: string): number {
+        try {
+            return parseInt(binary, 2);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    /**
+     * Convert a binary string to array of boolean
+     * @param {string} binary
+     * @returns {boolean[]}
+     */
+    public static binaryToArrayBool(binary: string): boolean[] {
+        try {
+            const binaryToArray = binary.split('').map((x) => parseInt(x, 10));
+
+            if (!binaryToArray.every((x) => x === 0 || x === 1)) {
+                throw new Error('binary must be a binary');
+            }
+
+            return binaryToArray.map((x) => (x === 0 ? false : true));
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    /**
+     * Convert an array of boolean to binary string
+     * @param {boolean[]} arrayBool
+     * @returns {string}
+     */
+    public static arrayBoolToBinary(arrayBool: boolean[]): string {
+        try {
+            return arrayBool.map((x) => (x ? '1' : '0')).join('');
+        } catch (e) {
+            console.error(e);
+        }
+    }
 }
