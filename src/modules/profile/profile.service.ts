@@ -26,7 +26,11 @@ export class ProfileService {
         private readonly _languageRepository: LanguageRepository,
     ) {}
 
-    async createProfile(
+    async findOneById(id: string): Promise<ProfileEntity> {
+        return this._profileRepository.findOneOrFail({ id });
+    }
+
+    async create(
         profileCreationDto: StaffProfileCreationDto | StudentProfileCreationDto,
         type: ProfileType,
         user: UserEntity,
@@ -51,7 +55,7 @@ export class ProfileService {
         }
 
         if (profileCreationDto.languages) {
-            savedProfile = await this.addLanguagesToProfile(
+            savedProfile = await this.addLanguages(
                 <AddLanguagesToProfileDto>{
                     languages: profileCreationDto.languages,
                 },
@@ -60,7 +64,7 @@ export class ProfileService {
         }
 
         if (profileCreationDto.interests) {
-            savedProfile = await this.addInterestToProfile(
+            savedProfile = await this.addInterests(
                 <AddInterestsToProfileDto>{
                     interests: profileCreationDto.interests,
                 },
@@ -71,7 +75,7 @@ export class ProfileService {
         return savedProfile;
     }
 
-    async addInterestToProfile(
+    async addInterests(
         addInterestsToProfileDto: AddInterestsToProfileDto,
         profileId?: string,
         user?: UserEntity,
@@ -89,7 +93,7 @@ export class ProfileService {
         return this._profileRepository.save(profile);
     }
 
-    async addLanguagesToProfile(
+    async addLanguages(
         addLanguagesToProfileDto: AddLanguagesToProfileDto,
         profileId?: string,
         user?: UserEntity,
