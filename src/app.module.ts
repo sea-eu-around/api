@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { contextMiddleware } from './middlewares';
 import { AuthModule } from './modules/auth/auth.module';
 import { InterestModule } from './modules/interest/interest.module';
+import { OfferModule } from './modules/offer/offer.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { UserModule } from './modules/user/user.module';
 import { ConfigService } from './shared/services/config.service';
@@ -23,6 +24,7 @@ import { SharedModule } from './shared/shared.module';
             inject: [ConfigService],
         }),
         InterestModule,
+        OfferModule,
     ],
 })
 export class AppModule implements NestModule {

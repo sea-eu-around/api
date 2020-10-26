@@ -5,6 +5,7 @@ import { ProfileEntity } from '../entities/profile.entity';
 import { UtilsService } from '../providers/utils.service';
 import { InterestDto } from './InterestDto';
 import { LanguageDto } from './LanguageDto';
+import { ProfileOfferDto } from './ProfileOfferDto';
 
 export class ProfileDto extends AbstractDto {
     @ApiPropertyOptional()
@@ -22,6 +23,9 @@ export class ProfileDto extends AbstractDto {
     @ApiPropertyOptional()
     interests: InterestDto[];
 
+    @ApiPropertyOptional()
+    profileOffers: ProfileOfferDto[];
+
     constructor(profile: ProfileEntity) {
         super(profile);
         this.firstName = profile.firstName;
@@ -33,5 +37,8 @@ export class ProfileDto extends AbstractDto {
         this.interests = UtilsService.isDtos(profile.interests)
             ? profile.interests.toDtos()
             : profile.interests;
+        this.profileOffers = UtilsService.isDtos(profile.profileOffers)
+            ? profile.profileOffers.toDtos()
+            : profile.profileOffers;
     }
 }
