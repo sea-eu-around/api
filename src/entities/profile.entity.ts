@@ -15,6 +15,7 @@ import { ProfileType } from '../common/constants/profile-type';
 import { ProfileDto } from '../dto/ProfileDto';
 import { InterestEntity } from './interest.entity';
 import { LanguageEntity } from './language.entity';
+import { ProfileOfferEntity } from './profileOffer.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('profile')
@@ -55,6 +56,13 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
         cascade: true,
     })
     languages: LanguageEntity[];
+
+    @OneToMany(
+        () => ProfileOfferEntity,
+        (profileOffer) => profileOffer.profile,
+        { eager: true },
+    )
+    profileOffers: ProfileOfferEntity[];
 
     dtoClass = ProfileDto;
 }
