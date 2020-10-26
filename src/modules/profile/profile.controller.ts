@@ -3,6 +3,7 @@
 import {
     Body,
     Controller,
+    Get,
     HttpCode,
     HttpStatus,
     Post,
@@ -30,6 +31,7 @@ import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
 import { AddLanguagesToProfileDto } from './dto/AddLanguagesToProfileDto';
+import { GetProfileQueryDto } from './dto/GetProfileQueryDto';
 import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
 import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
 import { ProfileService } from './profile.service';
@@ -40,6 +42,28 @@ import { ProfileService } from './profile.service';
 @UseInterceptors(AuthUserInterceptor)
 export class ProfileController {
     constructor(private _profileService: ProfileService) {}
+
+    @Get()
+    @HttpCode(HttpStatus.OK)
+    @ApiBearerAuth()
+    @ApiResponse({
+        type: ProfileDto,
+        status: HttpStatus.OK,
+        description: "get a profile's interests",
+    })
+    async findOneById(
+        @AuthUser() user: UserEntity,
+        @Query() getProfileQueryDto?: GetProfileQueryDto,
+    ): Promise<PayloadSuccessDto> {
+        const profile = await this._profileService.findOneById(
+            getProfileQueryDto.id || user.profileId,
+        );
+
+        return {
+            description: "Profile's interests",
+            data: profile,
+        };
+    }
 
     @Post()
     @HttpCode(HttpStatus.OK)
@@ -60,13 +84,13 @@ export class ProfileController {
         },
     })
     @ApiQuery({ name: 'type', enum: ProfileType })
-    async createProfile(
+    async create(
         @Query('type') type: ProfileType,
         @Body()
         profileCreationDto: StaffProfileCreationDto | StudentProfileCreationDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        const createdProfile = await this._profileService.createProfile(
+        const createdProfile = await this._profileService.create(
             profileCreationDto,
             type,
             user,
@@ -86,11 +110,11 @@ export class ProfileController {
         status: HttpStatus.CREATED,
         description: 'Add new interests to profile',
     })
-    async addInterestToProfile(
+    async addInterest(
         @Body() addInterestToProfileDto: AddInterestsToProfileDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        const profile = await this._profileService.addInterestToProfile(
+        const profile = await this._profileService.addInterests(
             addInterestToProfileDto,
             null,
             user,
@@ -110,11 +134,11 @@ export class ProfileController {
         status: HttpStatus.CREATED,
         description: 'Add new interests to profile',
     })
-    async addLanguagesToProfile(
+    async addLanguages(
         @Body() addLanguagesToProfileDto: AddLanguagesToProfileDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        const profile = await this._profileService.addLanguagesToProfile(
+        const profile = await this._profileService.addLanguages(
             addLanguagesToProfileDto,
             null,
             user,
