@@ -23,7 +23,7 @@ export class ResponseTransformInterceptor<T>
         next: CallHandler,
     ): Observable<IResponse<T>> {
         return next.handle().pipe(
-            map(({ description, data }) => ({
+            map(({ description, data, ...rest }) => ({
                 success: true,
                 description,
                 data: UtilsService.isEntity(data)
@@ -31,6 +31,7 @@ export class ResponseTransformInterceptor<T>
                     : UtilsService.isEntities(data)
                     ? <AbstractEntity[]>data.toDtos()
                     : data,
+                ...rest,
             })),
         );
     }
