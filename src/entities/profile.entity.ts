@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
+import { EducationFieldType } from '../common/constants/education-field-type';
 import { GenderType } from '../common/constants/gender-type';
 import { NationalityType } from '../common/constants/nationality-type';
 import { ProfileType } from '../common/constants/profile-type';
@@ -41,6 +42,13 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
 
     @Column({ nullable: false, type: 'timestamp without time zone' })
     birthdate: Date;
+
+    @Column({
+        type: 'enum',
+        enum: EducationFieldType,
+        default: EducationFieldType.NONE,
+    })
+    educationFieldType: EducationFieldType;
 
     @Column({ type: 'enum', enum: GenderType, default: GenderType.OTHER })
     gender: GenderType;
