@@ -1,6 +1,9 @@
 import * as bcrypt from 'bcrypt';
 import * as _ from 'lodash';
 
+import { AbstractEntity } from '../common/abstract.entity';
+import { AbstractCompositeEntity } from '../common/abstractComposite.entity';
+
 export class UtilsService {
     /**
      * convert entity to dto class instance
@@ -35,6 +38,25 @@ export class UtilsService {
         }
         return false;
     };
+
+    public static isEntity = (obj) => {
+        if (
+            obj &&
+            (obj instanceof AbstractEntity ||
+                obj instanceof AbstractCompositeEntity)
+        ) {
+            return true;
+        }
+        return false;
+    };
+
+    public static isEntities = (arr) => {
+        if (arr) {
+            return arr.every(UtilsService.isEntity);
+        }
+        return false;
+    };
+
     /**
      * generate hash from password or string
      * @param {string} password
@@ -62,68 +84,5 @@ export class UtilsService {
      */
     static validateHash(password: string, hash: string): Promise<boolean> {
         return bcrypt.compare(password, hash || '');
-    }
-
-    /**
-     * Convert an integer to binary
-     * @param {number} dec
-     * @returns {string}
-     */
-    public static decimalToBinary(dec: number): string {
-        try {
-            if (!Number.isInteger(dec)) {
-                throw new Error('dec must be an integer');
-            }
-
-            // eslint-disable-next-line no-bitwise
-            return (dec >>> 0).toString(2);
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    /**
-     * Convert an binary to integer
-     * @param {string} binary
-     * @returns {number}
-     */
-    public static binaryToDecimal(binary: string): number {
-        try {
-            return parseInt(binary, 2);
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    /**
-     * Convert a binary string to array of boolean
-     * @param {string} binary
-     * @returns {boolean[]}
-     */
-    public static binaryToArrayBool(binary: string): boolean[] {
-        try {
-            const binaryToArray = binary.split('').map((x) => parseInt(x, 10));
-
-            if (!binaryToArray.every((x) => x === 0 || x === 1)) {
-                throw new Error('binary must be a binary');
-            }
-
-            return binaryToArray.map((x) => (x === 0 ? false : true));
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    /**
-     * Convert an array of boolean to binary string
-     * @param {boolean[]} arrayBool
-     * @returns {string}
-     */
-    public static arrayBoolToBinary(arrayBool: boolean[]): string {
-        try {
-            return arrayBool.map((x) => (x ? '1' : '0')).join('');
-        } catch (e) {
-            console.error(e);
-        }
     }
 }

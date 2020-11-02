@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { AbstractEntity } from '../common/abstract.entity';
+import { UtilsService } from '../providers/utils.service';
 
 export interface IResponse<T> {
     data: T;
@@ -25,10 +26,11 @@ export class ResponseTransformInterceptor<T>
             map(({ description, data }) => ({
                 success: true,
                 description,
-                data:
-                    data instanceof AbstractEntity
-                        ? <AbstractEntity>data.toDto()
-                        : data,
+                data: UtilsService.isEntity(data)
+                    ? <AbstractEntity>data.toDto()
+                    : UtilsService.isEntities(data)
+                    ? <AbstractEntity[]>data.toDtos()
+                    : data,
             })),
         );
     }
