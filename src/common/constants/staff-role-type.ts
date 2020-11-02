@@ -1,3 +1,5 @@
+'use strict';
+
 export enum StaffRoleType {
     TEACHING = 'TEACHING',
     RESEARCHER = 'RESEARCHER',

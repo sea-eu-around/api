@@ -10,11 +10,14 @@ export class OfferEntity extends AbstractEntity<OfferDto> {
     @Column()
     key: string;
 
-    @Column({ type: 'integer' })
-    target: number;
-
     @Column({ type: 'enum', enum: OffersCategoryType })
     category: OffersCategoryType;
+
+    @Column()
+    allowChooseProfile: boolean;
+
+    @Column()
+    allowChooseGender: boolean;
 
     @Column()
     allowInterRole: boolean;

@@ -1,3 +1,5 @@
+'use strict';
+
 export enum LanguageType {
     AA = 'aa',
     AB = 'ab',

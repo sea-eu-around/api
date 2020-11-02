@@ -1,3 +1,5 @@
+'use strict';
+
 export enum CountryCode {
     FRANCE = 'FRA',
     SPAIN = 'ES',
