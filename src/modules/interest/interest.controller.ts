@@ -37,7 +37,7 @@ export class InterestController {
         @Body() createInterestDto: CreateInterestDto,
     ): Promise<PayloadSuccessDto> {
         const interest = await this._interestService.createInterest(
-            createInterestDto.name,
+            createInterestDto.key,
         );
 
         return {
