@@ -11,6 +11,7 @@ import { EducationFieldType } from '../../../common/constants/education-field-ty
 import { GenderType } from '../../../common/constants/gender-type';
 import { NationalityType } from '../../../common/constants/nationality-type';
 import { LanguageDto } from '../../../dto/LanguageDto';
+import { AddOfferToProfileDto } from './AddOfferToProfileDto';
 
 export abstract class ProfileCreationDto {
     @ApiProperty()
@@ -50,4 +51,10 @@ export abstract class ProfileCreationDto {
     @IsArray()
     @IsNotEmpty()
     interests: string[];
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsArray()
+    @IsNotEmpty()
+    profileOffers: AddOfferToProfileDto[];
 }
