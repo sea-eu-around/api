@@ -19,10 +19,10 @@ export class ProfileOfferEntity extends AbstractCompositeEntity<
     @PrimaryColumn()
     offerId!: string;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, type: 'enum', enum: ProfileType })
     allowProfile: ProfileType;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, type: 'enum', enum: GenderType })
     allowGender: GenderType;
 
     @ManyToOne(() => ProfileEntity, (profile) => profile.profileOffers)
