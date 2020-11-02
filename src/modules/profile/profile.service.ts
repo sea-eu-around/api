@@ -1,5 +1,10 @@
 /* eslint-disable complexity */
 import { Injectable } from '@nestjs/common';
+import {
+    IPaginationOptions,
+    paginate,
+    Pagination,
+} from 'nestjs-typeorm-paginate';
 
 import { ProfileType } from '../../common/constants/profile-type';
 import { ProfileEntity } from '../../entities/profile.entity';
@@ -110,5 +115,17 @@ export class ProfileService {
         );
 
         return this._profileRepository.save(profile);
+    }
+
+    getProfiles(
+        options: IPaginationOptions,
+    ): Promise<Pagination<ProfileEntity>> {
+        const queryBuilder = this._profileRepository.createQueryBuilder(
+            'profiles',
+        );
+
+        const profiles = queryBuilder.orderBy('RANDOM()');
+
+        return paginate<ProfileEntity>(profiles, options);
     }
 }
