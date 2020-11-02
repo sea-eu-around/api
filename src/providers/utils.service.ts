@@ -51,7 +51,7 @@ export class UtilsService {
     };
 
     public static isEntities = (arr) => {
-        if (arr) {
+        if (arr && _.isArray(arr)) {
             return arr.every(UtilsService.isEntity);
         }
         return false;
