@@ -4,9 +4,9 @@ import { IsString } from 'class-validator';
 export class CreateInterestDto {
     @ApiProperty()
     @IsString()
-    readonly name: string;
+    readonly key: string;
 
-    constructor(name: string) {
-        this.name = name;
+    constructor(key: string) {
+        this.key = key;
     }
 }
