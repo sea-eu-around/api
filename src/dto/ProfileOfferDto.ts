@@ -5,7 +5,6 @@ import { ProfileType } from '../common/constants/profile-type';
 import { AbstractCompositeDto } from '../common/dto/AbstractCompositeDto';
 import { ProfileOfferEntity } from '../entities/profileOffer.entity';
 import { UtilsService } from '../providers/utils.service';
-import { OfferDto } from './OfferDto';
 import { ProfileDto } from './ProfileDto';
 
 export class ProfileOfferDto extends AbstractCompositeDto {
@@ -13,7 +12,7 @@ export class ProfileOfferDto extends AbstractCompositeDto {
     profile: ProfileDto;
 
     @ApiPropertyOptional()
-    offer: OfferDto;
+    offerId: string;
 
     @ApiPropertyOptional()
     allowProfile: ProfileType;
@@ -28,8 +27,6 @@ export class ProfileOfferDto extends AbstractCompositeDto {
         this.profile = UtilsService.isDto(profileOffer.profile)
             ? profileOffer.profile.toDto()
             : profileOffer.profile;
-        this.offer = UtilsService.isDto(profileOffer.offer)
-            ? profileOffer.offer.toDto()
-            : profileOffer.offer;
+        this.offerId = profileOffer.offerId;
     }
 }

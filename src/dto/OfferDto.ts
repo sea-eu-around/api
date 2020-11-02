@@ -1,14 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 import { OffersCategoryType } from '../common/constants/offers-category-type';
-import { AbstractDto } from '../common/dto/AbstractDto';
+import { AbstractCompositeDto } from '../common/dto/AbstractCompositeDto';
 import { OfferEntity } from '../entities/offer.entity';
 import { UtilsService } from '../providers/utils.service';
 import { ProfileOfferDto } from './ProfileOfferDto';
 
-export class OfferDto extends AbstractDto {
+export class OfferDto extends AbstractCompositeDto {
     @ApiPropertyOptional()
-    key: string;
+    id: string;
 
     @ApiPropertyOptional()
     category: OffersCategoryType;
@@ -26,8 +26,8 @@ export class OfferDto extends AbstractDto {
     profileOffers: ProfileOfferDto[];
 
     constructor(offer: OfferEntity) {
-        super(offer);
-        this.key = offer.key;
+        super();
+        this.id = offer.id;
         this.category = offer.category;
         this.allowChooseProfile = offer.allowChooseProfile;
         this.allowChooseGender = offer.allowChooseGender;
