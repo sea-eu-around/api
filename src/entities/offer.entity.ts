@@ -1,14 +1,15 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
-import { AbstractEntity } from '../common/abstract.entity';
+import { AbstractCompositeEntity } from '../common/abstractComposite.entity';
 import { OffersCategoryType } from '../common/constants/offers-category-type';
 import { OfferDto } from '../dto/OfferDto';
 import { ProfileOfferEntity } from './profileOffer.entity';
 
 @Entity('offer')
-export class OfferEntity extends AbstractEntity<OfferDto> {
+export class OfferEntity extends AbstractCompositeEntity<OfferDto> {
     @Column()
-    key: string;
+    @PrimaryColumn()
+    id: string;
 
     @Column({ type: 'enum', enum: OffersCategoryType })
     category: OffersCategoryType;

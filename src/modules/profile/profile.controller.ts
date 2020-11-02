@@ -30,7 +30,8 @@ import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
-import { AddLanguagesToProfileDto } from './dto/AddLanguagesToProfileDto';
+import { AddLanguageToProfileDto } from './dto/AddLanguageToProfileDto';
+import { AddOfferToProfileDto } from './dto/AddOfferToProfileDto';
 import { GetProfileQueryDto } from './dto/GetProfileQueryDto';
 import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
 import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
@@ -135,7 +136,7 @@ export class ProfileController {
         description: 'Add new interests to profile',
     })
     async addLanguages(
-        @Body() addLanguagesToProfileDto: AddLanguagesToProfileDto,
+        @Body() addLanguagesToProfileDto: AddLanguageToProfileDto[],
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const profile = await this._profileService.addLanguages(
@@ -145,7 +146,31 @@ export class ProfileController {
         );
 
         return {
-            description: 'Successfully added interests to user',
+            description: 'Successfully added interests to profile',
+            data: profile,
+        };
+    }
+
+    @Post('/offers')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiResponse({
+        type: ProfileDto,
+        status: HttpStatus.CREATED,
+        description: 'Add new interests to profile',
+    })
+    async addOffers(
+        @Body() addOffersToProfileDto: AddOfferToProfileDto[],
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const profile = await this._profileService.addOffers(
+            addOffersToProfileDto,
+            null,
+            user,
+        );
+
+        return {
+            description: 'Successfully added offers to profile',
             data: profile,
         };
     }

@@ -68,7 +68,7 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
     @OneToMany(
         () => ProfileOfferEntity,
         (profileOffer) => profileOffer.profile,
-        { eager: true },
+        { eager: true, cascade: true },
     )
     profileOffers: ProfileOfferEntity[];
 
