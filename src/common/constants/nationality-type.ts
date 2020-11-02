@@ -1,3 +1,5 @@
+'use strict';
+
 export enum NationalityType {
     AF = 'AF',
     AL = 'AL',

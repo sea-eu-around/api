@@ -1,3 +1,5 @@
+'use strict';
+
 export enum DegreeType {
     BSC1 = 'Bsc1',
     BSC2 = 'Bsc2',
