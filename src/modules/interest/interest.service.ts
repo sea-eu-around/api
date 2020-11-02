@@ -17,10 +17,10 @@ export class InterestService {
         return this.interestRepository.findOne(findData);
     }
 
-    async createInterest(name: string): Promise<InterestEntity> {
-        const test = await this.interestRepository.findOne({ name });
+    async createInterest(key: string): Promise<InterestEntity> {
+        const test = await this.interestRepository.findOne({ key });
         if (!test) {
-            const interest = this.interestRepository.create({ name });
+            const interest = this.interestRepository.create({ key });
             return this.interestRepository.save(interest);
         }
         return test;
