@@ -6,6 +6,7 @@ import {
     Get,
     HttpCode,
     HttpStatus,
+    Param,
     Post,
     Query,
     UseGuards,
@@ -31,7 +32,6 @@ import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
 import { AddLanguagesToProfileDto } from './dto/AddLanguagesToProfileDto';
-import { GetProfileQueryDto } from './dto/GetProfileQueryDto';
 import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
 import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
 import { ProfileService } from './profile.service';
@@ -43,7 +43,29 @@ import { ProfileService } from './profile.service';
 export class ProfileController {
     constructor(private _profileService: ProfileService) {}
 
-    @Get()
+    @Get('')
+    @HttpCode(HttpStatus.OK)
+    @ApiBearerAuth()
+    @ApiResponse({
+        type: ProfileDto,
+        status: HttpStatus.OK,
+        description: 'Get Profiles',
+    })
+    async getProfiles(
+        @Query('page') page: number,
+        @Query('limit') limit: number,
+    ): Promise<PayloadSuccessDto> {
+        limit = limit > 100 ? 100 : limit;
+
+        const profiles = await this._profileService.getProfiles({
+            page,
+            limit,
+        });
+
+        return { description: 'Profiles', data: profiles };
+    }
+
+    @Get('/:id')
     @HttpCode(HttpStatus.OK)
     @ApiBearerAuth()
     @ApiResponse({
@@ -53,10 +75,10 @@ export class ProfileController {
     })
     async findOneById(
         @AuthUser() user: UserEntity,
-        @Query() getProfileQueryDto?: GetProfileQueryDto,
+        @Param('id') id: string,
     ): Promise<PayloadSuccessDto> {
         const profile = await this._profileService.findOneById(
-            getProfileQueryDto.id || user.profileId,
+            id || user.profileId,
         );
 
         return {
