@@ -1,5 +1,4 @@
 'use strict';
-
 import {
     Body,
     Controller,
@@ -61,9 +60,15 @@ export class ProfileController {
         const profiles = await this._profileService.getProfiles({
             page,
             limit,
+            route: 'http://localhost:3000/profiles',
         });
 
-        return { description: 'Profiles', data: profiles };
+        return {
+            description: 'Profiles',
+            data: profiles.items,
+            meta: profiles.meta,
+            links: profiles.links,
+        };
     }
 
     @Get('/:id')
