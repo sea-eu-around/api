@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
+import { EducationFieldType } from '../common/constants/education-field-type';
 import { AbstractDto } from '../common/dto/AbstractDto';
 import { ProfileEntity } from '../entities/profile.entity';
 import { UtilsService } from '../providers/utils.service';
@@ -24,6 +25,9 @@ export class ProfileDto extends AbstractDto {
     interests: InterestDto[];
 
     @ApiPropertyOptional()
+    educationFieldType: EducationFieldType;
+
+    @ApiPropertyOptional()
     profileOffers: ProfileOfferDto[];
 
     constructor(profile: ProfileEntity) {
@@ -31,6 +35,7 @@ export class ProfileDto extends AbstractDto {
         this.firstName = profile.firstName;
         this.lastName = profile.lastName;
         this.university = profile.university;
+        this.educationFieldType = profile.educationFieldType;
         this.languages = UtilsService.isDtos(profile.languages)
             ? profile.languages.toDtos()
             : profile.languages;
