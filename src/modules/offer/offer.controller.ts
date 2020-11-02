@@ -1,11 +1,12 @@
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { OfferDto } from '../../dto/OfferDto';
 import { OfferService } from './offer.service';
 
 @Controller('offers')
+@ApiTags('offers')
 export class OfferController {
     constructor(private _offerService: OfferService) {}
 

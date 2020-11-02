@@ -11,10 +11,13 @@ export class OfferDto extends AbstractDto {
     key: string;
 
     @ApiPropertyOptional()
-    target: number;
+    category: OffersCategoryType;
 
     @ApiPropertyOptional()
-    category: OffersCategoryType;
+    allowChooseProfile: boolean;
+
+    @ApiPropertyOptional()
+    allowChooseGender: boolean;
 
     @ApiPropertyOptional()
     allowInterRole: boolean;
@@ -25,8 +28,9 @@ export class OfferDto extends AbstractDto {
     constructor(offer: OfferEntity) {
         super(offer);
         this.key = offer.key;
-        this.target = offer.target;
         this.category = offer.category;
+        this.allowChooseProfile = offer.allowChooseProfile;
+        this.allowChooseGender = offer.allowChooseGender;
         this.allowInterRole = offer.allowInterRole;
         this.profileOffers = UtilsService.isDtos(offer.profileOffers)
             ? offer.profileOffers.toDtos()
