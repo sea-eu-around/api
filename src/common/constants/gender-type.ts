@@ -1,7 +1,7 @@
 'use strict';
 
 export enum GenderType {
-    MALE = 'MALE',
-    FEMALE = 'FEMALE',
-    OTHER = 'OTHER',
+    MALE = 'male',
+    FEMALE = 'female',
+    OTHER = 'other',
 }

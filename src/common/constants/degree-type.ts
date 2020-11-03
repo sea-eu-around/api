@@ -1,10 +1,10 @@
 'use strict';
 
 export enum DegreeType {
-    BSC1 = 'Bsc1',
-    BSC2 = 'Bsc2',
-    BSC3 = 'Bsc3',
-    M1 = 'M1',
-    M2 = 'M2',
-    PHD = 'PhD',
+    BSC1 = 'bsc1',
+    BSC2 = 'bsc2',
+    BSC3 = 'bsc3',
+    M1 = 'm1',
+    M2 = 'm2',
+    PHD = 'phd',
 }

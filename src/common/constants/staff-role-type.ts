@@ -1,11 +1,11 @@
 'use strict';
 
 export enum StaffRoleType {
-    TEACHING = 'TEACHING',
-    RESEARCHER = 'RESEARCHER',
-    SUPPORTING = 'SUPPORTING',
-    ADMINISTRATIVE = 'ADMINISTRATIVE',
-    TECHNICAL = 'TECHNICAL',
-    AMBASSADOR = 'AMBASSADOR',
-    OTHER = 'OTHER',
+    TEACHING = 'teaching',
+    RESEARCHER = 'researcher',
+    SUPPORTING = 'supporting',
+    ADMINISTRATIVE = 'administrative',
+    TECHNICAL = 'technical',
+    AMBASSADOR = 'amabassador',
+    OTHER = 'other',
 }
