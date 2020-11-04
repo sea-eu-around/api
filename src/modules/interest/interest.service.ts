@@ -18,9 +18,9 @@ export class InterestService {
     }
 
     async createInterest(key: string): Promise<InterestEntity> {
-        const test = await this.interestRepository.findOne({ key });
+        const test = await this.interestRepository.findOne({ id: key });
         if (!test) {
-            const interest = this.interestRepository.create({ key });
+            const interest = this.interestRepository.create({ id: key });
             return this.interestRepository.save(interest);
         }
         return test;
