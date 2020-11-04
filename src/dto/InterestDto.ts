@@ -1,11 +1,11 @@
-import { AbstractDto } from '../common/dto/AbstractDto';
+import { AbstractCompositeDto } from '../common/dto/AbstractCompositeDto';
 import { InterestEntity } from '../entities/interest.entity';
 
-export class InterestDto extends AbstractDto {
+export class InterestDto extends AbstractCompositeDto {
     key: string;
 
     constructor(interest: InterestEntity) {
-        super(interest);
+        super();
         this.key = interest.key;
     }
 }
