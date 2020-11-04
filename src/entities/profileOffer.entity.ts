@@ -20,7 +20,7 @@ export class ProfileOfferEntity extends AbstractCompositeEntity<
     offerId!: string;
 
     @Column({ nullable: true, type: 'enum', enum: ProfileType })
-    allowProfile: ProfileType;
+    allowProfileType: ProfileType;
 
     @Column({ nullable: true, type: 'enum', enum: GenderType })
     allowGender: GenderType;

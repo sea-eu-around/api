@@ -15,14 +15,14 @@ export class ProfileOfferDto extends AbstractCompositeDto {
     offerId: string;
 
     @ApiPropertyOptional()
-    allowProfile: ProfileType;
+    allowProfileType: ProfileType;
 
     @ApiPropertyOptional()
     allowGender: GenderType;
 
     constructor(profileOffer: ProfileOfferEntity) {
         super();
-        this.allowProfile = profileOffer.allowProfile;
+        this.allowProfileType = profileOffer.allowProfileType;
         this.allowGender = profileOffer.allowGender;
         this.profile = UtilsService.isDto(profileOffer.profile)
             ? profileOffer.profile.toDto()

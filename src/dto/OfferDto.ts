@@ -14,7 +14,7 @@ export class OfferDto extends AbstractCompositeDto {
     category: OffersCategoryType;
 
     @ApiPropertyOptional()
-    allowChooseProfile: boolean;
+    allowChooseProfileType: boolean;
 
     @ApiPropertyOptional()
     allowChooseGender: boolean;
@@ -29,7 +29,7 @@ export class OfferDto extends AbstractCompositeDto {
         super();
         this.id = offer.id;
         this.category = offer.category;
-        this.allowChooseProfile = offer.allowChooseProfile;
+        this.allowChooseProfileType = offer.allowChooseProfileType;
         this.allowChooseGender = offer.allowChooseGender;
         this.allowInterRole = offer.allowInterRole;
         this.profileOffers = UtilsService.isDtos(offer.profileOffers)
