@@ -13,6 +13,7 @@ import { EducationFieldType } from '../common/constants/education-field-type';
 import { GenderType } from '../common/constants/gender-type';
 import { NationalityType } from '../common/constants/nationality-type';
 import { ProfileType } from '../common/constants/profile-type';
+import { PartnerUniversity } from '../common/constants/sea';
 import { ProfileDto } from '../dto/ProfileDto';
 import { InterestEntity } from './interest.entity';
 import { LanguageEntity } from './language.entity';
@@ -28,8 +29,8 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
     @Column({ nullable: false })
     lastName: string;
 
-    @Column({ nullable: false })
-    university: string;
+    @Column({ nullable: false, type: 'enum', enum: PartnerUniversity })
+    university: PartnerUniversity;
 
     @OneToOne(() => UserEntity, (user) => user.profile, { cascade: true })
     user: UserEntity;

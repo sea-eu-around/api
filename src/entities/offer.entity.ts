@@ -15,7 +15,7 @@ export class OfferEntity extends AbstractCompositeEntity<OfferDto> {
     category: OffersCategoryType;
 
     @Column()
-    allowChooseProfile: boolean;
+    allowChooseProfileType: boolean;
 
     @Column()
     allowChooseGender: boolean;
