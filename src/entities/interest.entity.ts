@@ -7,7 +7,7 @@ import { ProfileEntity } from './profile.entity';
 @Entity('interest')
 export class InterestEntity extends AbstractCompositeEntity<InterestDto> {
     @PrimaryColumn()
-    key: string;
+    id: string;
 
     @ManyToMany(() => ProfileEntity, (profile) => profile.interests)
     profile: ProfileEntity;
