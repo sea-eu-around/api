@@ -6,6 +6,7 @@ import {
     HttpCode,
     HttpStatus,
     Param,
+    Patch,
     Post,
     Query,
     UseGuards,
@@ -13,15 +14,11 @@ import {
 } from '@nestjs/common';
 import {
     ApiBearerAuth,
-    ApiBody,
     ApiExtraModels,
-    ApiQuery,
     ApiResponse,
     ApiTags,
-    getSchemaPath,
 } from '@nestjs/swagger';
 
-import { ProfileType } from '../../common/constants/profile-type';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { ProfileDto } from '../../dto/ProfileDto';
@@ -32,6 +29,8 @@ import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.se
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
 import { AddLanguageToProfileDto } from './dto/AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './dto/AddOfferToProfileDto';
+import { ProfileCreationDto } from './dto/ProfileCreationDto';
+import { ProfileUpdateDto } from './dto/ProfileUpdateDto';
 import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
 import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
 import { ProfileService } from './profile.service';
@@ -94,39 +93,52 @@ export class ProfileController {
     }
 
     @Post()
-    @HttpCode(HttpStatus.OK)
+    @HttpCode(HttpStatus.CREATED)
     @ApiBearerAuth()
     @ApiExtraModels(StaffProfileCreationDto, StudentProfileCreationDto)
     @ApiResponse({
         status: HttpStatus.CREATED,
-        description: 'Profile successfully created',
+        description: 'profile-created',
         type: ProfileDto,
     })
-    @ApiBody({
-        schema: {
-            oneOf: [
-                { $ref: getSchemaPath(StaffProfileCreationDto) },
-                { $ref: getSchemaPath(StudentProfileCreationDto) },
-            ],
-            discriminator: { propertyName: 'type' },
-        },
-    })
-    @ApiQuery({ name: 'type', enum: ProfileType })
     async create(
-        @Query('type') type: ProfileType,
         @Body()
-        profileCreationDto: StaffProfileCreationDto | StudentProfileCreationDto,
+        profileCreationDto: ProfileCreationDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        const createdProfile = await this._profileService.create(
+        const createdProfile = await this._profileService.createOrUpdate(
             profileCreationDto,
-            type,
             user,
         );
 
         return {
-            description: 'Profile successfully created',
+            description: 'profile-created',
             data: createdProfile,
+        };
+    }
+
+    @Patch()
+    @HttpCode(HttpStatus.OK)
+    @ApiBearerAuth()
+    @ApiExtraModels(StaffProfileCreationDto, StudentProfileCreationDto)
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'profile-updated',
+        type: ProfileDto,
+    })
+    async update(
+        @Body()
+        profileUpdateDto: ProfileUpdateDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const updatedProfile = await this._profileService.createOrUpdate(
+            profileUpdateDto,
+            user,
+        );
+
+        return {
+            description: 'profile-updated',
+            data: updatedProfile,
         };
     }
 

@@ -5,12 +5,16 @@ import {
     IsNotEmpty,
     IsOptional,
     IsString,
+    ValidateIf,
+    ValidateNested,
 } from 'class-validator';
 
+import { DegreeType } from '../../../common/constants/degree-type';
 import { EducationFieldType } from '../../../common/constants/education-field-type';
 import { GenderType } from '../../../common/constants/gender-type';
 import { NationalityType } from '../../../common/constants/nationality-type';
-import { LanguageDto } from '../../../dto/LanguageDto';
+import { ProfileType } from '../../../common/constants/profile-type';
+import { AddLanguageToProfileDto } from './AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './AddOfferToProfileDto';
 
 export abstract class ProfileCreationDto {
@@ -23,10 +27,6 @@ export abstract class ProfileCreationDto {
     lastName: string;
 
     @ApiProperty()
-    @IsString()
-    university: string;
-
-    @ApiProperty()
     @IsEnum(GenderType)
     gender: GenderType;
 
@@ -36,15 +36,17 @@ export abstract class ProfileCreationDto {
 
     @ApiProperty()
     @IsEnum(EducationFieldType)
-    educationFieldType: EducationFieldType;
+    educationField: EducationFieldType;
 
     @ApiProperty()
     @IsEnum(NationalityType)
     nationality: NationalityType;
 
-    @ApiProperty()
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsArray()
-    languages: LanguageDto[];
+    @ValidateNested()
+    languages: AddLanguageToProfileDto[];
 
     @ApiPropertyOptional()
     @IsOptional()
@@ -56,5 +58,15 @@ export abstract class ProfileCreationDto {
     @IsOptional()
     @IsArray()
     @IsNotEmpty()
+    @ValidateNested()
     profileOffers: AddOfferToProfileDto[];
+
+    @ApiProperty()
+    @IsEnum(ProfileType)
+    type: ProfileType;
+
+    @ApiProperty()
+    @ValidateIf((o) => o.type === ProfileType.STUDENT)
+    @IsEnum(DegreeType)
+    degree: DegreeType;
 }

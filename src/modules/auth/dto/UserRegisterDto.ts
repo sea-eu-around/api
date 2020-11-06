@@ -1,7 +1,7 @@
 'use strict';
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 import { IsSEAEmail } from '../../../decorators/validators.decorator';
 
@@ -16,10 +16,10 @@ export class UserRegisterDto {
     readonly email: string;
 
     @IsString()
-    @Matches(
+    /*@Matches(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,}$/,
         { message: 'validation.password.notStrongEnough' },
-    )
+    )*/
     @ApiProperty({ minLength: 8 })
     readonly password: string;
 }

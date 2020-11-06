@@ -49,7 +49,7 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
         enum: EducationFieldType,
         default: EducationFieldType.NONE,
     })
-    educationFieldType: EducationFieldType;
+    educationField: EducationFieldType;
 
     @Column({ type: 'enum', enum: GenderType, default: GenderType.OTHER })
     gender: GenderType;
