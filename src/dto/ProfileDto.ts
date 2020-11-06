@@ -25,7 +25,7 @@ export class ProfileDto extends AbstractDto {
     interests: InterestDto[];
 
     @ApiPropertyOptional()
-    educationFieldType: EducationFieldType;
+    educationField: EducationFieldType;
 
     @ApiPropertyOptional()
     profileOffers: ProfileOfferDto[];
@@ -35,7 +35,7 @@ export class ProfileDto extends AbstractDto {
         this.firstName = profile.firstName;
         this.lastName = profile.lastName;
         this.university = profile.university;
-        this.educationFieldType = profile.educationFieldType;
+        this.educationField = profile.educationField;
         this.languages = UtilsService.isDtos(profile.languages)
             ? profile.languages.toDtos()
             : profile.languages;

@@ -1,5 +1,5 @@
 /* eslint-disable complexity */
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import {
     IPaginationOptions,
     paginate,
@@ -7,6 +7,10 @@ import {
 } from 'nestjs-typeorm-paginate';
 
 import { ProfileType } from '../../common/constants/profile-type';
+import {
+    PARTNER_UNIVERSITIES,
+    PartnerUniversity,
+} from '../../common/constants/sea';
 import { ProfileEntity } from '../../entities/profile.entity';
 import { StaffProfileEntity } from '../../entities/staffProfile.entity';
 import { StudentProfileEntity } from '../../entities/studentProfile.entity';
@@ -20,8 +24,7 @@ import { StudentProfileRepository } from '../../repositories/studentProfile.repo
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
 import { AddLanguageToProfileDto } from './dto/AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './dto/AddOfferToProfileDto';
-import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
-import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
+import { ProfileCreationDto } from './dto/ProfileCreationDto';
 
 @Injectable()
 export class ProfileService {
@@ -38,25 +41,46 @@ export class ProfileService {
         return this._profileRepository.findOneOrFail({ id });
     }
 
-    async create(
-        profileCreationDto: StaffProfileCreationDto | StudentProfileCreationDto,
-        type: ProfileType,
+    async createOrUpdate(
+        profileCreationDto: ProfileCreationDto,
         user: UserEntity,
     ): Promise<StudentProfileEntity | StaffProfileEntity | ProfileEntity> {
         let savedProfile:
             | StudentProfileEntity
             | StaffProfileEntity
             | ProfileEntity;
+
+        let profile:
+            | StudentProfileEntity
+            | StaffProfileEntity
+            | ProfileEntity = user.profileId
+            ? await this._profileRepository.findOne(user.profileId)
+            : null;
+
+        const type =
+            profile && profile instanceof StudentProfileEntity
+                ? ProfileType.STUDENT
+                : profile && profile instanceof StaffProfileEntity
+                ? ProfileType.STAFF
+                : profileCreationDto.type;
+
         if (type === ProfileType.STUDENT) {
-            const profile = this._studentProfileRepository.create();
+            profile = profile || this._studentProfileRepository.create();
+            profile.university = ProfileService._findUnivFromEmail(user.email);
+
             Object.assign(profile, profileCreationDto);
+
             delete profile.languages;
             profile.user = user;
 
             savedProfile = await this._studentProfileRepository.save(profile);
         } else {
-            const profile = this._staffProfileRepository.create();
+            profile = profile || this._staffProfileRepository.create();
+            profile.university = ProfileService._findUnivFromEmail(user.email);
+
             Object.assign(profile, profileCreationDto);
+
+            delete profile.languages;
             profile.user = user;
 
             savedProfile = await this._staffProfileRepository.save(profile);
@@ -154,5 +178,19 @@ export class ProfileService {
         );
 
         return this._profileRepository.save(profile);
+    }
+
+    private static _findUnivFromEmail(email: string) {
+        const domain = email.split('@')[1];
+
+        const university = PARTNER_UNIVERSITIES.find(
+            (x) => x.domain === domain,
+        );
+
+        if (!university) {
+            throw new BadRequestException('test');
+        }
+
+        return <PartnerUniversity>university.key;
     }
 }
