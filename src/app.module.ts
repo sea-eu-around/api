@@ -16,6 +16,7 @@ import { OfferModule } from './modules/offer/offer.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { ReportModule } from './modules/report/report.module';
 import { RoomModule } from './modules/room/room.module';
+import { SeedModule } from './modules/seed/seed.module';
 import { UserModule } from './modules/user/user.module';
 import { ConfigService } from './shared/services/config.service';
 import { SharedModule } from './shared/shared.module';
@@ -45,6 +46,7 @@ import { SharedModule } from './shared/shared.module';
         ScheduleModule.forRoot(),
         NotificationModule,
         ReportModule,
+        SeedModule,
     ],
 })
 export class AppModule implements NestModule {
