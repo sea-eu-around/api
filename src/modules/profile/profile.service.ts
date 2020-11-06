@@ -71,6 +71,7 @@ export class ProfileService {
             Object.assign(profile, profileCreationDto);
 
             delete profile.languages;
+            delete profile.profileOffers;
             profile.user = user;
 
             savedProfile = await this._studentProfileRepository.save(profile);
@@ -81,6 +82,7 @@ export class ProfileService {
             Object.assign(profile, profileCreationDto);
 
             delete profile.languages;
+            delete profile.profileOffers;
             profile.user = user;
 
             savedProfile = await this._staffProfileRepository.save(profile);

@@ -1,4 +1,4 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
     IsArray,
     IsEnum,
@@ -14,11 +14,11 @@ import { EducationFieldType } from '../../../common/constants/education-field-ty
 import { GenderType } from '../../../common/constants/gender-type';
 import { NationalityType } from '../../../common/constants/nationality-type';
 import { ProfileType } from '../../../common/constants/profile-type';
-import { PartnerUniversity } from '../../../common/constants/sea';
+import { StaffRoleType } from '../../../common/constants/staff-role-type';
 import { AddLanguageToProfileDto } from './AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './AddOfferToProfileDto';
 
-export abstract class ProfileUpdateDto {
+export class ProfileUpdateDto {
     @ApiPropertyOptional()
     @IsOptional()
     @IsString()
@@ -82,7 +82,9 @@ export abstract class ProfileUpdateDto {
     @IsEnum(DegreeType)
     degree: DegreeType;
 
+    @ApiProperty()
     @IsOptional()
-    @IsEnum(PartnerUniversity)
-    university: PartnerUniversity;
+    @ValidateIf((o) => o.type === ProfileType.STAFF)
+    @IsEnum(StaffRoleType)
+    staffRole: StaffRoleType;
 }

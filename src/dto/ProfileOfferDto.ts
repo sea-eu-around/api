@@ -1,7 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
-import { GenderType } from '../common/constants/gender-type';
-import { ProfileType } from '../common/constants/profile-type';
 import { AbstractCompositeDto } from '../common/dto/AbstractCompositeDto';
 import { ProfileOfferEntity } from '../entities/profileOffer.entity';
 import { UtilsService } from '../providers/utils.service';
@@ -15,15 +13,27 @@ export class ProfileOfferDto extends AbstractCompositeDto {
     offerId: string;
 
     @ApiPropertyOptional()
-    allowProfileType: ProfileType;
+    allowStaff?: boolean;
 
     @ApiPropertyOptional()
-    allowGender: GenderType;
+    allowStudent?: boolean;
+
+    @ApiPropertyOptional()
+    allowMale?: boolean;
+
+    @ApiPropertyOptional()
+    allowFemale?: boolean;
+
+    @ApiPropertyOptional()
+    allowOther?: boolean;
 
     constructor(profileOffer: ProfileOfferEntity) {
         super();
-        this.allowProfileType = profileOffer.allowProfileType;
-        this.allowGender = profileOffer.allowGender;
+        this.allowStaff = profileOffer.allowStaff;
+        this.allowStudent = profileOffer.allowStudent;
+        this.allowMale = profileOffer.allowMale;
+        this.allowFemale = profileOffer.allowFemale;
+        this.allowOther = profileOffer.allowOther;
         this.profile = UtilsService.isDto(profileOffer.profile)
             ? profileOffer.profile.toDto()
             : profileOffer.profile;

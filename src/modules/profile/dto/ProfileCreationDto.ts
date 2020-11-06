@@ -14,10 +14,11 @@ import { EducationFieldType } from '../../../common/constants/education-field-ty
 import { GenderType } from '../../../common/constants/gender-type';
 import { NationalityType } from '../../../common/constants/nationality-type';
 import { ProfileType } from '../../../common/constants/profile-type';
+import { StaffRoleType } from '../../../common/constants/staff-role-type';
 import { AddLanguageToProfileDto } from './AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './AddOfferToProfileDto';
 
-export abstract class ProfileCreationDto {
+export class ProfileCreationDto {
     @ApiProperty()
     @IsString()
     firstName: string;
@@ -69,4 +70,9 @@ export abstract class ProfileCreationDto {
     @ValidateIf((o) => o.type === ProfileType.STUDENT)
     @IsEnum(DegreeType)
     degree: DegreeType;
+
+    @ApiProperty()
+    @ValidateIf((o) => o.type === ProfileType.STAFF)
+    @IsEnum(StaffRoleType)
+    staffRole: StaffRoleType;
 }
