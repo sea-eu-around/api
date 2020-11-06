@@ -1,12 +1,12 @@
 'use strict';
 
 export enum CountryCode {
-    FRANCE = 'FRA',
+    FRANCE = 'FR',
     SPAIN = 'ES',
-    POLAND = 'POL',
-    MALTA = 'MLT',
-    GERMANY = 'DEU',
-    CROATIA = 'HRV',
+    POLAND = 'PL',
+    MALTA = 'MT',
+    GERMANY = 'DE',
+    CROATIA = 'HR',
 }
 
 export enum PartnerUniversity {

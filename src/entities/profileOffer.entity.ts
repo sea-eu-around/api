@@ -1,8 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 
 import { AbstractCompositeEntity } from '../common/abstractComposite.entity';
-import { GenderType } from '../common/constants/gender-type';
-import { ProfileType } from '../common/constants/profile-type';
 import { ProfileOfferDto } from '../dto/ProfileOfferDto';
 import { OfferEntity } from './offer.entity';
 import { ProfileEntity } from './profile.entity';
@@ -19,11 +17,20 @@ export class ProfileOfferEntity extends AbstractCompositeEntity<
     @PrimaryColumn()
     offerId!: string;
 
-    @Column({ nullable: true, type: 'enum', enum: ProfileType })
-    allowProfileType: ProfileType;
+    @Column({ nullable: true })
+    allowStaff?: boolean;
 
-    @Column({ nullable: true, type: 'enum', enum: GenderType })
-    allowGender: GenderType;
+    @Column({ nullable: true })
+    allowStudent?: boolean;
+
+    @Column({ nullable: true })
+    allowMale?: boolean;
+
+    @Column({ nullable: true })
+    allowFemale?: boolean;
+
+    @Column({ nullable: true })
+    allowOther?: boolean;
 
     @ManyToOne(() => ProfileEntity, (profile) => profile.profileOffers)
     profile: ProfileEntity;

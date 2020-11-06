@@ -1,8 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-
-import { GenderType } from '../../../common/constants/gender-type';
-import { ProfileType } from '../../../common/constants/profile-type';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class AddOfferToProfileDto {
     @ApiProperty()
@@ -11,11 +8,26 @@ export class AddOfferToProfileDto {
 
     @ApiProperty()
     @IsOptional()
-    @IsEnum(ProfileType)
-    allowProfile: ProfileType;
+    @IsBoolean()
+    allowStaff: boolean;
 
     @ApiProperty()
     @IsOptional()
-    @IsEnum(GenderType)
-    allowGender: GenderType;
+    @IsBoolean()
+    allowStudent: boolean;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsBoolean()
+    allowMale: boolean;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsBoolean()
+    allowFemale: boolean;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsBoolean()
+    allowOther: boolean;
 }
