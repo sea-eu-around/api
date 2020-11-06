@@ -47,6 +47,7 @@ import { SharedModule } from './shared/shared.module';
         NotificationModule,
         ReportModule,
         SeedModule,
+        SeedModule,
     ],
 })
 export class AppModule implements NestModule {
