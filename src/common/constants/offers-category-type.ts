@@ -1,7 +1,7 @@
 'use strict';
 
 export enum OffersCategoryType {
-    WELCOMING = 'welcoming',
+    DISCOVER = 'discover',
     COLLABORATING = 'collaborating',
     MEETING = 'meeting',
 }
