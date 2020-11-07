@@ -154,13 +154,7 @@ export class ProfileService {
     getProfiles(
         options: IPaginationOptions,
     ): Promise<Pagination<ProfileEntity>> {
-        const queryBuilder = this._profileRepository.createQueryBuilder(
-            'profiles',
-        );
-
-        const profiles = queryBuilder.orderBy('RANDOM()');
-
-        return paginate<ProfileEntity>(profiles, options);
+        return paginate<ProfileEntity>(this._profileRepository, options);
     }
 
     async addOffers(
