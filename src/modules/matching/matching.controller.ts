@@ -16,7 +16,7 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
-import { LikeProfileDto } from './dto/likeProfileDto';
+import { ToProfileDto } from './dto/toProfileDto';
 import { MatchingService } from './matching.service';
 
 @Controller('matching')
@@ -31,16 +31,58 @@ export class MatchingController {
     @ApiBearerAuth()
     @ApiResponse({ type: MatchingDto, description: 'like' })
     async like(
-        @Body() likeProfileDto: LikeProfileDto,
+        @Body() toProfileDto: ToProfileDto,
         @AuthUser() fromUser: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const match = await this._matchingService.like(
             fromUser,
-            likeProfileDto.toProfileId,
+            toProfileDto.toProfileId,
         );
 
         return {
             description: 'profile-liked',
+            data: match,
+        };
+    }
+
+    @Post('decline')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(AuthGuard, RolesGuard)
+    @UseInterceptors(AuthUserInterceptor)
+    @ApiBearerAuth()
+    @ApiResponse({ type: MatchingDto, description: 'decline' })
+    async decline(
+        @Body() toProfileDto: ToProfileDto,
+        @AuthUser() fromUser: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const match = await this._matchingService.decline(
+            fromUser,
+            toProfileDto.toProfileId,
+        );
+
+        return {
+            description: 'profile-declined',
+            data: match,
+        };
+    }
+
+    @Post('block')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(AuthGuard, RolesGuard)
+    @UseInterceptors(AuthUserInterceptor)
+    @ApiBearerAuth()
+    @ApiResponse({ type: MatchingDto, description: 'block' })
+    async block(
+        @Body() toProfileDto: ToProfileDto,
+        @AuthUser() fromUser: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const match = await this._matchingService.block(
+            fromUser,
+            toProfileDto.toProfileId,
+        );
+
+        return {
+            description: 'profile-blocked',
             data: match,
         };
     }
