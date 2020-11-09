@@ -3,14 +3,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import { MatchingStatusType } from '../common/constants/matching-status-type';
 import { AbstractDto } from '../common/dto/AbstractDto';
 import { MatchingEntity } from '../entities/matching.entity';
-import { ProfileEntity } from '../entities/profile.entity';
+import { ProfileDto } from './ProfileDto';
 
 export class MatchingDto extends AbstractDto {
     @ApiProperty()
-    fromProfile: ProfileEntity;
+    fromProfile: ProfileDto;
 
     @ApiProperty()
-    toProfile: ProfileEntity;
+    toProfile: ProfileDto;
 
     @ApiProperty()
     status: MatchingStatusType;
