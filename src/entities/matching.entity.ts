@@ -3,15 +3,15 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 import { AbstractEntity } from '../common/abstract.entity';
 import { MatchingStatusType } from '../common/constants/matching-status-type';
 import { MatchingDto } from '../dto/MatchingDto';
-import { ProfileEntity } from './profile.entity';
+import { UserEntity } from './user.entity';
 
 @Entity('matching')
 export class MatchingEntity extends AbstractEntity<MatchingDto> {
-    @ManyToOne(() => ProfileEntity, (profile) => profile.givenLikes)
-    fromProfile: ProfileEntity;
+    @ManyToOne(() => UserEntity, (user) => user.givenLikes)
+    fromUser: UserEntity;
 
-    @ManyToOne(() => ProfileEntity, (profile) => profile.receivedLikes)
-    toProfile: ProfileEntity;
+    @ManyToOne(() => UserEntity, (user) => user.receivedLikes)
+    toUser: UserEntity;
 
     @Column({
         type: 'enum',
