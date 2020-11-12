@@ -1,8 +1,9 @@
-import { Column, Entity, Generated, OneToOne } from 'typeorm';
+import { Column, Entity, Generated, OneToMany, OneToOne } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { RoleType } from '../common/constants/role-type';
 import { UserDto } from '../dto/UserDto';
+import { MatchingEntity } from './matching.entity';
 import { ProfileEntity } from './profile.entity';
 
 @Entity({ name: 'user' })
@@ -28,6 +29,16 @@ export class UserEntity extends AbstractEntity<UserDto> {
 
     @Column({ nullable: false, default: false })
     onboarded: boolean;
+
+    @OneToMany(() => MatchingEntity, (matching) => matching.fromUser, {
+        cascade: true,
+    })
+    givenLikes: MatchingEntity[];
+
+    @OneToMany(() => MatchingEntity, (matching) => matching.fromUser, {
+        cascade: true,
+    })
+    receivedLikes: MatchingEntity[];
 
     dtoClass = UserDto;
 }

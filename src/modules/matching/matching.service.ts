@@ -2,20 +2,18 @@ import { Injectable } from '@nestjs/common';
 
 import { MatchingStatusType } from '../../common/constants/matching-status-type';
 import { MatchingEntity } from '../../entities/matching.entity';
-import { ProfileEntity } from '../../entities/profile.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { MatchingRepository } from '../../repositories/matching.repository';
-import { ProfileRepository } from '../../repositories/profile.repository';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class MatchingService {
     constructor(
         private readonly _matchingRepository: MatchingRepository,
-        private readonly _profileRepository: ProfileRepository,
+        private readonly _userRepository: UserRepository,
     ) {}
 
-    // eslint-disable-next-line @typescript-eslint/tslint/config
-    async _getProfiles(
+    /*private async _getProfiles(
         fromUser: UserEntity,
         toProfileId: string,
     ): Promise<ProfileEntity[]> {
@@ -28,19 +26,16 @@ export class MatchingService {
         ]);
 
         return [fromProfile, toProfile];
-    }
+    }*/
 
     async like(
         fromUser: UserEntity,
-        toProfileId: string,
+        toUserId: string,
     ): Promise<MatchingEntity> {
-        const [fromProfile, toProfile] = await this._getProfiles(
-            fromUser,
-            toProfileId,
-        );
+        const toUser = await this._userRepository.findOne(toUserId);
 
         const mirrorLike = await this._matchingRepository.findOne({
-            where: [{ fromProfile: toProfile, toProfile: fromProfile }],
+            where: [{ fromUser: toUser, toUser: fromUser }],
         });
 
         if (mirrorLike) {
@@ -49,8 +44,8 @@ export class MatchingService {
         }
 
         const like = this._matchingRepository.create();
-        like.fromProfile = fromProfile;
-        like.toProfile = toProfile;
+        like.fromUser = fromUser;
+        like.toUser = toUser;
         like.status = MatchingStatusType.REQUEST;
 
         return this._matchingRepository.save(like);
@@ -58,16 +53,13 @@ export class MatchingService {
 
     async decline(
         fromUser: UserEntity,
-        toProfileId: string,
+        toUserId: string,
     ): Promise<MatchingEntity> {
-        const [fromProfile, toProfile] = await this._getProfiles(
-            fromUser,
-            toProfileId,
-        );
+        const toUser = await this._userRepository.findOne(toUserId);
 
         const decline = this._matchingRepository.create();
-        decline.fromProfile = fromProfile;
-        decline.toProfile = toProfile;
+        decline.fromUser = fromUser;
+        decline.toUser = toUser;
         decline.status = MatchingStatusType.DECLINE;
 
         return this._matchingRepository.save(decline);
@@ -75,16 +67,13 @@ export class MatchingService {
 
     async block(
         fromUser: UserEntity,
-        toProfileId: string,
+        toUserId: string,
     ): Promise<MatchingEntity> {
-        const [fromProfile, toProfile] = await this._getProfiles(
-            fromUser,
-            toProfileId,
-        );
+        const toUser = await this._userRepository.findOne(toUserId);
 
         const block = this._matchingRepository.create();
-        block.fromProfile = fromProfile;
-        block.toProfile = toProfile;
+        block.fromUser = fromUser;
+        block.toUser = toUser;
         block.status = MatchingStatusType.BLOCK;
 
         return this._matchingRepository.save(block);
