@@ -63,12 +63,8 @@ export class ProfileService {
             | StaffProfileEntity
             | ProfileEntity;
 
-        let profile:
-            | StudentProfileEntity
-            | StaffProfileEntity
-            | ProfileEntity = user.profileId
-            ? await this._profileRepository.findOne(user.profileId)
-            : null;
+        let profile: StudentProfileEntity | StaffProfileEntity | ProfileEntity =
+            (await this._profileRepository.findOne(user.id)) || null;
 
         const type =
             profile && profile instanceof StudentProfileEntity
@@ -144,7 +140,7 @@ export class ProfileService {
         const interests = addInterestsToProfileDto.interests.map((id) =>
             Object.assign(this._interestRepository.create(), {
                 id,
-                profile: profileId || user.profileId,
+                profile: profileId || user.id,
             }),
         );
 
@@ -159,7 +155,7 @@ export class ProfileService {
         const languages = addLanguagesToProfileDto.map((language) =>
             Object.assign(this._languageRepository.create(), {
                 ...language,
-                profile: profileId || user.profileId,
+                profile: profileId || user.id,
             }),
         );
 
@@ -174,7 +170,7 @@ export class ProfileService {
         const profileOffers = addOffersToProfileDto.map((profileOffer) =>
             Object.assign(this._profileOfferRepository.create(), {
                 ...profileOffer,
-                profileId: profileId || user.profileId,
+                profileId: profileId || user.id,
             }),
         );
 
@@ -190,7 +186,7 @@ export class ProfileService {
             (educationField) =>
                 Object.assign(this._educationFieldRepository.create(), {
                     ...educationField,
-                    profile: profileId || user.profileId,
+                    profile: profileId || user.id,
                 }),
         );
 

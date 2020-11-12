@@ -19,9 +19,7 @@ export class MatchingService {
         fromUser: UserEntity,
         toProfileId: string,
     ): Promise<ProfileEntity[]> {
-        const fromProfileQuery = this._profileRepository.findOne(
-            fromUser.profileId,
-        );
+        const fromProfileQuery = this._profileRepository.findOne(fromUser.id);
         const toProfileQuery = this._profileRepository.findOne(toProfileId);
 
         const [fromProfile, toProfile] = await Promise.all([

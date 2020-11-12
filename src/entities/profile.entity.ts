@@ -1,14 +1,16 @@
 import {
     Column,
     Entity,
+    JoinColumn,
     JoinTable,
     ManyToMany,
     OneToMany,
     OneToOne,
+    PrimaryColumn,
     TableInheritance,
 } from 'typeorm';
 
-import { AbstractEntity } from '../common/abstract.entity';
+import { AbstractCompositeEntity } from '../common/abstractComposite.entity';
 import { GenderType } from '../common/constants/gender-type';
 import { NationalityType } from '../common/constants/nationality-type';
 import { ProfileType } from '../common/constants/profile-type';
@@ -23,7 +25,19 @@ import { UserEntity } from './user.entity';
 
 @Entity('profile')
 @TableInheritance({ column: { type: 'enum', name: 'type', enum: ProfileType } })
-export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
+export abstract class ProfileEntity extends AbstractCompositeEntity<
+    ProfileDto
+> {
+    @PrimaryColumn('uuid')
+    id: string;
+
+    @OneToOne(() => UserEntity, (user) => user.profile, {
+        cascade: true,
+        primary: true,
+    })
+    @JoinColumn({ name: 'id' })
+    user: UserEntity;
+
     @Column({ nullable: false })
     firstName: string;
 
@@ -32,9 +46,6 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
 
     @Column({ nullable: false, type: 'enum', enum: PartnerUniversity })
     university: PartnerUniversity;
-
-    @OneToOne(() => UserEntity, (user) => user.profile, { cascade: true })
-    user: UserEntity;
 
     @ManyToMany(() => InterestEntity, (interests) => interests.profile, {
         eager: true,
