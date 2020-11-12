@@ -82,9 +82,7 @@ export class ProfileController {
         @AuthUser() user: UserEntity,
         @Param('id') id: string,
     ): Promise<PayloadSuccessDto> {
-        const profile = await this._profileService.findOneById(
-            id || user.profileId,
-        );
+        const profile = await this._profileService.findOneById(id || user.id);
 
         return {
             description: "Profile's interests",
