@@ -11,7 +11,11 @@ import {
     PARTNER_UNIVERSITIES,
     PartnerUniversity,
 } from '../../common/constants/sea';
+import { EducationFieldEntity } from '../../entities/educationField.entity';
+import { InterestEntity } from '../../entities/interest.entity';
+import { LanguageEntity } from '../../entities/language.entity';
 import { ProfileEntity } from '../../entities/profile.entity';
+import { ProfileOfferEntity } from '../../entities/profileOffer.entity';
 import { StaffProfileEntity } from '../../entities/staffProfile.entity';
 import { StudentProfileEntity } from '../../entities/studentProfile.entity';
 import { UserEntity } from '../../entities/user.entity';
@@ -81,6 +85,7 @@ export class ProfileService {
 
             delete profile.languages;
             delete profile.profileOffers;
+            delete profile.educationFields;
             profile.user = user;
 
             savedProfile = await this._studentProfileRepository.save(profile);
@@ -92,20 +97,21 @@ export class ProfileService {
 
             delete profile.languages;
             delete profile.profileOffers;
+            delete profile.educationFields;
             profile.user = user;
 
             savedProfile = await this._staffProfileRepository.save(profile);
         }
 
         if (profileCreationDto.languages) {
-            savedProfile = await this.addLanguages(
+            savedProfile.languages = await this.addLanguages(
                 profileCreationDto.languages,
                 savedProfile.id,
             );
         }
 
         if (profileCreationDto.interests) {
-            savedProfile = await this.addInterests(
+            savedProfile.interests = await this.addInterests(
                 <AddInterestsToProfileDto>{
                     interests: profileCreationDto.interests,
                 },
@@ -114,14 +120,14 @@ export class ProfileService {
         }
 
         if (profileCreationDto.profileOffers) {
-            savedProfile = await this.addOffers(
+            savedProfile.profileOffers = await this.addOffers(
                 profileCreationDto.profileOffers,
                 savedProfile.id,
             );
         }
 
         if (profileCreationDto.educationFields) {
-            savedProfile = await this.addEducationFields(
+            savedProfile.educationFields = await this.addEducationFields(
                 profileCreationDto.educationFields,
                 savedProfile.id,
             );
@@ -134,68 +140,53 @@ export class ProfileService {
         addInterestsToProfileDto: AddInterestsToProfileDto,
         profileId?: string,
         user?: UserEntity,
-    ): Promise<ProfileEntity> {
-        const profile = await this._profileRepository.findOneOrFail({
-            id: profileId || user.profileId,
-        });
-
-        const interests = await this._interestRepository.findByIds(
-            addInterestsToProfileDto.interests,
+    ): Promise<InterestEntity[]> {
+        const interests = addInterestsToProfileDto.interests.map((id) =>
+            Object.assign(this._interestRepository.create(), {
+                id,
+                profile: profileId || user.profileId,
+            }),
         );
 
-        profile.interests = interests;
-
-        return this._profileRepository.save(profile);
+        return this._interestRepository.save(interests);
     }
 
     async addLanguages(
         addLanguagesToProfileDto: AddLanguageToProfileDto[],
         profileId?: string,
         user?: UserEntity,
-    ): Promise<ProfileEntity> {
-        const profile = await this._profileRepository.findOneOrFail({
-            id: profileId || user.profileId,
-        });
-
-        profile.languages = addLanguagesToProfileDto.map((language) =>
+    ): Promise<LanguageEntity[]> {
+        const languages = addLanguagesToProfileDto.map((language) =>
             Object.assign(this._languageRepository.create(), {
                 ...language,
                 profile: profileId || user.profileId,
             }),
         );
 
-        return this._profileRepository.save(profile);
+        return this._languageRepository.save(languages);
     }
 
     async addOffers(
         addOffersToProfileDto: AddOfferToProfileDto[],
         profileId?: string,
         user?: UserEntity,
-    ): Promise<ProfileEntity> {
-        const profile = await this._profileRepository.findOneOrFail({
-            id: profileId || user.profileId,
-        });
-
-        profile.profileOffers = addOffersToProfileDto.map((profileOffer) =>
+    ): Promise<ProfileOfferEntity[]> {
+        const profileOffers = addOffersToProfileDto.map((profileOffer) =>
             Object.assign(this._profileOfferRepository.create(), {
                 ...profileOffer,
                 profileId: profileId || user.profileId,
             }),
         );
 
-        return this._profileRepository.save(profile);
+        return this._profileOfferRepository.save(profileOffers);
     }
 
     async addEducationFields(
         addEducationFieldsToProfileDto: AddEducationFieldToProfileDto[],
         profileId?: string,
         user?: UserEntity,
-    ): Promise<ProfileEntity> {
-        const profile = await this._profileRepository.findOneOrFail({
-            id: profileId || user.profileId,
-        });
-
-        profile.educationFields = addEducationFieldsToProfileDto.map(
+    ): Promise<EducationFieldEntity[]> {
+        const educationFields = addEducationFieldsToProfileDto.map(
             (educationField) =>
                 Object.assign(this._educationFieldRepository.create(), {
                     ...educationField,
@@ -203,7 +194,7 @@ export class ProfileService {
                 }),
         );
 
-        return this._profileRepository.save(profile);
+        return this._educationFieldRepository.save(educationFields);
     }
 
     private static _findUnivFromEmail(email: string) {
