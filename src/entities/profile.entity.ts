@@ -19,7 +19,6 @@ import { ProfileDto } from '../dto/ProfileDto';
 import { EducationFieldEntity } from './educationField.entity';
 import { InterestEntity } from './interest.entity';
 import { LanguageEntity } from './language.entity';
-import { MatchingEntity } from './matching.entity';
 import { ProfileOfferEntity } from './profileOffer.entity';
 import { UserEntity } from './user.entity';
 
@@ -87,16 +86,6 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<
         { eager: true, cascade: true },
     )
     profileOffers: ProfileOfferEntity[];
-
-    @OneToMany(() => MatchingEntity, (matching) => matching.fromProfile, {
-        cascade: true,
-    })
-    givenLikes: MatchingEntity[];
-
-    @OneToMany(() => MatchingEntity, (matching) => matching.toProfile, {
-        cascade: true,
-    })
-    receivedLikes: MatchingEntity[];
 
     dtoClass = ProfileDto;
 }
