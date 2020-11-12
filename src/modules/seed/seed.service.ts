@@ -84,9 +84,12 @@ export class SeedService {
                         new Date(1993, 1, 1),
                         new Date(2000, 1, 1),
                     );
-                    profile.educationField = random.arrayElement(
-                        Object.values(EducationFieldType),
-                    );
+                    profile.educationFields = random
+                        .arrayElements(
+                            Object.values(EducationFieldType),
+                            1 + random.number(4),
+                        )
+                        .map((x) => ({ id: x }));
                     profile.nationality = <NationalityType>(
                         (<unknown>(
                             random.arrayElement(Object.values(CountryCode))
@@ -146,9 +149,12 @@ export class SeedService {
                         new Date(1960, 1, 1),
                         new Date(1995, 1, 1),
                     );
-                    profile.educationField = random.arrayElement(
-                        Object.values(EducationFieldType),
-                    );
+                    profile.educationFields = random
+                        .arrayElements(
+                            Object.values(EducationFieldType),
+                            1 + random.number(4),
+                        )
+                        .map((x) => ({ id: x }));
                     profile.nationality = <NationalityType>(
                         (<unknown>(
                             random.arrayElement(Object.values(CountryCode))
