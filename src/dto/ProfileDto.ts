@@ -1,11 +1,11 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { GenderType } from 'aws-sdk/clients/rekognition';
 
-import { EducationFieldType } from '../common/constants/education-field-type';
 import { NationalityType } from '../common/constants/nationality-type';
 import { AbstractDto } from '../common/dto/AbstractDto';
 import { ProfileEntity } from '../entities/profile.entity';
 import { UtilsService } from '../providers/utils.service';
+import { EducationFieldDto } from './EducationFieldDto';
 import { InterestDto } from './InterestDto';
 import { LanguageDto } from './LanguageDto';
 import { ProfileOfferDto } from './ProfileOfferDto';
@@ -27,7 +27,7 @@ export class ProfileDto extends AbstractDto {
     interests: InterestDto[];
 
     @ApiPropertyOptional()
-    educationField: EducationFieldType;
+    educationFields: EducationFieldDto[];
 
     @ApiPropertyOptional()
     profileOffers: ProfileOfferDto[];
@@ -46,10 +46,12 @@ export class ProfileDto extends AbstractDto {
         this.firstName = profile.firstName;
         this.lastName = profile.lastName;
         this.university = profile.university;
-        this.educationField = profile.educationField;
         this.birthdate = profile.birthdate;
         this.gender = profile.gender;
         this.nationality = profile.nationality;
+        this.educationFields = UtilsService.isDtos(profile.educationFields)
+            ? profile.educationFields.toDtos()
+            : profile.educationFields;
         this.languages = UtilsService.isDtos(profile.languages)
             ? profile.languages.toDtos()
             : profile.languages;

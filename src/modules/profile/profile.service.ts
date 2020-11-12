@@ -15,12 +15,14 @@ import { ProfileEntity } from '../../entities/profile.entity';
 import { StaffProfileEntity } from '../../entities/staffProfile.entity';
 import { StudentProfileEntity } from '../../entities/studentProfile.entity';
 import { UserEntity } from '../../entities/user.entity';
+import { EducationFieldRepository } from '../../repositories/educationField.repository';
 import { InterestRepository } from '../../repositories/interest.repository';
 import { LanguageRepository } from '../../repositories/language.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
 import { ProfileOfferRepository } from '../../repositories/profileOffer.repository';
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
+import { AddEducationFieldToProfileDto } from './dto/AddEducationFieldToProfileDto';
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
 import { AddLanguageToProfileDto } from './dto/AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './dto/AddOfferToProfileDto';
@@ -35,10 +37,17 @@ export class ProfileService {
         private readonly _interestRepository: InterestRepository,
         private readonly _languageRepository: LanguageRepository,
         private readonly _profileOfferRepository: ProfileOfferRepository,
+        private readonly _educationFieldRepository: EducationFieldRepository,
     ) {}
 
     async findOneById(id: string): Promise<ProfileEntity> {
         return this._profileRepository.findOneOrFail({ id });
+    }
+
+    getProfiles(
+        options: IPaginationOptions,
+    ): Promise<Pagination<ProfileEntity>> {
+        return paginate<ProfileEntity>(this._profileRepository, options);
     }
 
     async createOrUpdate(
@@ -111,6 +120,13 @@ export class ProfileService {
             );
         }
 
+        if (profileCreationDto.educationFields) {
+            savedProfile = await this.addEducationFields(
+                profileCreationDto.educationFields,
+                savedProfile.id,
+            );
+        }
+
         return savedProfile;
     }
 
@@ -151,12 +167,6 @@ export class ProfileService {
         return this._profileRepository.save(profile);
     }
 
-    getProfiles(
-        options: IPaginationOptions,
-    ): Promise<Pagination<ProfileEntity>> {
-        return paginate<ProfileEntity>(this._profileRepository, options);
-    }
-
     async addOffers(
         addOffersToProfileDto: AddOfferToProfileDto[],
         profileId?: string,
@@ -171,6 +181,26 @@ export class ProfileService {
                 ...profileOffer,
                 profileId: profileId || user.profileId,
             }),
+        );
+
+        return this._profileRepository.save(profile);
+    }
+
+    async addEducationFields(
+        addEducationFieldsToProfileDto: AddEducationFieldToProfileDto[],
+        profileId?: string,
+        user?: UserEntity,
+    ): Promise<ProfileEntity> {
+        const profile = await this._profileRepository.findOneOrFail({
+            id: profileId || user.profileId,
+        });
+
+        profile.educationFields = addEducationFieldsToProfileDto.map(
+            (educationField) =>
+                Object.assign(this._educationFieldRepository.create(), {
+                    ...educationField,
+                    profile: profileId || user.profileId,
+                }),
         );
 
         return this._profileRepository.save(profile);

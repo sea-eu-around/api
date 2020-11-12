@@ -2,6 +2,6 @@
 
 export enum OffersCategoryType {
     DISCOVER = 'discover',
-    COLLABORATING = 'collaborating',
-    MEETING = 'meeting',
+    COLLABORATE = 'collaborate',
+    MEET = 'meet',
 }
