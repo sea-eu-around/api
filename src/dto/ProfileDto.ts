@@ -2,6 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { GenderType } from 'aws-sdk/clients/rekognition';
 
 import { EducationFieldType } from '../common/constants/education-field-type';
+import { NationalityType } from '../common/constants/nationality-type';
 import { AbstractDto } from '../common/dto/AbstractDto';
 import { ProfileEntity } from '../entities/profile.entity';
 import { UtilsService } from '../providers/utils.service';
@@ -37,6 +38,9 @@ export class ProfileDto extends AbstractDto {
     @ApiPropertyOptional()
     gender: GenderType;
 
+    @ApiPropertyOptional()
+    nationality: NationalityType;
+
     constructor(profile: ProfileEntity) {
         super(profile);
         this.firstName = profile.firstName;
@@ -45,6 +49,7 @@ export class ProfileDto extends AbstractDto {
         this.educationField = profile.educationField;
         this.birthdate = profile.birthdate;
         this.gender = profile.gender;
+        this.nationality = profile.nationality;
         this.languages = UtilsService.isDtos(profile.languages)
             ? profile.languages.toDtos()
             : profile.languages;
