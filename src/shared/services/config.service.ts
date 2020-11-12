@@ -80,7 +80,7 @@ export class ConfigService {
             database: this.get('DB_DATABASE'),
             subscribers: [UserSubscriber],
             migrationsRun: false,
-            synchronize: true,
+            synchronize: false,
             logging: this.nodeEnv === 'development',
             namingStrategy: new SnakeNamingStrategy(),
         };
