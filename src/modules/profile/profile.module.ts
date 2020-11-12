@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { EducationFieldRepository } from '../../repositories/educationField.repository';
 import { InterestRepository } from '../../repositories/interest.repository';
 import { LanguageRepository } from '../../repositories/language.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
@@ -19,6 +20,7 @@ import { ProfileService } from './profile.service';
             LanguageRepository,
             InterestRepository,
             ProfileOfferRepository,
+            EducationFieldRepository,
         ]),
     ],
     controllers: [ProfileController],

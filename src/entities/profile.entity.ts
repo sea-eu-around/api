@@ -9,12 +9,12 @@ import {
 } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
-import { EducationFieldType } from '../common/constants/education-field-type';
 import { GenderType } from '../common/constants/gender-type';
 import { NationalityType } from '../common/constants/nationality-type';
 import { ProfileType } from '../common/constants/profile-type';
 import { PartnerUniversity } from '../common/constants/sea';
 import { ProfileDto } from '../dto/ProfileDto';
+import { EducationFieldEntity } from './educationField.entity';
 import { InterestEntity } from './interest.entity';
 import { LanguageEntity } from './language.entity';
 import { MatchingEntity } from './matching.entity';
@@ -45,12 +45,15 @@ export abstract class ProfileEntity extends AbstractEntity<ProfileDto> {
     @Column({ nullable: false, type: 'timestamp without time zone' })
     birthdate: Date;
 
-    @Column({
-        type: 'enum',
-        enum: EducationFieldType,
-        default: EducationFieldType.NONE,
-    })
-    educationField: EducationFieldType;
+    @OneToMany(
+        () => EducationFieldEntity,
+        (educationField) => educationField.profile,
+        {
+            eager: true,
+            cascade: true,
+        },
+    )
+    educationFields: EducationFieldEntity[];
 
     @Column({ type: 'enum', enum: GenderType, default: GenderType.OTHER })
     gender: GenderType;

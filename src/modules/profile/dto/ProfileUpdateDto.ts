@@ -6,7 +6,6 @@ import {
     IsOptional,
     IsString,
     ValidateIf,
-    ValidateNested,
 } from 'class-validator';
 
 import { DegreeType } from '../../../common/constants/degree-type';
@@ -15,6 +14,7 @@ import { GenderType } from '../../../common/constants/gender-type';
 import { NationalityType } from '../../../common/constants/nationality-type';
 import { ProfileType } from '../../../common/constants/profile-type';
 import { StaffRoleType } from '../../../common/constants/staff-role-type';
+import { AddEducationFieldToProfileDto } from './AddEducationFieldToProfileDto';
 import { AddLanguageToProfileDto } from './AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './AddOfferToProfileDto';
 
@@ -51,9 +51,8 @@ export class ProfileUpdateDto {
 
     @ApiPropertyOptional()
     @IsOptional()
-    @IsOptional()
     @IsArray()
-    @ValidateNested()
+    @IsNotEmpty()
     languages: AddLanguageToProfileDto[];
 
     @ApiPropertyOptional()
@@ -65,11 +64,15 @@ export class ProfileUpdateDto {
 
     @ApiPropertyOptional()
     @IsOptional()
+    @IsArray()
+    @IsNotEmpty()
+    profileOffers: AddOfferToProfileDto[];
+
+    @ApiPropertyOptional()
     @IsOptional()
     @IsArray()
     @IsNotEmpty()
-    @ValidateNested()
-    profileOffers: AddOfferToProfileDto[];
+    educationFields: AddEducationFieldToProfileDto[];
 
     @ApiPropertyOptional()
     @IsOptional()
