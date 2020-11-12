@@ -9,7 +9,6 @@ import {
 } from 'class-validator';
 
 import { DegreeType } from '../../../common/constants/degree-type';
-import { EducationFieldType } from '../../../common/constants/education-field-type';
 import { GenderType } from '../../../common/constants/gender-type';
 import { NationalityType } from '../../../common/constants/nationality-type';
 import { ProfileType } from '../../../common/constants/profile-type';
@@ -34,10 +33,6 @@ export class ProfileCreationDto {
     @ApiProperty()
     @IsString()
     birthdate: Date;
-
-    @ApiProperty()
-    @IsEnum(EducationFieldType)
-    educationField: EducationFieldType;
 
     @ApiProperty()
     @IsEnum(NationalityType)
