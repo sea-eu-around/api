@@ -15,10 +15,14 @@ import {
 import {
     ApiBearerAuth,
     ApiExtraModels,
+    ApiQuery,
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
 
+import { DegreeType } from '../../common/constants/degree-type';
+import { LanguageType } from '../../common/constants/language-type';
+import { PartnerUniversity } from '../../common/constants/sea';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { ProfileDto } from '../../dto/ProfileDto';
@@ -42,25 +46,36 @@ import { ProfileService } from './profile.service';
 export class ProfileController {
     constructor(private _profileService: ProfileService) {}
 
-    @Get('')
+    @Get()
     @HttpCode(HttpStatus.OK)
     @ApiBearerAuth()
+    @ApiQuery({ name: 'universities', enum: PartnerUniversity, isArray: true })
+    @ApiQuery({ name: 'spokenLanguages', enum: LanguageType, isArray: true })
+    @ApiQuery({ name: 'degrees', enum: DegreeType, isArray: true })
     @ApiResponse({
         type: ProfileDto,
         status: HttpStatus.OK,
         description: 'Get Profiles',
     })
     async getProfiles(
+        @Query('universities') universities: PartnerUniversity[],
+        @Query('spokenLanguages') spokenLanguages: LanguageType[],
+        @Query('degrees') degrees: DegreeType[],
         @Query('page') page: number,
         @Query('limit') limit: number,
     ): Promise<PayloadSuccessDto> {
         limit = limit > 100 ? 100 : limit;
 
-        const profiles = await this._profileService.getProfiles({
-            page,
-            limit,
-            route: 'http://localhost:3000/profiles',
-        });
+        const profiles = await this._profileService.getProfiles(
+            universities,
+            spokenLanguages,
+            degrees,
+            {
+                page,
+                limit,
+                route: 'http://localhost:3000/profiles',
+            },
+        );
 
         return {
             description: 'Profiles',
