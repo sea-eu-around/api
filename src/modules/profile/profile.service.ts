@@ -1,11 +1,14 @@
 /* eslint-disable complexity */
 import { BadRequestException, Injectable } from '@nestjs/common';
+import * as _ from 'lodash';
 import {
     IPaginationOptions,
     paginate,
     Pagination,
 } from 'nestjs-typeorm-paginate';
 
+import { DegreeType } from '../../common/constants/degree-type';
+import { LanguageType } from '../../common/constants/language-type';
 import { ProfileType } from '../../common/constants/profile-type';
 import {
     PARTNER_UNIVERSITIES,
@@ -48,10 +51,30 @@ export class ProfileService {
         return this._profileRepository.findOneOrFail({ id });
     }
 
-    getProfiles(
+    async getProfiles(
+        universities: PartnerUniversity[],
+        spokenLanguages: LanguageType[],
+        degrees: DegreeType[],
         options: IPaginationOptions,
     ): Promise<Pagination<ProfileEntity>> {
-        return paginate<ProfileEntity>(this._profileRepository, options);
+        const profiles = this._profileRepository
+            .createQueryBuilder('profile')
+            .leftJoinAndSelect('profile.languages', 'languages')
+            .where('profile.university IN (:...universities)', {
+                universities: _.isArray(universities)
+                    ? universities
+                    : [universities],
+            })
+            .andWhere('profile.degree IN (:...degrees)', {
+                degrees: _.isArray(degrees) ? degrees : [degrees],
+            })
+            .andWhere('languages.code IN (:...spokenLanguages)', {
+                spokenLanguages: _.isArray(spokenLanguages)
+                    ? spokenLanguages
+                    : [spokenLanguages],
+            });
+
+        return paginate<ProfileEntity>(profiles, options);
     }
 
     async createOrUpdate(
