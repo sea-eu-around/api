@@ -1,9 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { Brackets } from 'typeorm/query-builder/Brackets';
 
 import { MatchingStatusType } from '../../common/constants/matching-status-type';
 import { MatchingEntity } from '../../entities/matching.entity';
+import { ProfileEntity } from '../../entities/profile.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { MatchingRepository } from '../../repositories/matching.repository';
+import { ProfileRepository } from '../../repositories/profile.repository';
 import { UserRepository } from '../user/user.repository';
 
 @Injectable()
@@ -11,7 +14,37 @@ export class MatchingService {
     constructor(
         private readonly _matchingRepository: MatchingRepository,
         private readonly _userRepository: UserRepository,
+        private readonly _profileRepository: ProfileRepository,
     ) {}
+
+    async getMyMatches(user: UserEntity): Promise<ProfileEntity[]> {
+        const matches = await this._matchingRepository
+            .createQueryBuilder('matching')
+            .where('matching.status = :status', {
+                status: MatchingStatusType.MATCH,
+            })
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where('matching.fromUserId = :id', {
+                        id: user.id,
+                    }).orWhere('matching.toUserId = :id', { id: user.id });
+                }),
+            )
+            .getMany();
+
+        const profileIds = [];
+        for (const match of matches) {
+            if (match.fromUserId !== user.id) {
+                profileIds.push(match.fromUserId);
+            } else {
+                profileIds.push(match.toUserId);
+            }
+        }
+
+        return this._profileRepository.findByIds(profileIds, {
+            order: { updatedAt: 'DESC' },
+        });
+    }
 
     async like(
         fromUser: UserEntity,
