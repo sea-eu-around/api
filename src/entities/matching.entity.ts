@@ -13,6 +13,12 @@ export class MatchingEntity extends AbstractEntity<MatchingDto> {
     @ManyToOne(() => UserEntity, (user) => user.receivedLikes)
     toUser: UserEntity;
 
+    @Column()
+    fromUserId: string;
+
+    @Column()
+    toUserId: string;
+
     @Column({
         type: 'enum',
         enum: MatchingStatusType,
