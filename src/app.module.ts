@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { contextMiddleware } from './middlewares';
 import { AuthModule } from './modules/auth/auth.module';
+import { CommonModule } from './modules/common/common.module';
 import { InterestModule } from './modules/interest/interest.module';
 import { MatchingModule } from './modules/matching/matching.module';
 import { OfferModule } from './modules/offer/offer.module';
@@ -27,6 +28,7 @@ import { SharedModule } from './shared/shared.module';
         InterestModule,
         OfferModule,
         MatchingModule,
+        CommonModule,
     ],
 })
 export class AppModule implements NestModule {

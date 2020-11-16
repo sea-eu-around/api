@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 
 import { IAwsConfig } from '../../interfaces/IAwsConfig';
 import { SnakeNamingStrategy } from '../../snake-naming.strategy';
+import { ProfileSubscriber } from '../entity-subscribers/profile-subscriber';
 import { UserSubscriber } from '../entity-subscribers/user-subscriber';
 
 export class ConfigService {
@@ -78,9 +79,9 @@ export class ConfigService {
             username: this.get('DB_USERNAME'),
             password: this.get('DB_PASSWORD'),
             database: this.get('DB_DATABASE'),
-            subscribers: [UserSubscriber],
+            subscribers: [UserSubscriber, ProfileSubscriber],
             migrationsRun: false,
-            synchronize: false,
+            synchronize: true,
             logging: this.nodeEnv === 'development',
             namingStrategy: new SnakeNamingStrategy(),
         };
@@ -91,6 +92,7 @@ export class ConfigService {
             accessKeyId: this.get('AWS_S3_ACCESS_KEY_ID'),
             secretAccessKey: this.get('AWS_S3_SECRET_ACCESS_KEY'),
             bucketName: this.get('S3_BUCKET_NAME'),
+            bucketRegion: this.get('S3_BUCKET_REGION'),
         };
     }
 }
