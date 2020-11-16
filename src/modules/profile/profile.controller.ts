@@ -30,6 +30,7 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
+import { AwsS3Service } from '../../shared/services/aws-s3.service';
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
 import { AddLanguageToProfileDto } from './dto/AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './dto/AddOfferToProfileDto';
@@ -37,6 +38,7 @@ import { ProfileCreationDto } from './dto/ProfileCreationDto';
 import { ProfileUpdateDto } from './dto/ProfileUpdateDto';
 import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
 import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
+import { UpdateAvatarDto } from './dto/UpdateAvatarDto';
 import { ProfileService } from './profile.service';
 
 @Controller('profiles')
@@ -44,7 +46,10 @@ import { ProfileService } from './profile.service';
 @UseGuards(AuthGuard, RolesGuard)
 @UseInterceptors(AuthUserInterceptor)
 export class ProfileController {
-    constructor(private _profileService: ProfileService) {}
+    constructor(
+        private _profileService: ProfileService,
+        private _awsS3Service: AwsS3Service,
+    ) {}
 
     @Get()
     @HttpCode(HttpStatus.OK)
@@ -151,6 +156,29 @@ export class ProfileController {
 
         return {
             description: 'profile-updated',
+            data: updatedProfile,
+        };
+    }
+
+    @Post('avatar')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiResponse({
+        type: ProfileDto,
+        status: HttpStatus.CREATED,
+        description: 'successfully-updated-avatar',
+    })
+    async updateAvatar(
+        @Body() updateAvatarDto: UpdateAvatarDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const updatedProfile = await this._profileService.updateAvatar(
+            updateAvatarDto,
+            user,
+        );
+
+        return {
+            description: 'successfully-updated-avatar',
             data: updatedProfile,
         };
     }

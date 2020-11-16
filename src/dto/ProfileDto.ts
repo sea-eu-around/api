@@ -44,6 +44,9 @@ export class ProfileDto extends AbstractCompositeDto {
     @ApiPropertyOptional()
     nationality: NationalityType;
 
+    @ApiPropertyOptional()
+    avatar?: string;
+
     constructor(profile: ProfileEntity) {
         super();
         this.id = profile.id;
@@ -53,6 +56,7 @@ export class ProfileDto extends AbstractCompositeDto {
         this.birthdate = profile.birthdate;
         this.gender = profile.gender;
         this.nationality = profile.nationality;
+        this.avatar = profile.avatar;
         this.educationFields = UtilsService.isDtos(profile.educationFields)
             ? profile.educationFields.toDtos()
             : profile.educationFields;

@@ -29,11 +29,13 @@ import { ProfileRepository } from '../../repositories/profile.repository';
 import { ProfileOfferRepository } from '../../repositories/profileOffer.repository';
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
+import { AwsS3Service } from '../../shared/services/aws-s3.service';
 import { AddEducationFieldToProfileDto } from './dto/AddEducationFieldToProfileDto';
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
 import { AddLanguageToProfileDto } from './dto/AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './dto/AddOfferToProfileDto';
 import { ProfileCreationDto } from './dto/ProfileCreationDto';
+import { UpdateAvatarDto } from './dto/UpdateAvatarDto';
 
 @Injectable()
 export class ProfileService {
@@ -45,6 +47,7 @@ export class ProfileService {
         private readonly _languageRepository: LanguageRepository,
         private readonly _profileOfferRepository: ProfileOfferRepository,
         private readonly _educationFieldRepository: EducationFieldRepository,
+        private readonly _awsS3Service: AwsS3Service,
     ) {}
 
     async findOneById(id: string): Promise<ProfileEntity> {
@@ -153,6 +156,22 @@ export class ProfileService {
         }
 
         return savedProfile;
+    }
+
+    async updateAvatar(
+        updateAvatarDto: UpdateAvatarDto,
+        user: UserEntity,
+    ): Promise<ProfileEntity> {
+        const profile =
+            user.profile ||
+            (await this._profileRepository.findOne(
+                { id: user.id },
+                { loadEagerRelations: false },
+            ));
+
+        profile.avatar = updateAvatarDto.fileName;
+
+        return this._profileRepository.save(profile);
     }
 
     async addInterests(
