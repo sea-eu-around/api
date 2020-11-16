@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 
+import { FileType } from '../../common/constants/file-type';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
@@ -25,10 +26,10 @@ export class CommonController {
     @UseInterceptors(AuthUserInterceptor)
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
-    @ApiQuery({ name: 'mimeType', type: 'string' })
+    @ApiQuery({ name: 'mimeType', enum: FileType })
     async getSignedUrl(
         @Query('mimeType')
-        mimeType: string,
+        mimeType: FileType,
     ): Promise<PayloadSuccessDto> {
         const signedUrl = await this._commonService.getSignedUrl(mimeType);
         return {
