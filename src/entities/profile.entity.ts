@@ -55,6 +55,9 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<
     @Column({ nullable: false, type: 'timestamp without time zone' })
     birthdate: Date;
 
+    @Column({ nullable: true })
+    avatar?: string;
+
     @OneToMany(
         () => EducationFieldEntity,
         (educationField) => educationField.profile,
