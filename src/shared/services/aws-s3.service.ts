@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
 import * as mime from 'mime-types';
 
+import { FileType } from '../../common/constants/file-type';
 import { ConfigService } from './config.service';
 import { GeneratorService } from './generator.service';
 
@@ -26,9 +27,9 @@ export class AwsS3Service {
         this._s3 = new AWS.S3(options);
     }
 
-    async getSignedUrl(mimeType: string): Promise<any> {
+    async getSignedUrl(mimeType: FileType): Promise<any> {
         const fileName = this.generatorService.fileName(
-            <string>mime.extension(mimeType),
+            <string>mime.extension(FileType[mimeType]),
         );
 
         const key = fileName;
