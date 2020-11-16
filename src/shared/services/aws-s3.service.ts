@@ -29,7 +29,7 @@ export class AwsS3Service {
 
     async getSignedUrl(mimeType: FileType): Promise<any> {
         const fileName = this.generatorService.fileName(
-            <string>mime.extension(FileType[mimeType]),
+            <string>mime.extension(mimeType),
         );
 
         const key = fileName;
