@@ -1,6 +1,5 @@
 /* eslint-disable complexity */
 import { BadRequestException, Injectable } from '@nestjs/common';
-import * as _ from 'lodash';
 import {
     IPaginationOptions,
     paginate,
@@ -60,22 +59,33 @@ export class ProfileService {
         degrees: DegreeType[],
         options: IPaginationOptions,
     ): Promise<Pagination<ProfileEntity>> {
-        const profiles = this._profileRepository
+        let profiles = this._profileRepository
             .createQueryBuilder('profile')
-            .leftJoinAndSelect('profile.languages', 'languages')
-            .where('profile.university IN (:...universities)', {
-                universities: _.isArray(universities)
-                    ? universities
-                    : [universities],
-            })
-            .andWhere('profile.degree IN (:...degrees)', {
-                degrees: _.isArray(degrees) ? degrees : [degrees],
-            })
-            .andWhere('languages.code IN (:...spokenLanguages)', {
-                spokenLanguages: _.isArray(spokenLanguages)
-                    ? spokenLanguages
-                    : [spokenLanguages],
+            .leftJoinAndSelect('profile.languages', 'languages');
+
+        if (universities && universities.length > 0) {
+            profiles = profiles.andWhere(
+                'profile.university IN (:...universities)',
+                {
+                    universities,
+                },
+            );
+        }
+
+        if (spokenLanguages && spokenLanguages.length > 0) {
+            profiles = profiles.andWhere(
+                'languages.code IN (:...spokenLanguages)',
+                {
+                    spokenLanguages,
+                },
+            );
+        }
+
+        if (degrees && degrees.length > 0) {
+            profiles = profiles.andWhere('profile.degree IN (:...degrees)', {
+                degrees,
             });
+        }
 
         return paginate<ProfileEntity>(profiles, options);
     }

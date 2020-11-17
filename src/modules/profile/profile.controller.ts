@@ -35,6 +35,7 @@ import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
 import { AddLanguageToProfileDto } from './dto/AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './dto/AddOfferToProfileDto';
 import { ProfileCreationDto } from './dto/ProfileCreationDto';
+import { ProfileQueryDto } from './dto/ProfileQueryDto';
 import { ProfileUpdateDto } from './dto/ProfileUpdateDto';
 import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
 import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
@@ -54,22 +55,41 @@ export class ProfileController {
     @Get()
     @HttpCode(HttpStatus.OK)
     @ApiBearerAuth()
-    @ApiQuery({ name: 'universities', enum: PartnerUniversity, isArray: true })
-    @ApiQuery({ name: 'spokenLanguages', enum: LanguageType, isArray: true })
-    @ApiQuery({ name: 'degrees', enum: DegreeType, isArray: true })
+    @ApiQuery({
+        name: 'page',
+    })
+    @ApiQuery({
+        name: 'limit',
+    })
+    @ApiQuery({
+        name: 'universities',
+        enum: PartnerUniversity,
+        isArray: true,
+        explode: false,
+    })
+    @ApiQuery({
+        name: 'spokenLanguages',
+        enum: LanguageType,
+        isArray: true,
+        explode: false,
+    })
+    @ApiQuery({
+        name: 'degrees',
+        enum: DegreeType,
+        isArray: true,
+        explode: false,
+    })
     @ApiResponse({
         type: ProfileDto,
         status: HttpStatus.OK,
-        description: 'Get Profiles',
+        description: 'successefully-retrieved-profiles',
     })
     async getProfiles(
-        @Query('universities') universities: PartnerUniversity[],
-        @Query('spokenLanguages') spokenLanguages: LanguageType[],
-        @Query('degrees') degrees: DegreeType[],
-        @Query('page') page: number,
-        @Query('limit') limit: number,
+        @Query() query: ProfileQueryDto,
     ): Promise<PayloadSuccessDto> {
-        limit = limit > 100 ? 100 : limit;
+        const { page, universities, spokenLanguages, degrees } = query;
+
+        const limit = query.limit > 100 ? 100 : query.limit;
 
         const profiles = await this._profileService.getProfiles(
             universities,
@@ -83,10 +103,8 @@ export class ProfileController {
         );
 
         return {
-            description: 'Profiles',
-            data: profiles.items,
-            meta: profiles.meta,
-            links: profiles.links,
+            description: 'successefully-retrieved-profiles',
+            ...profiles,
         };
     }
 
