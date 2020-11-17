@@ -160,12 +160,13 @@ export class ProfileService {
 
     async updateAvatar(
         updateAvatarDto: UpdateAvatarDto,
-        user: UserEntity,
+        profileId?: string,
+        user?: UserEntity,
     ): Promise<ProfileEntity> {
         const profile =
             user.profile ||
             (await this._profileRepository.findOne(
-                { id: user.id },
+                { id: user.id || profileId },
                 { loadEagerRelations: false },
             ));
 

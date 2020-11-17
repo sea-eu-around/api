@@ -174,6 +174,7 @@ export class ProfileController {
     ): Promise<PayloadSuccessDto> {
         const updatedProfile = await this._profileService.updateAvatar(
             updateAvatarDto,
+            null,
             user,
         );
 

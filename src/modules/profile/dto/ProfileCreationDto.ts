@@ -75,4 +75,9 @@ export class ProfileCreationDto {
     @ValidateIf((o) => o.type === ProfileType.STAFF)
     @IsEnum(StaffRoleType)
     staffRole: StaffRoleType;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    avatar: string;
 }
