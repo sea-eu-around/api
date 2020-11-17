@@ -66,18 +66,21 @@ export class ProfileController {
         enum: PartnerUniversity,
         isArray: true,
         explode: false,
+        required: false,
     })
     @ApiQuery({
         name: 'spokenLanguages',
         enum: LanguageType,
         isArray: true,
         explode: false,
+        required: false,
     })
     @ApiQuery({
         name: 'degrees',
         enum: DegreeType,
         isArray: true,
         explode: false,
+        required: false,
     })
     @ApiResponse({
         type: ProfileDto,
@@ -104,7 +107,9 @@ export class ProfileController {
 
         return {
             description: 'successefully-retrieved-profiles',
-            ...profiles,
+            data: profiles.items,
+            meta: profiles.meta,
+            links: profiles.links,
         };
     }
 
