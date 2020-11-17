@@ -85,4 +85,11 @@ export class UtilsService {
     static validateHash(password: string, hash: string): Promise<boolean> {
         return bcrypt.compare(password, hash || '');
     }
+
+    static isImageFilename(filename: string): boolean {
+        const regex = RegExp(
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\.(png|jpg|jpeg)$/,
+        );
+        return regex.exec(filename) != null;
+    }
 }
