@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { date, internet, name, random } from 'faker';
+import { date, image, internet, name, random } from 'faker';
 import { float } from 'random';
 
 import { DegreeType } from '../../common/constants/degree-type';
@@ -136,6 +136,7 @@ export class SeedService {
                             random.number(9),
                         ),
                     );
+                    profile.avatar = image.avatar();
                     return profile;
                 }
                 {
@@ -201,6 +202,7 @@ export class SeedService {
                             random.number(9),
                         ),
                     );
+                    profile.avatar = image.avatar();
                     return profile;
                 }
             },
