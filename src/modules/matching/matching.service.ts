@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { random } from 'lodash';
 import { Brackets } from 'typeorm/query-builder/Brackets';
 
 import { MatchingStatusType } from '../../common/constants/matching-status-type';
@@ -93,6 +94,16 @@ export class MatchingService {
             }
             existingEntity.status = MatchingStatusType.REQUEST;
             return this._matchingRepository.save(existingEntity);
+        }
+
+        const p = random(10);
+        if (p >= 5) {
+            const fakeMirrorEntity = this._matchingRepository.create();
+            fakeMirrorEntity.fromUser = toUser;
+            fakeMirrorEntity.toUser = fromUser;
+            fakeMirrorEntity.status = MatchingStatusType.MATCH;
+
+            return this._matchingRepository.save(fakeMirrorEntity);
         }
 
         const like = this._matchingRepository.create();
