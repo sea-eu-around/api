@@ -303,24 +303,4 @@ export class ProfileController {
             data: profile,
         };
     }
-
-    /*@Get('/interests')
-    @HttpCode(HttpStatus.OK)
-    @ApiResponse({
-        type: ProfileDto,
-        status: HttpStatus.OK,
-        description: "get a profile's interests",
-    })
-    async getProfileInterests(
-        @Param('profileId') profileId: string,
-    ): Promise<PayloadSuccessDto> {
-        const interests = await this._interestService.getProfileInterests(
-            profileId,
-        );
-
-        return {
-            description: "Profile's interests",
-            data: interests,
-        };
-    }*/
 }

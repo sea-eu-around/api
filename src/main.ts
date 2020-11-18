@@ -1,4 +1,8 @@
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import {
+    ClassSerializerInterceptor,
+    UnprocessableEntityException,
+    ValidationPipe,
+} from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import {
@@ -16,8 +20,10 @@ import {
 } from 'typeorm-transactional-cls-hooked';
 
 import { AppModule } from './app.module';
-import { BadRequestExceptionFilter } from './filters/bad-request.filter';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { NotFoundExceptionFilter } from './filters/not-found.filter';
 import { QueryFailedFilter } from './filters/query-failed.filter';
+import { UnprocessableEntityFilter } from './filters/unprocessable-entity.filter';
 import { ResponseTransformInterceptor } from './interceptors/response-transform-interceptor.service';
 import { ConfigService } from './shared/services/config.service';
 import { SharedModule } from './shared/shared.module';
@@ -45,8 +51,10 @@ async function bootstrap() {
     const reflector = app.get(Reflector);
 
     app.useGlobalFilters(
-        new BadRequestExceptionFilter(reflector),
+        new HttpExceptionFilter(reflector),
+        new UnprocessableEntityFilter(reflector),
         new QueryFailedFilter(reflector),
+        new NotFoundExceptionFilter(reflector),
     );
 
     app.useGlobalInterceptors(
@@ -59,8 +67,13 @@ async function bootstrap() {
             whitelist: true,
             transform: true,
             dismissDefaultMessages: false,
+            errorHttpStatusCode: 422,
+            exceptionFactory: (errors) => {
+                throw new UnprocessableEntityException(errors);
+            },
             validationError: {
                 target: false,
+                value: false,
             },
         }),
     );
