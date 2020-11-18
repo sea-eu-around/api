@@ -27,8 +27,9 @@ export class QueryFailedFilter implements ExceptionFilter {
 
         response.status(status).json({
             success: false,
-            codes: [errorMessage],
-            description: errorMessage,
+            description: exception.detail,
+            errorType: `error.${errorMessage}`,
+            time: new Date().toISOString(),
         });
     }
 }

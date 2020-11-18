@@ -13,8 +13,6 @@ import { ConfigService } from '../../shared/services/config.service';
 import { ValidatorService } from '../../shared/services/validator.service';
 import { UserRegisterDto } from '../auth/dto/UserRegisterDto';
 import { UserVerificationQueryDto } from '../auth/dto/UserVerificationQueryDto';
-import { UsersPageDto } from './dto/UsersPageDto';
-import { UsersPageOptionsDto } from './dto/UsersPageOptionsDto';
 import { UserRepository } from './user.repository';
 
 @Injectable()
@@ -106,19 +104,5 @@ export class UserService {
             return this.userRepository.save(user);
         }
         return null;
-    }
-
-    async getUsers(pageOptionsDto: UsersPageOptionsDto): Promise<UsersPageDto> {
-        const queryBuilder = this.userRepository.createQueryBuilder('user');
-        const [users, usersCount] = await queryBuilder
-            .skip(pageOptionsDto.skip)
-            .take(pageOptionsDto.take)
-            .getManyAndCount();
-
-        const pageMetaDto = new PageMetaDto({
-            pageOptionsDto,
-            itemCount: usersCount,
-        });
-        return new UsersPageDto(users.toDtos(), pageMetaDto);
     }
 }

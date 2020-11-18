@@ -22,6 +22,7 @@ import { ProfileOfferEntity } from '../../entities/profileOffer.entity';
 import { StaffProfileEntity } from '../../entities/staffProfile.entity';
 import { StudentProfileEntity } from '../../entities/studentProfile.entity';
 import { UserEntity } from '../../entities/user.entity';
+import { ProfileNotFoundException } from '../../exceptions/profile-not-found.exception';
 import { EducationFieldRepository } from '../../repositories/educationField.repository';
 import { InterestRepository } from '../../repositories/interest.repository';
 import { LanguageRepository } from '../../repositories/language.repository';
@@ -51,7 +52,13 @@ export class ProfileService {
     ) {}
 
     async findOneById(id: string): Promise<ProfileEntity> {
-        return this._profileRepository.findOneOrFail({ id });
+        const profile = await this._profileRepository.findOne({ id });
+
+        if (!profile) {
+            throw new ProfileNotFoundException();
+        }
+
+        return profile;
     }
 
     async getProfiles(
