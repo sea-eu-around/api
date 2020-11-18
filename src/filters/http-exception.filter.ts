@@ -22,7 +22,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
             success: false,
             description: r.message,
             errorType: `error.${_.snakeCase(r.message)}`,
-            time: new Date().toISOString(),
+            timestamp: new Date().toISOString(),
         });
     }
 }
