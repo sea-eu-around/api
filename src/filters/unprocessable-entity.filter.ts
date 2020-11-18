@@ -38,7 +38,6 @@ export class UnprocessableEntityFilter implements ExceptionFilter {
             timestamp: new Date().toISOString(),
         };
 
-        console.error(responsePayload);
         response.status(statusCode).json(responsePayload);
     }
 
