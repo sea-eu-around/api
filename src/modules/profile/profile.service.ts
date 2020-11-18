@@ -61,6 +61,9 @@ export class ProfileService {
     ): Promise<Pagination<ProfileEntity>> {
         let profiles = this._profileRepository
             .createQueryBuilder('profile')
+            .leftJoinAndSelect('profile.profileOffers', 'profileOffers')
+            .leftJoinAndSelect('profileOffers.offer', 'offer')
+            .leftJoinAndSelect('profile.interests', 'interests')
             .leftJoinAndSelect('profile.languages', 'languages');
 
         if (universities && universities.length > 0) {
