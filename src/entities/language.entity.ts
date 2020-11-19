@@ -8,17 +8,18 @@ import { ProfileEntity } from './profile.entity';
 
 @Entity('language')
 export class LanguageEntity extends AbstractCompositeEntity<LanguageDto> {
-    @PrimaryColumn({ type: 'enum', name: 'code' })
-    @Column({ enum: LanguageType, type: 'enum', primary: true })
-    code: LanguageType;
+    @Column({ enum: LanguageType, type: 'enum' })
+    @PrimaryColumn()
+    code!: LanguageType;
+
+    @Column()
+    @PrimaryColumn()
+    profileId!: string;
 
     @Column({ enum: LanguageLevelType, type: 'enum', nullable: true })
     level: LanguageLevelType;
 
-    @PrimaryColumn({ type: 'uuid', name: 'profile_id' })
-    @ManyToOne(() => ProfileEntity, (profile) => profile.languages, {
-        primary: true,
-    })
+    @ManyToOne(() => ProfileEntity, (profile) => profile.languages)
     profile: ProfileEntity;
 
     dtoClass = LanguageDto;
