@@ -1,5 +1,6 @@
 import './boilerplate.polyfill';
 
+import { MailerModule } from '@nestjs-modules/mailer';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -29,6 +30,15 @@ import { SharedModule } from './shared/shared.module';
         OfferModule,
         MatchingModule,
         CommonModule,
+        MailerModule.forRootAsync({
+            useFactory: () => ({
+                transport:
+                    'smtps://around:Cf@c!1E1mo2pA@mailhost.univ-brest.fr',
+                defaults: {
+                    from: '"SEA-EU Around" <sea-eu.around@univ-brest.fr>',
+                },
+            }),
+        }),
     ],
 })
 export class AppModule implements NestModule {

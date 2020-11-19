@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import {
     Body,
     Controller,
@@ -29,6 +30,7 @@ export class AuthController {
     constructor(
         public readonly userService: UserService,
         public readonly authService: AuthService,
+        private readonly _mailerService: MailerService,
     ) {}
 
     @Post('login')
@@ -93,6 +95,14 @@ export class AuthController {
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const userWithProfile = await this.authService.getUserWithProfile(user);
+
+        await this._mailerService.sendMail({
+            to: 'ladislas14@gmail.com', // list of receivers
+            from: 'sea-eu.around@univ-brest.fr', // sender address
+            subject: 'Testing Nest MailerModule ✔', // Subject line
+            text: 'welcome', // plaintext body
+            html: '<b>welcome</b>', // HTML body content
+        });
 
         return {
             description: 'current user info',
