@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm';
 
 import { AbstractCompositeEntity } from '../common/abstractComposite.entity';
 import { EducationFieldType } from '../common/constants/education-field-type';
@@ -9,14 +9,17 @@ import { ProfileEntity } from './profile.entity';
 export class EducationFieldEntity extends AbstractCompositeEntity<
     EducationFieldDto
 > {
-    @PrimaryColumn({ type: 'enum', name: 'id' })
-    @Column({ enum: EducationFieldType, type: 'enum', primary: true })
+    @Index()
+    @Column({ enum: EducationFieldType, type: 'enum' })
+    @PrimaryColumn({ enum: EducationFieldType, type: 'enum' })
     id: EducationFieldType;
 
-    @PrimaryColumn({ type: 'uuid', name: 'profile_id' })
-    @ManyToOne(() => ProfileEntity, (profile) => profile.educationFields, {
-        primary: true,
-    })
+    @Index()
+    @Column()
+    @PrimaryColumn()
+    profileId: string;
+
+    @ManyToOne(() => ProfileEntity, (profile) => profile.educationFields)
     profile: ProfileEntity;
 
     dtoClass = EducationFieldDto;

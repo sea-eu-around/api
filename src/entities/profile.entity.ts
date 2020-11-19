@@ -63,7 +63,6 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<
         (educationField) => educationField.profile,
         {
             eager: true,
-            cascade: true,
         },
     )
     educationFields: EducationFieldEntity[];
@@ -78,15 +77,15 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<
     nationality: NationalityType;
 
     @OneToMany(() => LanguageEntity, (language) => language.profile, {
-        eager: true,
         cascade: true,
+        eager: true,
     })
     languages: LanguageEntity[];
 
     @OneToMany(
         () => ProfileOfferEntity,
         (profileOffer) => profileOffer.profile,
-        { eager: true, cascade: true },
+        { eager: true },
     )
     profileOffers: ProfileOfferEntity[];
 

@@ -193,14 +193,20 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<InterestEntity[]> {
-        const interests = addInterestsToProfileDto.interests.map((id) =>
-            Object.assign(this._interestRepository.create(), {
-                id,
-                profile: profileId || user.id,
-            }),
+        let profile = await this._profileRepository.findOne(
+            { id: profileId || user.id },
+            { loadEagerRelations: false },
         );
 
-        return this._interestRepository.save(interests);
+        const interests = await this._interestRepository.findByIds(
+            addInterestsToProfileDto.interests,
+        );
+
+        profile.interests = interests;
+
+        profile = await this._profileRepository.save(profile);
+
+        return profile.interests;
     }
 
     async addLanguages(
@@ -211,7 +217,7 @@ export class ProfileService {
         const languages = addLanguagesToProfileDto.map((language) =>
             Object.assign(this._languageRepository.create(), {
                 ...language,
-                profile: profileId || user.id,
+                profileId: profileId || user.id,
             }),
         );
 
@@ -242,7 +248,7 @@ export class ProfileService {
             (educationField) =>
                 Object.assign(this._educationFieldRepository.create(), {
                     ...educationField,
-                    profile: profileId || user.id,
+                    profileId: profileId || user.id,
                 }),
         );
 
