@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm';
 
 import { AbstractCompositeEntity } from '../common/abstractComposite.entity';
 import { ProfileOfferDto } from '../dto/ProfileOfferDto';
@@ -9,10 +9,12 @@ import { ProfileEntity } from './profile.entity';
 export class ProfileOfferEntity extends AbstractCompositeEntity<
     ProfileOfferDto
 > {
+    @Index()
     @Column()
     @PrimaryColumn()
     profileId!: string;
 
+    @Index()
     @Column()
     @PrimaryColumn()
     offerId!: string;
