@@ -1,23 +1,40 @@
 language: node_js
 
 services:
-  - "docker"
+  - 'docker'
 
 node_js:
-  - "12"
+  - '12'
 
 cache:
   directories:
-    - "node_modules"
+    - 'node_modules'
 
-before_deploy:
-  - docker build -t aas-backend .
-  - docker login -u "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD" docker.io ;
-  - docker tag aas-backend $DOCKER_USERNAME/aas-backend:latest
+jobs:
+  include:
+    - stage: Build and deploy staging
+      if: branch = develop
+      before_deploy:
+        - docker build -t sea-eu-around .
+        - docker login -u "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD" docker.io ;
+        - docker tag sea-eu-around $DOCKER_USERNAME/sea-eu-around:staging
+      deploy:
+        provider: script
+        script: docker push $DOCKER_USERNAME/sea-eu-around:staging;
+        on:
+          branch: develop
 
-deploy:
-  provider: script
-  script: docker push $DOCKER_USERNAME/aas-backend:latest ;
+    - stage: Build and deploy prod
+      if: branch = master
+      before_deploy:
+        - docker build -t sea-eu-around --build-arg NODE_ENV=prod .
+        - docker login -u "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD" docker.io ;
+        - docker tag sea-eu-around $DOCKER_USERNAME/sea-eu-around:latest
+      deploy:
+        provider: script
+        script: docker push $DOCKER_USERNAME/sea-eu-around:latest;
+        on:
+          branch: master
 
 notifications:
   email: false
