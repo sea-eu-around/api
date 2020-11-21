@@ -96,14 +96,6 @@ export class AuthController {
     ): Promise<PayloadSuccessDto> {
         const userWithProfile = await this.authService.getUserWithProfile(user);
 
-        await this._mailerService.sendMail({
-            to: 'ladislas14@gmail.com', // list of receivers
-            from: 'sea-eu.around@univ-brest.fr', // sender address
-            subject: 'Testing Nest MailerModule ✔', // Subject line
-            text: 'welcome', // plaintext body
-            html: '<b>welcome</b>', // HTML body content
-        });
-
         return {
             description: 'current user info',
             data: userWithProfile,
