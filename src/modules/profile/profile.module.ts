@@ -8,6 +8,7 @@ import { ProfileRepository } from '../../repositories/profile.repository';
 import { ProfileOfferRepository } from '../../repositories/profileOffer.repository';
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
+import { UserRepository } from '../user/user.repository';
 import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
 
@@ -21,6 +22,7 @@ import { ProfileService } from './profile.service';
             InterestRepository,
             ProfileOfferRepository,
             EducationFieldRepository,
+            UserRepository,
         ]),
     ],
     controllers: [ProfileController],
