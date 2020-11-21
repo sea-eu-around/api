@@ -31,13 +31,9 @@ import { SharedModule } from './shared/shared.module';
         MatchingModule,
         CommonModule,
         MailerModule.forRootAsync({
-            useFactory: () => ({
-                transport:
-                    'smtps://around:Cf@c!1E1mo2pA@mailhost.univ-brest.fr',
-                defaults: {
-                    from: '"SEA-EU Around" <sea-eu.around@univ-brest.fr>',
-                },
-            }),
+            useFactory: (configService: ConfigService) =>
+                configService.mailerConfig,
+            inject: [ConfigService],
         }),
     ],
 })

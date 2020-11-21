@@ -1,10 +1,14 @@
 /* eslint-disable complexity */
+
+import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import * as jwt from 'jsonwebtoken';
 import { FindConditions } from 'typeorm';
 
 import { PageMetaDto } from '../../common/dto/PageMetaDto';
 import { UserEntity } from '../../entities/user.entity';
 import { AwsS3Service } from '../../shared/services/aws-s3.service';
+import { ConfigService } from '../../shared/services/config.service';
 import { ValidatorService } from '../../shared/services/validator.service';
 import { UserRegisterDto } from '../auth/dto/UserRegisterDto';
 import { UserVerificationQueryDto } from '../auth/dto/UserVerificationQueryDto';
@@ -18,6 +22,8 @@ export class UserService {
         public readonly userRepository: UserRepository,
         public readonly validatorService: ValidatorService,
         public readonly awsS3Service: AwsS3Service,
+        public readonly configService: ConfigService,
+        public readonly mailerService: MailerService,
     ) {}
 
     /**
@@ -46,18 +52,41 @@ export class UserService {
     }
 
     async createUser(userRegisterDto: UserRegisterDto): Promise<UserEntity> {
-        const user = this.userRepository.create({ ...userRegisterDto });
+        const preUser = this.userRepository.create({ ...userRegisterDto });
 
-        return this.userRepository.save(user);
+        const user = await this.userRepository.save(preUser);
+
+        const jwtToken = jwt.sign(
+            {
+                userId: user.id,
+            },
+            this.configService.get('JWT_SECRET_KEY'),
+            { expiresIn: this.configService.get('JWT_EXPIRATION_TIME') + 's' },
+        );
+
+        await this.mailerService.sendMail({
+            to: user.email, // list of receivers
+            from: 'sea-eu.around@univ-brest.fr', // sender address
+            subject: 'Your verification token', // Subject line
+            template: 'validateMailEN',
+            context: {
+                link: 'https://sea-eu-around.com/' + jwtToken,
+            },
+        });
+
+        return user;
     }
 
     async verifyUser(
         userVerificationQueryDto: UserVerificationQueryDto,
     ): Promise<UserEntity> {
-        const user = await this.userRepository.findOne({
-            email: userVerificationQueryDto.email,
-            verificationToken: userVerificationQueryDto.token,
-        });
+        const { userId, iat, exp } = <any>(
+            jwt.verify(
+                userVerificationQueryDto.token,
+                this.configService.get('JWT_SECRET_KEY'),
+            )
+        );
+        const user = await this.userRepository.findOne(userId);
 
         if (user) {
             user.active = true;
