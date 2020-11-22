@@ -1,4 +1,4 @@
-import { Column, Entity, Generated, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { RoleType } from '../common/constants/role-type';
@@ -20,8 +20,7 @@ export class UserEntity extends AbstractEntity<UserDto> {
     @OneToOne(() => ProfileEntity, (profile) => profile.user)
     profile: ProfileEntity;
 
-    @Column({ nullable: false })
-    @Generated('uuid')
+    // TODO: remove
     verificationToken: string;
 
     @Column({ nullable: false, default: false })

@@ -76,6 +76,8 @@ export class UserService {
             },
         });
 
+        user.verificationToken = jwtToken;
+
         return user;
     }
 
