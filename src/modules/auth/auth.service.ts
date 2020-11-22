@@ -48,7 +48,7 @@ export class AuthService {
             throw new UserNotFoundException();
         }
 
-        if (user && !user.active) {
+        if (user && !user.isVerified) {
             throw new UserNotVerifiedException();
         }
 

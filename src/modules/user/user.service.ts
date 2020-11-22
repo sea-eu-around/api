@@ -89,7 +89,7 @@ export class UserService {
         const user = await this.userRepository.findOne(userId);
 
         if (user) {
-            user.active = true;
+            user.isVerified = true;
 
             return this.userRepository.save(user);
         }

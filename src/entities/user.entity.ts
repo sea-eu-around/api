@@ -25,7 +25,7 @@ export class UserEntity extends AbstractEntity<UserDto> {
     verificationToken: string;
 
     @Column({ nullable: false, default: false })
-    active: boolean;
+    isVerified: boolean;
 
     @Column({ nullable: false, default: false })
     onboarded: boolean;
