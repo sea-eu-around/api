@@ -6,7 +6,6 @@ import { UserEntity } from '../../entities/user.entity';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception';
 import { ContextService } from '../../providers/context.service';
 import { UtilsService } from '../../providers/utils.service';
-import { ProfileRepository } from '../../repositories/profile.repository';
 import { ConfigService } from '../../shared/services/config.service';
 import { UserRepository } from '../user/user.repository';
 import { UserService } from '../user/user.service';
@@ -22,7 +21,6 @@ export class AuthService {
         public readonly configService: ConfigService,
         public readonly userService: UserService,
         private readonly _userRepository: UserRepository,
-        private readonly _profileRepository: ProfileRepository,
     ) {}
 
     async createToken(user: UserEntity | UserDto): Promise<TokenPayloadDto> {
