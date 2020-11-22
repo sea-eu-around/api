@@ -70,7 +70,9 @@ export class UserService {
             subject: 'Your verification token', // Subject line
             template: 'validateMailEN',
             context: {
-                link: 'https://sea-eu-around.com/' + jwtToken,
+                link: `${this.configService.get(
+                    'CLIENT_URL',
+                )}/validation?t=${jwtToken}`,
             },
         });
 
