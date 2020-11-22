@@ -20,9 +20,6 @@ export class UserEntity extends AbstractEntity<UserDto> {
     @OneToOne(() => ProfileEntity, (profile) => profile.user)
     profile: ProfileEntity;
 
-    // TODO: remove
-    verificationToken: string;
-
     @Column({ nullable: false, default: false })
     isVerified: boolean;
 
@@ -38,6 +35,9 @@ export class UserEntity extends AbstractEntity<UserDto> {
         cascade: true,
     })
     receivedLikes: MatchingEntity[];
+
+    // TODO: remove
+    verificationToken?: string;
 
     dtoClass = UserDto;
 }
