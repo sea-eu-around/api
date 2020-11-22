@@ -1,8 +1,15 @@
 'use strict';
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
+import {
+    IsEmail,
+    IsEnum,
+    IsNotEmpty,
+    IsString,
+    Matches,
+} from 'class-validator';
 
+import { LanguageType } from '../../../common/constants/language-type';
 import { IsSEAEmail } from '../../../decorators/validators.decorator';
 
 export class UserRegisterDto {
@@ -22,4 +29,8 @@ export class UserRegisterDto {
     )
     @ApiProperty({ minLength: 8 })
     readonly password: string;
+
+    @ApiProperty()
+    @IsEnum(LanguageType)
+    locale: LanguageType;
 }
