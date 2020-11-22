@@ -76,6 +76,10 @@ export class UserService {
             },
         });
 
+        if (['development', 'staging'].includes(this.configService.nodeEnv)) {
+            user.verificationToken = jwtToken;
+        }
+
         return user;
     }
 
