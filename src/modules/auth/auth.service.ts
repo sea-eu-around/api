@@ -57,12 +57,10 @@ export class AuthService {
     }
 
     async getUserWithProfile(user: UserEntity | UserDto): Promise<UserEntity> {
-        return this.userRepository
-            .createQueryBuilder('user')
-            .leftJoinAndSelect('user.profile', 'profile')
-            .leftJoinAndSelect('profile.languages', 'languages')
-            .where('user.id= :userId', { userId: user.id })
-            .getOne();
+        return this.userRepository.findOne(
+            { id: user.id },
+            { relations: ['profile'] },
+        );
     }
 
     async forgotPassword(
