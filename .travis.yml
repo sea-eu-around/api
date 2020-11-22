@@ -41,4 +41,4 @@ jobs:
         - "curl --location --request POST 'https://portainer.lad-dev.team/api/webhooks/7996be1e-8606-4af7-bac6-70d5ffcdc2d2'"
 
 notifications:
-  slack: '$SLACK_USERNAME:$SLACK_TOKEN#dev-backend'
+  slack: adoptastudentgroupe:v2JQDHOZYPj2K0x01gjWMxuv
