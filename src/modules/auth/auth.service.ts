@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
 
+import { LanguageType } from '../../common/constants/language-type';
 import { UserDto } from '../../dto/UserDto';
 import { UserEntity } from '../../entities/user.entity';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception';
@@ -79,11 +80,16 @@ export class AuthService {
             { expiresIn: this.configService.get('JWT_EXPIRATION_TIME') + 's' },
         );
 
+        const mailTemplate =
+            user.locale === LanguageType.FR
+                ? 'changePasswordFR'
+                : 'changePasswordEN';
+
         await this.mailerService.sendMail({
             to: user.email, // list of receivers
             from: 'sea-eu.around@univ-brest.fr', // sender address
             subject: 'Change your password', // Subject line
-            template: 'changePasswordEN',
+            template: mailTemplate,
             context: {
                 link: `${this.configService.get(
                     'CLIENT_URL',
