@@ -1,5 +1,6 @@
 import './boilerplate.polyfill';
 
+import { MailerModule } from '@nestjs-modules/mailer';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -29,6 +30,11 @@ import { SharedModule } from './shared/shared.module';
         OfferModule,
         MatchingModule,
         CommonModule,
+        MailerModule.forRootAsync({
+            useFactory: (configService: ConfigService) =>
+                configService.mailerConfig,
+            inject: [ConfigService],
+        }),
     ],
 })
 export class AppModule implements NestModule {

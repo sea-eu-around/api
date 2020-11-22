@@ -16,7 +16,7 @@ export class UserDto extends AbstractDto {
     email: string;
 
     @ApiPropertyOptional()
-    active: boolean;
+    isVerified: boolean;
 
     @ApiPropertyOptional()
     onboarded: boolean;
@@ -31,7 +31,7 @@ export class UserDto extends AbstractDto {
         super(user);
         this.role = user.role || RoleType.USER;
         this.email = user.email;
-        this.active = user.active;
+        this.isVerified = user.isVerified;
         this.onboarded = user.onboarded;
         this.verificationToken = user.verificationToken;
         this.profile = UtilsService.isDto(user.profile)
