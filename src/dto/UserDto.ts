@@ -16,7 +16,7 @@ export class UserDto extends AbstractDto {
     email: string;
 
     @ApiPropertyOptional()
-    active: boolean;
+    isVerified: boolean;
 
     @ApiPropertyOptional()
     onboarded: boolean;
