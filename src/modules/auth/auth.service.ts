@@ -85,7 +85,9 @@ export class AuthService {
             subject: 'Change your password', // Subject line
             template: 'changePasswordEN',
             context: {
-                link: 'https://sea-eu-around.com/' + jwtToken,
+                link: `${this.configService.get(
+                    'CLIENT_URL',
+                )}/reset-password?t=${jwtToken}`,
             },
         });
         return user;
