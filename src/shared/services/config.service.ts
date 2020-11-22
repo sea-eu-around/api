@@ -82,7 +82,7 @@ export class ConfigService {
             subscribers: [UserSubscriber, ProfileSubscriber],
             migrationsRun: false,
             synchronize: true,
-            logging: this.nodeEnv === 'development',
+            logging: ['development', 'staging'].includes(this.nodeEnv),
             namingStrategy: new SnakeNamingStrategy(),
         };
     }
