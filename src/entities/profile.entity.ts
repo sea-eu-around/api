@@ -30,6 +30,9 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<
     @PrimaryColumn('uuid')
     id: string;
 
+    @Column({ type: 'enum', enum: ProfileType })
+    type: ProfileType;
+
     @OneToOne(() => UserEntity, (user) => user.profile, {
         cascade: true,
         primary: true,
