@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import {
     Body,
     Controller,
@@ -29,6 +30,7 @@ export class AuthController {
     constructor(
         public readonly userService: UserService,
         public readonly authService: AuthService,
+        private readonly _mailerService: MailerService,
     ) {}
 
     @Post('login')
