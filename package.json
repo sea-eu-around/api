@@ -1,8 +1,8 @@
 {
-    "name": "awesome-nest-boilerplate",
-    "version": "7.0.0",
-    "description": "Awesome NestJS Boilerplate, Typescript, Postgres, TypeORM",
-    "author": "Narek Hakobyan <narek.hakobyan.07@gmail.com>",
+    "name": "sea-eu-around-api",
+    "version": "0.0.1",
+    "description": "SEA-EU Around API.",
+    "author": "SEA-EU <sea-eu-around@univ-brest.fr>",
     "license": "MIT",
     "scripts": {
         "build": "rimraf dist && tsc -p tsconfig.build.json && npm run copy:templates",
