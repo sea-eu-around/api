@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import {
     Body,
     Controller,
@@ -18,7 +19,9 @@ import { AuthGuard } from '../../guards/auth.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
+import { ForgotPasswordDto } from './dto/ForgotPasswordDto';
 import { LoginPayloadDto } from './dto/LoginPayloadDto';
+import { ResetPasswordDto } from './dto/ResetPasswordDto';
 import { UserLoginDto } from './dto/UserLoginDto';
 import { UserRegisterDto } from './dto/UserRegisterDto';
 import { UserVerificationQueryDto } from './dto/UserVerificationQueryDto';
@@ -29,6 +32,7 @@ export class AuthController {
     constructor(
         public readonly userService: UserService,
         public readonly authService: AuthService,
+        private readonly _mailerService: MailerService,
     ) {}
 
     @Post('login')
@@ -80,6 +84,32 @@ export class AuthController {
         return {
             description: 'Successfully Verified',
             data: verifiedUser,
+        };
+    }
+
+    @Post('password/forgot')
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({ type: UserDto, description: 'Email send' })
+    async forgotPassword(
+        @Body() forgotPasswordDto: ForgotPasswordDto,
+    ): Promise<PayloadSuccessDto> {
+        const user = await this.authService.forgotPassword(forgotPasswordDto);
+        return {
+            description: 'mail send',
+            data: user,
+        };
+    }
+
+    @Post('password/reset')
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({ type: UserDto, description: 'password reinitialized' })
+    async resetPassword(
+        @Body() resetPasswordDto: ResetPasswordDto,
+    ): Promise<PayloadSuccessDto> {
+        const user = await this.authService.resetPassword(resetPasswordDto);
+        return {
+            description: 'password reinitialized',
+            data: user,
         };
     }
 

@@ -28,7 +28,7 @@ import { ProfileRepository } from '../../repositories/profile.repository';
 import { ProfileOfferRepository } from '../../repositories/profileOffer.repository';
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
-import { AwsS3Service } from '../../shared/services/aws-s3.service';
+import { UserRepository } from '../user/user.repository';
 import { AddEducationFieldToProfileDto } from './dto/AddEducationFieldToProfileDto';
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
 import { AddLanguageToProfileDto } from './dto/AddLanguageToProfileDto';
@@ -46,7 +46,7 @@ export class ProfileService {
         private readonly _languageRepository: LanguageRepository,
         private readonly _profileOfferRepository: ProfileOfferRepository,
         private readonly _educationFieldRepository: EducationFieldRepository,
-        private readonly _awsS3Service: AwsS3Service,
+        private readonly _userRepository: UserRepository,
     ) {}
 
     async findOneById(id: string): Promise<ProfileEntity> {
@@ -167,6 +167,10 @@ export class ProfileService {
                 savedProfile.id,
             );
         }
+
+        user.onboarded = true;
+
+        await this._userRepository.save(user);
 
         return savedProfile;
     }

@@ -1,3 +1,4 @@
+import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
 
@@ -82,7 +83,7 @@ export class ConfigService {
             subscribers: [UserSubscriber, ProfileSubscriber],
             migrationsRun: false,
             synchronize: true,
-            logging: this.nodeEnv === 'development',
+            logging: ['development', 'staging'].includes(this.nodeEnv),
             namingStrategy: new SnakeNamingStrategy(),
         };
     }
@@ -93,6 +94,19 @@ export class ConfigService {
             secretAccessKey: this.get('AWS_S3_SECRET_ACCESS_KEY'),
             bucketName: this.get('S3_BUCKET_NAME'),
             bucketRegion: this.get('S3_BUCKET_REGION'),
+        };
+    }
+
+    get mailerConfig(): unknown {
+        return {
+            transport: this.get('TRANSPORT_MAIL'),
+            defaults: {
+                from: this.get('FROM_MAIL'),
+            },
+            template: {
+                dir: __dirname + this.get('TEMPLATE_DIR'),
+                adapter: new EjsAdapter(),
+            },
         };
     }
 }
