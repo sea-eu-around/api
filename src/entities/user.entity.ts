@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
+import { LanguageType } from '../common/constants/language-type';
 import { RoleType } from '../common/constants/role-type';
 import { UserDto } from '../dto/UserDto';
 import { MatchingEntity } from './matching.entity';
@@ -25,6 +26,9 @@ export class UserEntity extends AbstractEntity<UserDto> {
 
     @Column({ nullable: false, default: false })
     onboarded: boolean;
+
+    @Column({ nullable: true })
+    locale?: LanguageType;
 
     @OneToMany(() => MatchingEntity, (matching) => matching.fromUser, {
         cascade: true,
