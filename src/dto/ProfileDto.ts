@@ -2,6 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { GenderType } from 'aws-sdk/clients/rekognition';
 
 import { NationalityType } from '../common/constants/nationality-type';
+import { ProfileType } from '../common/constants/profile-type';
 import { AbstractCompositeDto } from '../common/dto/AbstractCompositeDto';
 import { ProfileEntity } from '../entities/profile.entity';
 import { UtilsService } from '../providers/utils.service';
@@ -13,6 +14,9 @@ import { ProfileOfferDto } from './ProfileOfferDto';
 export class ProfileDto extends AbstractCompositeDto {
     @ApiPropertyOptional()
     id: string;
+
+    @ApiPropertyOptional()
+    type?: ProfileType;
 
     @ApiPropertyOptional()
     firstName: string;
@@ -50,6 +54,7 @@ export class ProfileDto extends AbstractCompositeDto {
     constructor(profile: ProfileEntity) {
         super();
         this.id = profile.id;
+        this.type = profile.type;
         this.firstName = profile.firstName;
         this.lastName = profile.lastName;
         this.university = profile.university;
