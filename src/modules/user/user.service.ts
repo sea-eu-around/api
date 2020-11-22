@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { FindConditions } from 'typeorm';
 
+import { LanguageType } from '../../common/constants/language-type';
 import { PageMetaDto } from '../../common/dto/PageMetaDto';
 import { UserEntity } from '../../entities/user.entity';
 import { AwsS3Service } from '../../shared/services/aws-s3.service';
@@ -64,11 +65,16 @@ export class UserService {
             { expiresIn: this.configService.get('JWT_EXPIRATION_TIME') + 's' },
         );
 
+        const mailTemplate =
+            user.locale === LanguageType.FR
+                ? 'validateMailFR'
+                : 'validateMailEN';
+
         await this.mailerService.sendMail({
             to: user.email, // list of receivers
             from: 'sea-eu.around@univ-brest.fr', // sender address
             subject: 'Your verification token', // Subject line
-            template: 'validateMailEN',
+            template: mailTemplate,
             context: {
                 link: `${this.configService.get(
                     'CLIENT_URL',

@@ -2,6 +2,7 @@
 
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
+import { LanguageType } from '../common/constants/language-type';
 import { RoleType } from '../common/constants/role-type';
 import { AbstractDto } from '../common/dto/AbstractDto';
 import { UserEntity } from '../entities/user.entity';
@@ -22,10 +23,12 @@ export class UserDto extends AbstractDto {
     onboarded: boolean;
 
     @ApiPropertyOptional()
-    verificationToken: string;
+    profile: ProfileDto;
 
     @ApiPropertyOptional()
-    profile: ProfileDto;
+    locale?: LanguageType;
+
+    verificationToken?: string;
 
     constructor(user: UserEntity) {
         super(user);
@@ -33,6 +36,7 @@ export class UserDto extends AbstractDto {
         this.email = user.email;
         this.isVerified = user.isVerified;
         this.onboarded = user.onboarded;
+        this.locale = user.locale;
         this.verificationToken = user.verificationToken;
         this.profile = UtilsService.isDto(user.profile)
             ? user.profile.toDto({ noDate: true })
