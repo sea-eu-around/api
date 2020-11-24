@@ -28,6 +28,10 @@ export class ConfigService {
         return this.nodeEnv === 'production' || this.nodeEnv === 'prod';
     }
 
+    get debug(): boolean {
+        return this.get('DEBUG') === '1';
+    }
+
     public get(key: string): string {
         return process.env[key];
     }
@@ -83,7 +87,7 @@ export class ConfigService {
             subscribers: [UserSubscriber, ProfileSubscriber],
             migrationsRun: false,
             synchronize: true,
-            logging: ['development', 'staging'].includes(this.nodeEnv),
+            logging: this.debug,
             namingStrategy: new SnakeNamingStrategy(),
         };
     }
