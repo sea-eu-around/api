@@ -78,7 +78,7 @@ export class UserService {
             context: {
                 link: `${this.configService.get(
                     'CLIENT_URL',
-                )}/validate?t=${jwtToken}`,
+                )}/validate/${jwtToken}`,
             },
         });
 
