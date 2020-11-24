@@ -25,7 +25,7 @@ export class ConfigService {
     }
 
     get isProduction(): boolean {
-        return this.nodeEnv === 'production';
+        return this.nodeEnv === 'production' || this.nodeEnv === 'prod';
     }
 
     public get(key: string): string {
