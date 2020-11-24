@@ -42,6 +42,20 @@ export function IsSEAEmail(
                     const domain = value.split('@')[1];
                     const configService = new ConfigService();
                     if (configService.isProduction) {
+                        // Whitelist
+                        if (
+                            [
+                                'contact@biografik.fr',
+                                'ladislas.dellinger@imt-atlantique.net',
+                                'ladislas14@gmail.com',
+                                'ladislas.dellinger@gmail.com',
+                                'alfred.pichard@imt-atlantique.net',
+                                'kelian.baert@imt-atlantique.net',
+                            ].includes(value)
+                        ) {
+                            return true;
+                        }
+
                         return (
                             PARTNER_UNIVERSITIES.map(
                                 (university) => university.domain,
