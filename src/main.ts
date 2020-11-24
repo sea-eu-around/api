@@ -5,6 +5,7 @@ import {
     ExpressAdapter,
     NestExpressApplication,
 } from '@nestjs/platform-express';
+import { useContainer } from 'class-validator';
 import * as compression from 'compression';
 import * as RateLimit from 'express-rate-limit';
 import * as helmet from 'helmet';
@@ -63,6 +64,8 @@ async function bootstrap() {
             },
         }),
     );
+
+    useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
     const configService = app.select(SharedModule).get(ConfigService);
 

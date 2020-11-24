@@ -1,5 +1,5 @@
 /* eslint-disable complexity */
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
     IPaginationOptions,
     paginate,
@@ -267,7 +267,7 @@ export class ProfileService {
         );
 
         if (!university) {
-            throw new BadRequestException('test');
+            return PartnerUniversity.BREST;
         }
 
         return <PartnerUniversity>university.key;
