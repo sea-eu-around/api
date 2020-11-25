@@ -5,6 +5,7 @@ import {
     HttpCode,
     HttpStatus,
     Post,
+    Query,
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
@@ -63,7 +64,9 @@ export class InterestController {
         type: InterestEntity,
         description: 'Get all interests',
     })
-    async getMany(query: GetInterestsQueryDto): Promise<PayloadSuccessDto> {
+    async getMany(
+        @Query() query: GetInterestsQueryDto,
+    ): Promise<PayloadSuccessDto> {
         const interests = await this._interestService.getMany(query);
         return {
             description: 'successfully-get-interests',
