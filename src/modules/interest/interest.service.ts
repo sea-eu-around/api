@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { FindConditions } from 'typeorm';
+import { FindConditions, MoreThan } from 'typeorm';
 
 // import { FindConditions } from 'typeorm';
 import { InterestEntity } from '../../entities/interest.entity';
 import { InterestRepository } from '../../repositories/interest.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
+import { GetInterestsQueryDto } from './dto/GetInterestsQueryDto';
 
 @Injectable()
 export class InterestService {
@@ -26,7 +27,13 @@ export class InterestService {
         return test;
     }
 
-    async getAllInterests(): Promise<InterestEntity[]> {
+    async getMany(query: GetInterestsQueryDto): Promise<InterestEntity[]> {
+        if (query && query.date) {
+            return this.interestRepository.find({
+                where: { updatedAt: MoreThan(query.date) },
+            });
+        }
+
         return this.interestRepository.find();
     }
 
