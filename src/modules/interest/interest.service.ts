@@ -30,10 +30,11 @@ export class InterestService {
     async getMany(query: GetInterestsQueryDto): Promise<InterestEntity[]> {
         const interests = await this._interestRepository.find();
 
-        if (query && query.date) {
+        if (query && query.updatedAt) {
             if (
                 interests.find(
-                    (interest) => interest.updatedAt > new Date(query.date),
+                    (interest) =>
+                        interest.updatedAt > new Date(query.updatedAt),
                 )
             ) {
                 return interests;
