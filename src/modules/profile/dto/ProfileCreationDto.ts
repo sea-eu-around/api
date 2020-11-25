@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
     IsArray,
+    IsDateString,
     IsEnum,
     IsNotEmpty,
     IsOptional,
@@ -31,7 +32,7 @@ export class ProfileCreationDto {
     gender: GenderType;
 
     @ApiProperty()
-    @IsString()
+    @IsDateString()
     birthdate: Date;
 
     @ApiProperty()

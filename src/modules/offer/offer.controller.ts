@@ -1,8 +1,9 @@
-import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { OfferDto } from '../../dto/OfferDto';
+import { GetOffersQueryDto } from './dto/GetOffersQueryDto';
 import { OfferService } from './offer.service';
 
 @Controller('offers')
@@ -12,12 +13,19 @@ export class OfferController {
 
     @Get()
     @HttpCode(HttpStatus.OK)
+    @ApiQuery({
+        name: 'date',
+        type: 'date',
+        required: false,
+    })
     @ApiOkResponse({
         type: OfferDto,
         description: 'get all interests',
     })
-    async getAllInterests(): Promise<PayloadSuccessDto> {
-        const offers = await this._offerService.getMany();
+    async getMany(
+        @Query() query?: GetOffersQueryDto,
+    ): Promise<PayloadSuccessDto> {
+        const offers = await this._offerService.getMany(query);
 
         return {
             description: 'interests',
