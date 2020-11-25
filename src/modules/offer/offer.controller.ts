@@ -20,7 +20,7 @@ export class OfferController {
     })
     @ApiOkResponse({
         type: OfferDto,
-        description: 'get all interests',
+        description: 'Get all offers',
     })
     async getMany(
         @Query() query?: GetOffersQueryDto,
@@ -28,7 +28,7 @@ export class OfferController {
         const offers = await this._offerService.getMany(query);
 
         return {
-            description: 'interests',
+            description: 'successfully-get-offers',
             data: offers,
         };
     }

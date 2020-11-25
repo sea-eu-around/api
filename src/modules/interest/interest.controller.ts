@@ -61,12 +61,12 @@ export class InterestController {
     })
     @ApiOkResponse({
         type: InterestEntity,
-        description: 'get all interests',
+        description: 'Get all interests',
     })
     async getMany(query: GetInterestsQueryDto): Promise<PayloadSuccessDto> {
         const interests = await this._interestService.getMany(query);
         return {
-            description: 'interests',
+            description: 'successfully-get-interests',
             data: interests,
         };
     }
