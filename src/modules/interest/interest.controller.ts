@@ -8,7 +8,12 @@ import {
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiOkResponse,
+    ApiQuery,
+    ApiTags,
+} from '@nestjs/swagger';
 
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { InterestDto } from '../../dto/InterestDto';
@@ -17,6 +22,7 @@ import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
 import { CreateInterestDto } from './dto/createInterestDto';
+import { GetInterestsQueryDto } from './dto/GetInterestsQueryDto';
 import { InterestService } from './interest.service';
 
 @Controller('interests')
@@ -48,14 +54,19 @@ export class InterestController {
 
     @Get()
     @HttpCode(HttpStatus.OK)
+    @ApiQuery({
+        name: 'date',
+        type: 'date',
+        required: false,
+    })
     @ApiOkResponse({
         type: InterestEntity,
-        description: 'get all interests',
+        description: 'Get all interests',
     })
-    async getAllInterests(): Promise<PayloadSuccessDto> {
-        const interests = await this._interestService.getAllInterests();
+    async getMany(query: GetInterestsQueryDto): Promise<PayloadSuccessDto> {
+        const interests = await this._interestService.getMany(query);
         return {
-            description: 'interests',
+            description: 'successfully-get-interests',
             data: interests,
         };
     }
