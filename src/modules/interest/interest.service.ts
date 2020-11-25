@@ -33,7 +33,7 @@ export class InterestService {
         if (query && query.date) {
             if (
                 interests.find(
-                    (interest) => interest.updatedAt < new Date(query.date),
+                    (interest) => interest.updatedAt > new Date(query.date),
                 )
             ) {
                 return interests;

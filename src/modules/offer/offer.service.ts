@@ -13,7 +13,7 @@ export class OfferService {
 
         if (query && query.date) {
             if (
-                offers.find((offer) => offer.updatedAt < new Date(query.date))
+                offers.find((offer) => offer.updatedAt > new Date(query.date))
             ) {
                 return offers;
             }
