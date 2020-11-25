@@ -79,7 +79,7 @@ export class UserService {
                 ? 'validateMail-fr'
                 : 'validateMail-en';
 
-        await this._mailerService.sendMail({
+        /*await this.mailerService.sendMail({
             to: user.email, // list of receivers
             from: 'sea-eu.around@univ-brest.fr', // sender address
             subject:
@@ -92,7 +92,7 @@ export class UserService {
                     'CLIENT_URL',
                 )}/validate/${jwtToken}`,
             },
-        });
+        });*/
 
         if (['development', 'staging'].includes(this._configService.nodeEnv)) {
             user.verificationToken = jwtToken;
