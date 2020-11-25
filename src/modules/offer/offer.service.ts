@@ -11,9 +11,11 @@ export class OfferService {
     async getMany(query?: GetOffersQueryDto): Promise<OfferEntity[]> {
         const offers = await this._offerRepository.find();
 
-        if (query && query.date) {
+        if (query && query.updatedAt) {
             if (
-                offers.find((offer) => offer.updatedAt > new Date(query.date))
+                offers.find(
+                    (offer) => offer.updatedAt > new Date(query.updatedAt),
+                )
             ) {
                 return offers;
             }

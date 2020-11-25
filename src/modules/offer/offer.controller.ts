@@ -14,7 +14,7 @@ export class OfferController {
     @Get()
     @HttpCode(HttpStatus.OK)
     @ApiQuery({
-        name: 'date',
+        name: 'updatedAt',
         type: 'date',
         required: false,
     })

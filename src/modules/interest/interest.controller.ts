@@ -56,7 +56,7 @@ export class InterestController {
     @Get()
     @HttpCode(HttpStatus.OK)
     @ApiQuery({
-        name: 'date',
+        name: 'updatedAt',
         type: 'date',
         required: false,
     })
