@@ -66,35 +66,41 @@ export class AuthService {
     async forgotPassword(
         forgotPasswordDto: ForgotPasswordDto,
     ): Promise<UserEntity> {
-        const user = await this.userRepository.findOneOrFail({
+        const user = await this.userRepository.findOne({
             email: forgotPasswordDto.email,
         });
 
-        const jwtToken = jwt.sign(
-            {
-                userId: user.id,
-            },
-            this.configService.get('JWT_SECRET_KEY'),
-            { expiresIn: this.configService.get('JWT_EXPIRATION_TIME') + 's' },
-        );
+        if (user) {
+            const jwtToken = jwt.sign(
+                {
+                    userId: user.id,
+                },
+                this.configService.get('JWT_SECRET_KEY'),
+                {
+                    expiresIn:
+                        this.configService.get('JWT_EXPIRATION_TIME') + 's',
+                },
+            );
 
-        const mailTemplate =
-            user.locale === LanguageType.FR
-                ? 'changePasswordFR'
-                : 'changePasswordEN';
+            const mailTemplate =
+                user.locale === LanguageType.FR
+                    ? 'changePasswordFR'
+                    : 'changePasswordEN';
 
-        await this.mailerService.sendMail({
-            to: user.email, // list of receivers
-            from: 'sea-eu.around@univ-brest.fr', // sender address
-            subject: 'Change your password', // Subject line
-            template: mailTemplate,
-            context: {
-                link: `${this.configService.get(
-                    'CLIENT_URL',
-                )}/reset-password?t=${jwtToken}`,
-            },
-        });
-        return user;
+            await this.mailerService.sendMail({
+                to: user.email, // list of receivers
+                from: 'sea-eu.around@univ-brest.fr', // sender address
+                subject: 'Change your password', // Subject line
+                template: mailTemplate,
+                context: {
+                    link: `${this.configService.get(
+                        'CLIENT_URL',
+                    )}/reset-password?t=${jwtToken}`,
+                },
+            });
+            return user;
+        }
+        throw new UserNotFoundException();
     }
 
     async resetPassword(
