@@ -7,6 +7,7 @@ import {
 } from 'nestjs-typeorm-paginate';
 
 import { DegreeType } from '../../common/constants/degree-type';
+import { GenderType } from '../../common/constants/gender-type';
 import { LanguageType } from '../../common/constants/language-type';
 import { ProfileType } from '../../common/constants/profile-type';
 import {
@@ -57,6 +58,8 @@ export class ProfileService {
         universities: PartnerUniversity[],
         spokenLanguages: LanguageType[],
         degrees: DegreeType[],
+        genders: GenderType[],
+        types: ProfileType[],
         options: IPaginationOptions,
     ): Promise<Pagination<ProfileEntity>> {
         let profiles = this._profileRepository
@@ -65,6 +68,12 @@ export class ProfileService {
             .leftJoinAndSelect('profileOffers.offer', 'offer')
             .leftJoinAndSelect('profile.interests', 'interests')
             .leftJoinAndSelect('profile.languages', 'languages');
+
+        if (genders && genders.length > 0) {
+            profiles = profiles.andWhere('profile.gender IN (:...genders)', {
+                genders,
+            });
+        }
 
         if (universities && universities.length > 0) {
             profiles = profiles.andWhere(
@@ -82,6 +91,12 @@ export class ProfileService {
                     spokenLanguages,
                 },
             );
+        }
+
+        if (types && types.length > 0) {
+            profiles = profiles.andWhere('profile.type IN (:...types)', {
+                types,
+            });
         }
 
         if (degrees && degrees.length > 0) {
