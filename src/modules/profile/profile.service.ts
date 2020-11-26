@@ -70,7 +70,7 @@ export class ProfileService {
             .leftJoinAndSelect('profile.languages', 'languages');
 
         if (genders && genders.length > 0) {
-            profiles = profiles.andWhere('profile.gender IN (:...gender)', {
+            profiles = profiles.andWhere('profile.gender IN (:...genders)', {
                 genders,
             });
         }
@@ -94,7 +94,7 @@ export class ProfileService {
         }
 
         if (types && types.length > 0) {
-            profiles = profiles.andWhere('profile.type IN (:...type)', {
+            profiles = profiles.andWhere('profile.type IN (:...types)', {
                 types,
             });
         }
