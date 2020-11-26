@@ -21,7 +21,9 @@ import {
 } from '@nestjs/swagger';
 
 import { DegreeType } from '../../common/constants/degree-type';
+import { GenderType } from '../../common/constants/gender-type';
 import { LanguageType } from '../../common/constants/language-type';
+import { ProfileType } from '../../common/constants/profile-type';
 import { PartnerUniversity } from '../../common/constants/sea';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
@@ -82,6 +84,20 @@ export class ProfileController {
         explode: false,
         required: false,
     })
+    @ApiQuery({
+        name: 'gender',
+        enum: GenderType,
+        isArray: true,
+        explode: false,
+        required: false,
+    })
+    @ApiQuery({
+        name: 'type',
+        enum: ProfileType,
+        isArray: true,
+        explode: false,
+        required: false,
+    })
     @ApiResponse({
         type: ProfileDto,
         status: HttpStatus.OK,
@@ -90,7 +106,14 @@ export class ProfileController {
     async getProfiles(
         @Query() query: ProfileQueryDto,
     ): Promise<PayloadSuccessDto> {
-        const { page, universities, spokenLanguages, degrees } = query;
+        const {
+            page,
+            universities,
+            spokenLanguages,
+            degrees,
+            gender,
+            type,
+        } = query;
 
         const limit = query.limit > 100 ? 100 : query.limit;
 
@@ -98,6 +121,8 @@ export class ProfileController {
             universities,
             spokenLanguages,
             degrees,
+            gender,
+            type,
             {
                 page,
                 limit,
