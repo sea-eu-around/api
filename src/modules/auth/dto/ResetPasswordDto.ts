@@ -7,7 +7,7 @@ export class ResetPasswordDto {
     @IsString()
     @ApiProperty()
     @IsJWT()
-    jwtToken: string;
+    token: string;
 
     @IsString()
     @Matches(
