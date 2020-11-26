@@ -85,14 +85,14 @@ export class ProfileController {
         required: false,
     })
     @ApiQuery({
-        name: 'gender',
+        name: 'genders',
         enum: GenderType,
         isArray: true,
         explode: false,
         required: false,
     })
     @ApiQuery({
-        name: 'type',
+        name: 'types',
         enum: ProfileType,
         isArray: true,
         explode: false,
@@ -111,8 +111,8 @@ export class ProfileController {
             universities,
             spokenLanguages,
             degrees,
-            gender,
-            type,
+            genders,
+            types,
         } = query;
 
         const limit = query.limit > 100 ? 100 : query.limit;
@@ -121,8 +121,8 @@ export class ProfileController {
             universities,
             spokenLanguages,
             degrees,
-            gender,
-            type,
+            genders,
+            types,
             {
                 page,
                 limit,

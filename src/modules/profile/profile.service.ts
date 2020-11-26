@@ -58,8 +58,8 @@ export class ProfileService {
         universities: PartnerUniversity[],
         spokenLanguages: LanguageType[],
         degrees: DegreeType[],
-        gender: GenderType[],
-        type: ProfileType[],
+        genders: GenderType[],
+        types: ProfileType[],
         options: IPaginationOptions,
     ): Promise<Pagination<ProfileEntity>> {
         let profiles = this._profileRepository
@@ -69,9 +69,9 @@ export class ProfileService {
             .leftJoinAndSelect('profile.interests', 'interests')
             .leftJoinAndSelect('profile.languages', 'languages');
 
-        if (gender && gender.length > 0) {
+        if (genders && genders.length > 0) {
             profiles = profiles.andWhere('profile.gender IN (:...gender)', {
-                gender,
+                genders,
             });
         }
 
@@ -93,9 +93,9 @@ export class ProfileService {
             );
         }
 
-        if (type && type.length > 0) {
+        if (types && types.length > 0) {
             profiles = profiles.andWhere('profile.type IN (:...type)', {
-                type,
+                types,
             });
         }
 
