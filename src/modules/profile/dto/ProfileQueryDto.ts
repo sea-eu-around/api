@@ -38,11 +38,11 @@ export class ProfileQueryDto {
     @IsArray()
     @IsEnum(GenderType, { each: true })
     @Transform((value: string) => value.split(','))
-    gender?: GenderType[];
+    genders?: GenderType[];
 
     @IsOptional()
     @IsArray()
     @IsEnum(ProfileType, { each: true })
     @Transform((value: string) => value.split(','))
-    type?: ProfileType[];
+    types?: ProfileType[];
 }
