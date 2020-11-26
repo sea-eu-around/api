@@ -95,7 +95,7 @@ export class AuthService {
                 context: {
                     link: `${this.configService.get(
                         'CLIENT_URL',
-                    )}/reset-password?t=${jwtToken}`,
+                    )}/reset-password/${jwtToken}`,
                 },
             });
             return user;
