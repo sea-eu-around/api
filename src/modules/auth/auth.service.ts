@@ -108,7 +108,7 @@ export class AuthService {
     ): Promise<UserEntity> {
         const { userId, iat, exp } = <any>(
             jwt.verify(
-                resetPasswordDto.jwtToken,
+                resetPasswordDto.token,
                 this.configService.get('JWT_SECRET_KEY'),
             )
         );
