@@ -1,4 +1,62 @@
-import { Controller } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Query,
+    UseGuards,
+    UseInterceptors,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
+import { AuthUser } from '../../decorators/auth-user.decorator';
+import { RoomEntity } from '../../entities/room.entity';
+import { UserEntity } from '../../entities/user.entity';
+import { AuthGuard } from '../../guards/auth.guard';
+import { RolesGuard } from '../../guards/roles.guard';
+import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
+import { GetRoomsQueryDto } from './dto/GetRoomsQueryDto';
+import { RoomService } from './room.service';
 
 @Controller('room')
-export class RoomController {}
+@ApiTags('Room')
+@UseGuards(AuthGuard, RolesGuard)
+@UseInterceptors(AuthUserInterceptor)
+export class RoomController {
+    constructor(private readonly _roomService: RoomService) {}
+
+    @Get()
+    @HttpCode(HttpStatus.OK)
+    @ApiBearerAuth()
+    @ApiQuery({
+        name: 'page',
+    })
+    @ApiQuery({
+        name: 'limit',
+    })
+    @ApiResponse({
+        type: RoomEntity,
+        status: HttpStatus.OK,
+        description: 'successefully-retrieved-rooms',
+    })
+    async getRooms(
+        @Query() query: GetRoomsQueryDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const limit = query.limit > 100 ? 100 : query.limit;
+
+        const rooms = await this._roomService.getRooms(user, {
+            limit,
+            page: query.page,
+            route: 'http://localhost:3000/profiles',
+        });
+
+        return {
+            description: 'successefully-retrieved-rooms',
+            data: rooms.items,
+            meta: rooms.meta,
+            links: rooms.links,
+        };
+    }
+}

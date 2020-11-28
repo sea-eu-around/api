@@ -31,5 +31,8 @@ export class MatchingEntity extends AbstractEntity<MatchingDto> {
     @JoinColumn()
     room?: RoomEntity;
 
+    @Column({ nullable: true })
+    roomId?: string;
+
     dtoClass = MatchingDto;
 }

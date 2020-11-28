@@ -31,14 +31,14 @@ import { SharedModule } from './shared/shared.module';
         InterestModule,
         OfferModule,
         MatchingModule,
+        RoomModule,
+        MessageModule,
         CommonModule,
         MailerModule.forRootAsync({
             useFactory: (configService: ConfigService) =>
                 configService.mailerConfig,
             inject: [ConfigService],
         }),
-        MessageModule,
-        RoomModule,
     ],
 })
 export class AppModule implements NestModule {
