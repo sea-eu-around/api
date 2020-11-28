@@ -68,12 +68,14 @@
         "reflect-metadata": "~0.1.13",
         "request-context": "~2.0.0",
         "rxjs": "^6.6.2",
+        "socket.io": "^3.0.3",
         "source-map-support": "^0.5.19",
         "swagger-ui-express": "^4.1.4",
         "typeorm": "^0.2.28",
         "typeorm-transactional-cls-hooked": "^0.1.12",
         "typescript": "^3.9.3",
-        "uuid": "^8.3.0"
+        "uuid": "^8.3.0",
+        "ws": "^7.4.0"
     },
     "devDependencies": {
         "@nestjs/testing": "^7.4.2",

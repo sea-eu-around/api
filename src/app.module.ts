@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CommonModule } from './modules/common/common.module';
 import { InterestModule } from './modules/interest/interest.module';
 import { MatchingModule } from './modules/matching/matching.module';
+import { MessageModule } from './modules/message/message.module';
 import { OfferModule } from './modules/offer/offer.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { UserModule } from './modules/user/user.module';
@@ -35,6 +36,7 @@ import { SharedModule } from './shared/shared.module';
                 configService.mailerConfig,
             inject: [ConfigService],
         }),
+        MessageModule,
     ],
 })
 export class AppModule implements NestModule {
