@@ -19,7 +19,6 @@ export class NotFoundExceptionFilter implements ExceptionFilter {
         const r = <any>exception.getResponse();
 
         const responsePayload = {
-            success: false,
             description: _.capitalize(_.lowerCase(r.message.split('.')[1])),
             errorType: r.message,
             timestamp: new Date().toISOString(),

@@ -32,7 +32,6 @@ export class UnprocessableEntityFilter implements ExceptionFilter {
 
         const responsePayload = {
             errors,
-            success: false,
             errorType: 'error.unprocessable-entity',
             description: STATUS_CODES[statusCode],
             timestamp: new Date().toISOString(),

@@ -19,10 +19,31 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const r = <any>exception.getResponse();
 
         response.status(status).json({
-            success: false,
-            description: r.message,
-            errorType: `error.${_.snakeCase(r.message)}`,
+            description: this._formatDescription(r.message),
+            errorType: this._formatErrorType(r.message),
             timestamp: new Date().toISOString(),
         });
+    }
+
+    private _formatDescription(message: string): string {
+        const dotSplitted = message.split('.');
+        if (dotSplitted.length > 0 && dotSplitted[0] === 'error') {
+            const description = dotSplitted
+                .slice(1)
+                .reduce((acc, cur) => _.lowerCase(cur) + ' ' + acc, '');
+
+            return _.trim(_.capitalize(description));
+        }
+
+        return message;
+    }
+
+    private _formatErrorType(message: string): string {
+        const dotSplitted = message.split('.');
+        if (dotSplitted.length > 0 && dotSplitted[0] === 'error') {
+            return message;
+        }
+
+        return `error.${_.snakeCase(message)}`;
     }
 }
