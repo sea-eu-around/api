@@ -8,6 +8,8 @@ import { ProfileEntity } from '../../entities/profile.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { MatchingRepository } from '../../repositories/matching.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
+import { RoomRepository } from '../../repositories/room.repository';
+import { UserRoomRepository } from '../../repositories/userRoom.repository';
 import { UserRepository } from '../user/user.repository';
 
 @Injectable()
@@ -16,6 +18,8 @@ export class MatchingService {
         private readonly _matchingRepository: MatchingRepository,
         private readonly _userRepository: UserRepository,
         private readonly _profileRepository: ProfileRepository,
+        private readonly _roomRepository: RoomRepository,
+        private readonly _userRoom: UserRoomRepository,
     ) {}
 
     async getMyMatches(user: UserEntity): Promise<ProfileEntity[]> {
@@ -74,6 +78,15 @@ export class MatchingService {
                 }
                 case MatchingStatusType.REQUEST: {
                     mirrorEntity.status = MatchingStatusType.MATCH;
+
+                    const room = this._roomRepository.create();
+                    room.matching = mirrorEntity;
+                    room.userRooms = this._userRoom.createForUsers([
+                        fromUser,
+                        toUser,
+                    ]);
+
+                    await this._roomRepository.save(room);
 
                     return this._matchingRepository.save(mirrorEntity);
                 }

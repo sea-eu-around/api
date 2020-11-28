@@ -23,7 +23,7 @@ export class UserRoomEntity extends AbstractCompositeEntity<UserRoomDto> {
     @ManyToOne(() => RoomEntity, (room) => room.userRooms)
     room: RoomEntity;
 
-    @Column()
+    @Column({ nullable: true })
     lastMessageSeenId?: string;
 
     dtoClass = UserRoomDto;

@@ -15,6 +15,9 @@ export class MatchingDto extends AbstractDto {
     @ApiProperty()
     status: MatchingStatusType;
 
+    @ApiProperty()
+    roomId?: string;
+
     constructor(matching: MatchingEntity) {
         super(matching);
         this.fromUser = matching.fromUser;
