@@ -21,7 +21,6 @@ import {
 
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
-import { NotFoundExceptionFilter } from './filters/not-found.filter';
 import { QueryFailedFilter } from './filters/query-failed.filter';
 import { UnprocessableEntityFilter } from './filters/unprocessable-entity.filter';
 import { ResponseTransformInterceptor } from './interceptors/response-transform-interceptor.service';
@@ -54,7 +53,6 @@ async function bootstrap() {
         new HttpExceptionFilter(reflector),
         new UnprocessableEntityFilter(reflector),
         new QueryFailedFilter(reflector),
-        new NotFoundExceptionFilter(reflector),
     );
 
     app.useGlobalInterceptors(
