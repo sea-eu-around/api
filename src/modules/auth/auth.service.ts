@@ -6,6 +6,7 @@ import * as jwt from 'jsonwebtoken';
 import { LanguageType } from '../../common/constants/language-type';
 import { UserDto } from '../../dto/UserDto';
 import { UserEntity } from '../../entities/user.entity';
+import { EmailOrPasswordIncorrectException } from '../../exceptions/email-or-password-incorrect.exception';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception';
 import { UserNotVerifiedException } from '../../exceptions/user-not-verified.exception';
 import { ContextService } from '../../providers/context.service';
@@ -46,7 +47,7 @@ export class AuthService {
             user && user.password,
         );
         if (!user || !isPasswordValid) {
-            throw new UserNotFoundException();
+            throw new EmailOrPasswordIncorrectException();
         }
 
         if (user && !user.isVerified) {
