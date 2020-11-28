@@ -6,9 +6,7 @@ import { OfferEntity } from './offer.entity';
 import { ProfileEntity } from './profile.entity';
 
 @Entity('profile_offer')
-export class ProfileOfferEntity extends AbstractCompositeEntity<
-    ProfileOfferDto
-> {
+export class ProfileOfferEntity extends AbstractCompositeEntity<ProfileOfferDto> {
     @Index()
     @Column()
     @PrimaryColumn()

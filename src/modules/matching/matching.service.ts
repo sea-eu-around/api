@@ -74,6 +74,7 @@ export class MatchingService {
                 }
                 case MatchingStatusType.REQUEST: {
                     mirrorEntity.status = MatchingStatusType.MATCH;
+
                     return this._matchingRepository.save(mirrorEntity);
                 }
             }
@@ -86,10 +87,10 @@ export class MatchingService {
         if (existingEntity) {
             switch (existingEntity.status) {
                 case MatchingStatusType.MATCH: {
-                    throw new BadRequestException('already matched');
+                    throw new BadRequestException('already-matched');
                 }
                 case MatchingStatusType.REQUEST: {
-                    throw new BadRequestException('already liked');
+                    throw new BadRequestException('already-liked');
                 }
             }
             existingEntity.status = MatchingStatusType.REQUEST;
