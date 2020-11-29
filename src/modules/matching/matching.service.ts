@@ -79,7 +79,7 @@ export class MatchingService {
 
                     const room = this._roomRepository.create();
                     room.matching = mirrorEntity;
-                    room.profileRooms = this._profileRoomRepository.createForProfileIds(
+                    room.profiles = this._profileRoomRepository.createForProfileIds(
                         [fromProfileId, toProfileId],
                     );
                     await this._roomRepository.save(room);
@@ -119,7 +119,7 @@ export class MatchingService {
 
                 const room = this._roomRepository.create();
                 room.matching = savedMatch;
-                room.profileRooms = this._profileRoomRepository.createForProfileIds(
+                room.profiles = this._profileRoomRepository.createForProfileIds(
                     [fromProfileId, toProfileId],
                 );
                 await this._profileRoomRepository.save(room);

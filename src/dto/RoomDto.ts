@@ -15,7 +15,7 @@ export class RoomDto extends AbstractDto {
     matching?: MatchingDto;
 
     @ApiPropertyOptional()
-    profileRooms: ProfileRoomDto[];
+    profiles: ProfileRoomDto[];
 
     constructor(room: RoomEntity) {
         super(room);
@@ -24,8 +24,8 @@ export class RoomDto extends AbstractDto {
             ? room.messages.toDtos()
             : room.messages;
         this.matching = room.matching;
-        this.profileRooms = UtilsService.isDtos(room.profileRooms)
-            ? room.profileRooms.toDtos()
-            : room.profileRooms;
+        this.profiles = UtilsService.isDtos(room.profiles)
+            ? room.profiles.toDtos()
+            : room.profiles;
     }
 }
