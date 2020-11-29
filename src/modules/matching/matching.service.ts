@@ -53,6 +53,8 @@ export class MatchingService {
     async getHistory(profileId: string): Promise<string[]> {
         const history = await this._matchingRepository
             .createQueryBuilder('matching')
+            .leftJoinAndSelect('matching.fromProfile', 'fromProfile')
+            .leftJoinAndSelect('matching.toProfile', 'toProfile')
             .where('matching.fromProfileId = :id', { id: profileId })
             .getMany();
 
