@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { IsSEAEmailConstraint } from '../../decorators/validators.decorator';
@@ -11,7 +11,7 @@ import { ProfileOfferRepository } from '../../repositories/profileOffer.reposito
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
 import { WhitelistedEmailRepository } from '../../repositories/whitelistedEmail.repository';
-import { MatchingService } from '../matching/matching.service';
+import { MatchingModule } from '../matching/matching.module';
 import { UserRepository } from '../user/user.repository';
 import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
@@ -30,9 +30,10 @@ import { ProfileService } from './profile.service';
             WhitelistedEmailRepository,
             MatchingRepository,
         ]),
+        forwardRef(() => MatchingModule),
     ],
     controllers: [ProfileController],
     exports: [ProfileService],
-    providers: [ProfileService, IsSEAEmailConstraint, MatchingService],
+    providers: [ProfileService, IsSEAEmailConstraint],
 })
 export class ProfileModule {}
