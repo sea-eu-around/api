@@ -19,10 +19,15 @@ export class MessageDto extends AbstractDto {
     @ApiPropertyOptional()
     sent: boolean;
 
+    @ApiPropertyOptional()
+    senderId: string;
+
     constructor(message: MessageEntity) {
         super(message);
+        this.updatedAt = message.updatedAt;
         this.text = message.text;
         this.sent = message.sent;
+        this.senderId = message.senderId;
         this.room = UtilsService.isDto(message.room)
             ? message.room.toDto()
             : message.room;
