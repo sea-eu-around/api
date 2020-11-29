@@ -6,7 +6,8 @@ import { MatchingStatusType } from '../../common/constants/matching-status-type'
 import { MatchingEntity } from '../../entities/matching.entity';
 import { ProfileEntity } from '../../entities/profile.entity';
 import { MatchingRepository } from '../../repositories/matching.repository';
-import { ProfileRepository } from '../../repositories/profile.repository';
+import { ProfileRoomRepository } from '../../repositories/profileRoom.repository';
+import { RoomRepository } from '../../repositories/room.repository';
 import { UserRepository } from '../user/user.repository';
 
 @Injectable()
@@ -14,7 +15,8 @@ export class MatchingService {
     constructor(
         private readonly _matchingRepository: MatchingRepository,
         private readonly _userRepository: UserRepository,
-        private readonly _profileRepository: ProfileRepository,
+        private readonly _roomRepository: RoomRepository,
+        private readonly _profileRoomRepository: ProfileRoomRepository,
     ) {}
 
     async getMyMatches(profileId: string): Promise<ProfileEntity[]> {
@@ -74,6 +76,14 @@ export class MatchingService {
                 }
                 case MatchingStatusType.REQUEST: {
                     mirrorEntity.status = MatchingStatusType.MATCH;
+
+                    const room = this._roomRepository.create();
+                    room.matching = mirrorEntity;
+                    room.profileRooms = this._profileRoomRepository.createForProfileIds(
+                        [fromProfileId, toProfileId],
+                    );
+                    await this._roomRepository.save(room);
+
                     return this._matchingRepository.save(mirrorEntity);
                 }
             }
@@ -103,7 +113,18 @@ export class MatchingService {
                 fakeMirrorEntity.toProfileId = fromProfileId;
                 fakeMirrorEntity.status = MatchingStatusType.MATCH;
 
-                return this._matchingRepository.save(fakeMirrorEntity);
+                const savedMatch = await this._matchingRepository.save(
+                    fakeMirrorEntity,
+                );
+
+                const room = this._roomRepository.create();
+                room.matching = savedMatch;
+                room.profileRooms = this._profileRoomRepository.createForProfileIds(
+                    [fromProfileId, toProfileId],
+                );
+                await this._profileRoomRepository.save(room);
+
+                return savedMatch;
             }
         }
         const like = this._matchingRepository.create();

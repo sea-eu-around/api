@@ -4,33 +4,40 @@ import {
     paginate,
     Pagination,
 } from 'nestjs-typeorm-paginate';
-import { In } from 'typeorm';
 
 import { RoomEntity } from '../../entities/room.entity';
 import { UserEntity } from '../../entities/user.entity';
+import { ProfileRoomRepository } from '../../repositories/profileRoom.repository';
 import { RoomRepository } from '../../repositories/room.repository';
-import { UserRoomRepository } from '../../repositories/userRoom.repository';
 
 @Injectable()
 export class RoomService {
     constructor(
         private readonly _roomRepository: RoomRepository,
-        private readonly _userRoomRepository: UserRoomRepository,
+        private readonly _profileRoomRepository: ProfileRoomRepository,
     ) {}
 
     async getRooms(
         user: UserEntity,
         options: IPaginationOptions,
     ): Promise<Pagination<RoomEntity>> {
-        const roomIds = await this._userRoomRepository.find({
-            select: ['roomId'],
-            where: { user },
-        });
+        // TODO: make subquery
+        const roomIds = (
+            await this._profileRoomRepository.find({
+                select: ['roomId'],
+                where: { user },
+            })
+        ).map((room) => room.roomId);
 
-        return paginate<RoomEntity>(this._roomRepository, options, {
-            where: { id: In(roomIds.map((room) => room.roomId)) },
-            order: { updatedAt: 'DESC' },
-            relations: ['userRooms'],
-        });
+        /*const rooms = this._roomRepository
+            .createQueryBuilder('room')
+            .select(['room.id', 'room.updatedAt', 'profileRooms', 'profileRooms.id'])
+            .leftJoin('room.profileRooms', 'profileRooms')
+            .leftJoin('profileRooms.user', 'user')
+            .leftJoinAndSelect('user.profile', 'profile')
+            .where('room.id IN (:...roomIds)', { roomIds })
+            .orderBy('room.updatedAt', 'DESC');*/
+
+        return paginate<RoomEntity>(this._roomRepository, options);
     }
 }
