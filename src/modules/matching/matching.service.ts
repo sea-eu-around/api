@@ -50,6 +50,21 @@ export class MatchingService {
         return profiles;
     }
 
+    async getHistory(profileId: string): Promise<string[]> {
+        const history = await this._matchingRepository
+            .createQueryBuilder('matching')
+            .where('matching.fromProfileId = :id', { id: profileId })
+            .getMany();
+
+        const profileIds: string[] = [];
+
+        history.forEach((match) => {
+            profileIds.push(match.toProfileId);
+        });
+
+        return profileIds;
+    }
+
     async like(
         fromProfileId: string,
         toProfileId: string,
