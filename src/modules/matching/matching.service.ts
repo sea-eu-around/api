@@ -5,11 +5,8 @@ import { Brackets } from 'typeorm/query-builder/Brackets';
 import { MatchingStatusType } from '../../common/constants/matching-status-type';
 import { MatchingEntity } from '../../entities/matching.entity';
 import { ProfileEntity } from '../../entities/profile.entity';
-import { UserEntity } from '../../entities/user.entity';
 import { MatchingRepository } from '../../repositories/matching.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
-import { RoomRepository } from '../../repositories/room.repository';
-import { UserRoomRepository } from '../../repositories/userRoom.repository';
 import { UserRepository } from '../user/user.repository';
 
 @Injectable()
@@ -18,51 +15,50 @@ export class MatchingService {
         private readonly _matchingRepository: MatchingRepository,
         private readonly _userRepository: UserRepository,
         private readonly _profileRepository: ProfileRepository,
-        private readonly _roomRepository: RoomRepository,
-        private readonly _userRoom: UserRoomRepository,
     ) {}
 
-    async getMyMatches(user: UserEntity): Promise<ProfileEntity[]> {
+    async getMyMatches(profileId: string): Promise<ProfileEntity[]> {
         const matches = await this._matchingRepository
             .createQueryBuilder('matching')
+            .leftJoinAndSelect('matching.fromProfile', 'fromProfile')
+            .leftJoinAndSelect('matching.toProfile', 'toProfile')
             .where('matching.status = :status', {
                 status: MatchingStatusType.MATCH,
             })
             .andWhere(
                 new Brackets((qb) => {
-                    qb.where('matching.fromUserId = :id', {
-                        id: user.id,
-                    }).orWhere('matching.toUserId = :id', { id: user.id });
+                    qb.where('matching.fromProfileId = :id', {
+                        id: profileId,
+                    }).orWhere('matching.toProfileId = :id', { id: profileId });
                 }),
             )
+            .orderBy('matching.updated_at', 'DESC')
             .getMany();
 
-        const profileIds = [];
+        const profiles: ProfileEntity[] = [];
+
         for (const match of matches) {
-            if (match.fromUserId !== user.id) {
-                profileIds.push(match.fromUserId);
+            if (match.fromProfileId !== profileId) {
+                profiles.push(match.fromProfile);
             } else {
-                profileIds.push(match.toUserId);
+                profiles.push(match.toProfile);
             }
         }
 
-        return this._profileRepository.findByIds(profileIds, {
-            order: { updatedAt: 'DESC' },
-        });
+        return profiles;
     }
 
     async like(
-        fromUser: UserEntity,
-        toUserId: string,
+        fromProfileId: string,
+        toProfileId: string,
     ): Promise<MatchingEntity> {
-        if (fromUser.id === toUserId) {
+        if (fromProfileId === toProfileId) {
             throw new BadRequestException("You can't like yourself");
         }
-
-        const toUser = await this._userRepository.findOne(toUserId);
+        const toUser = await this._userRepository.findOne(toProfileId);
 
         const mirrorEntity = await this._matchingRepository.findOne({
-            where: [{ fromUser: toUser, toUser: fromUser }],
+            where: [{ fromProfileId: toProfileId, toProfileId: fromProfileId }],
         });
 
         if (mirrorEntity) {
@@ -78,32 +74,22 @@ export class MatchingService {
                 }
                 case MatchingStatusType.REQUEST: {
                     mirrorEntity.status = MatchingStatusType.MATCH;
-
-                    const room = this._roomRepository.create();
-                    room.matching = mirrorEntity;
-                    room.userRooms = this._userRoom.createForUsers([
-                        fromUser,
-                        toUser,
-                    ]);
-
-                    await this._roomRepository.save(room);
-
                     return this._matchingRepository.save(mirrorEntity);
                 }
             }
         }
 
         const existingEntity = await this._matchingRepository.findOne({
-            where: [{ fromUser, toUser }],
+            where: [{ fromProfileId, toProfileId }],
         });
 
         if (existingEntity) {
             switch (existingEntity.status) {
                 case MatchingStatusType.MATCH: {
-                    throw new BadRequestException('already-matched');
+                    throw new BadRequestException('already matched');
                 }
                 case MatchingStatusType.REQUEST: {
-                    throw new BadRequestException('already-liked');
+                    throw new BadRequestException('already liked');
                 }
             }
             existingEntity.status = MatchingStatusType.REQUEST;
@@ -113,33 +99,31 @@ export class MatchingService {
             const p = random(10);
             if (p >= 5) {
                 const fakeMirrorEntity = this._matchingRepository.create();
-                fakeMirrorEntity.fromUser = toUser;
-                fakeMirrorEntity.toUser = fromUser;
+                fakeMirrorEntity.fromProfileId = toProfileId;
+                fakeMirrorEntity.toProfileId = fromProfileId;
                 fakeMirrorEntity.status = MatchingStatusType.MATCH;
 
                 return this._matchingRepository.save(fakeMirrorEntity);
             }
         }
         const like = this._matchingRepository.create();
-        like.fromUser = fromUser;
-        like.toUser = toUser;
+        like.fromProfileId = fromProfileId;
+        like.toProfileId = toProfileId;
         like.status = MatchingStatusType.REQUEST;
 
         return this._matchingRepository.save(like);
     }
 
     async decline(
-        fromUser: UserEntity,
-        toUserId: string,
+        fromProfileId: string,
+        toProfileId: string,
     ): Promise<MatchingEntity> {
-        if (fromUser.id === toUserId) {
+        if (fromProfileId === toProfileId) {
             throw new BadRequestException("You can't decline yourself");
         }
 
-        const toUser = await this._userRepository.findOne(toUserId);
-
         const mirrorEntity = await this._matchingRepository.findOne({
-            where: [{ fromUser: toUser, toUser: fromUser }],
+            where: [{ fromProfileId: toProfileId, toProfileId: fromProfileId }],
         });
 
         if (mirrorEntity) {
@@ -162,7 +146,7 @@ export class MatchingService {
         }
 
         const existingEntity = await this._matchingRepository.findOne({
-            where: [{ fromUser, toUser }],
+            where: [{ fromProfileId, toProfileId }],
         });
 
         if (existingEntity) {
@@ -174,26 +158,24 @@ export class MatchingService {
         }
 
         const decline = this._matchingRepository.create();
-        decline.fromUser = fromUser;
-        decline.toUser = toUser;
+        decline.fromProfileId = fromProfileId;
+        decline.toProfileId = toProfileId;
         decline.status = MatchingStatusType.DECLINE;
 
         return this._matchingRepository.save(decline);
     }
 
     async block(
-        fromUser: UserEntity,
-        toUserId: string,
+        fromProfileId: string,
+        toProfileId: string,
     ): Promise<MatchingEntity> {
-        if (fromUser.id === toUserId) {
+        if (fromProfileId === toProfileId) {
             throw new BadRequestException("You can't block yourself");
         }
 
-        const toUser = await this._userRepository.findOne(toUserId);
-
         const block = this._matchingRepository.create();
-        block.fromUser = fromUser;
-        block.toUser = toUser;
+        block.fromProfileId = fromProfileId;
+        block.toProfileId = toProfileId;
         block.status = MatchingStatusType.BLOCK;
 
         return this._matchingRepository.save(block);
