@@ -105,6 +105,7 @@ export class ProfileController {
     })
     async getProfiles(
         @Query() query: ProfileQueryDto,
+        @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const {
             page,
@@ -118,6 +119,7 @@ export class ProfileController {
         const limit = query.limit > 100 ? 100 : query.limit;
 
         const profiles = await this._profileService.getProfiles(
+            user.id,
             universities,
             spokenLanguages,
             degrees,
