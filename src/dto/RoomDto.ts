@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 import { AbstractDto } from '../common/dto/AbstractDto';
+import { MessageEntity } from '../entities/message.entity';
 import { RoomEntity } from '../entities/room.entity';
 import { UtilsService } from '../providers/utils.service';
 import { MatchingDto } from './MatchingDto';
@@ -11,6 +12,9 @@ export class RoomDto extends AbstractDto {
     @ApiPropertyOptional()
     messages: MessageDto[];
 
+    @ApiPropertyOptional({ type: () => MessageEntity })
+    lastMessage: MessageDto;
+
     @ApiPropertyOptional()
     matching?: MatchingDto;
 
@@ -20,6 +24,9 @@ export class RoomDto extends AbstractDto {
     constructor(room: RoomEntity) {
         super(room);
         this.updatedAt = room.updatedAt;
+        this.lastMessage = UtilsService.isDto(room.lastMessage)
+            ? room.lastMessage.toDto()
+            : room.lastMessage;
         this.messages = UtilsService.isDtos(room.messages)
             ? room.messages.toDtos()
             : room.messages;

@@ -42,12 +42,14 @@ export class RoomService {
             .select([
                 'room.id',
                 'room.updatedAt',
+                'lastMessage',
                 'profiles',
+                'profile.id',
                 'profile.firstName',
                 'profile.lastName',
                 'profile.avatar',
             ])
-            .leftJoin('room.messages', 'messages')
+            .leftJoin('room.lastMessage', 'lastMessage')
             .leftJoin('room.profiles', 'profiles')
             .leftJoin('profiles.profile', 'profile')
             .where('room.id IN (:...roomIds)', { roomIds: [null, ...roomIds] })
