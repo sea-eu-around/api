@@ -1,8 +1,9 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { MatchingStatusType } from '../common/constants/matching-status-type';
 import { MatchingDto } from '../dto/MatchingDto';
+import { RoomEntity } from './room.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('matching')
@@ -25,6 +26,13 @@ export class MatchingEntity extends AbstractEntity<MatchingDto> {
         default: MatchingStatusType.REQUEST,
     })
     status: MatchingStatusType;
+
+    @OneToOne(() => RoomEntity, (room) => room.matching)
+    @JoinColumn()
+    room?: RoomEntity;
+
+    @Column({ nullable: true })
+    roomId?: string;
 
     dtoClass = MatchingDto;
 }
