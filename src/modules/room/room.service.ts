@@ -5,6 +5,7 @@ import {
     Pagination,
 } from 'nestjs-typeorm-paginate';
 
+import { RoomType } from '../../common/constants/room-type';
 import { RoomEntity } from '../../entities/room.entity';
 import { ProfileRoomRepository } from '../../repositories/profileRoom.repository';
 import { RoomRepository } from '../../repositories/room.repository';
@@ -19,6 +20,7 @@ export class RoomService {
     async getRooms(
         profileId: string,
         options: IPaginationOptions,
+        type?: RoomType,
     ): Promise<Pagination<RoomEntity>> {
         // TODO: make subquery
         const roomIds = (
