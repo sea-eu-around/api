@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+import { RoomType } from '../../common/constants/room-type';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { RoomDto } from '../../dto/RoomDto';
@@ -30,6 +31,12 @@ export class RoomController {
     @HttpCode(HttpStatus.OK)
     @ApiBearerAuth()
     @ApiQuery({
+        name: 'type',
+        enum: RoomType,
+        isArray: false,
+        required: false,
+    })
+    @ApiQuery({
         name: 'page',
     })
     @ApiQuery({
@@ -46,11 +53,15 @@ export class RoomController {
     ): Promise<PayloadSuccessDto> {
         const limit = query.limit > 100 ? 100 : query.limit;
 
-        const rooms = await this._roomService.getRooms(user.id, {
-            limit,
-            page: query.page,
-            route: 'http://localhost:3000/rooms',
-        });
+        const rooms = await this._roomService.getRooms(
+            user.id,
+            {
+                limit,
+                page: query.page,
+                route: 'http://localhost:3000/rooms',
+            },
+            query.type,
+        );
 
         return {
             description: 'successefully-retrieved-rooms',
