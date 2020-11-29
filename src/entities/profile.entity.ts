@@ -24,9 +24,7 @@ import { UserEntity } from './user.entity';
 
 @Entity('profile')
 @TableInheritance({ column: { type: 'enum', name: 'type', enum: ProfileType } })
-export abstract class ProfileEntity extends AbstractCompositeEntity<
-    ProfileDto
-> {
+export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> {
     @PrimaryColumn('uuid')
     id: string;
 
