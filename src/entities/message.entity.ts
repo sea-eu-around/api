@@ -13,8 +13,14 @@ export class MessageEntity extends AbstractEntity<MessageDto> {
     @ManyToOne(() => RoomEntity, (room) => room.messages)
     room: RoomEntity;
 
+    @Column()
+    roomId: string;
+
     @ManyToOne(() => ProfileEntity, (profile) => profile.messages)
     sender: ProfileEntity;
+
+    @Column()
+    senderId: string;
 
     @Column()
     sent: boolean;
