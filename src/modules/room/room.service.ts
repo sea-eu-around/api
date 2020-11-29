@@ -47,9 +47,10 @@ export class RoomService {
                 'profile.lastName',
                 'profile.avatar',
             ])
+            .leftJoin('room.messages', 'messages')
             .leftJoin('room.profiles', 'profiles')
             .leftJoin('profiles.profile', 'profile')
-            .where('room.id IN (:...roomIds)', { roomIds })
+            .where('room.id IN (:...roomIds)', { roomIds: [null, ...roomIds] })
             .orderBy('room.updatedAt', 'DESC');
 
         return paginate<RoomEntity>(rooms, options);
