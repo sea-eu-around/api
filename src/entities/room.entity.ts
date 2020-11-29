@@ -17,7 +17,7 @@ export class RoomEntity extends AbstractEntity<RoomDto> {
     @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.room, {
         cascade: true,
     })
-    profileRooms: ProfileRoomEntity[];
+    profiles: ProfileRoomEntity[];
 
     dtoClass = RoomDto;
 }

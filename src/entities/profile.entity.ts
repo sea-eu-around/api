@@ -107,7 +107,7 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     messages: MessageEntity[];
 
     @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.profile)
-    profileRooms: ProfileRoomEntity[];
+    rooms: ProfileRoomEntity[];
 
     dtoClass = ProfileDto;
 }
