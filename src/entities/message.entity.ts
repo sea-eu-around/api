@@ -2,8 +2,8 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { MessageDto } from '../dto/MessageDto';
+import { ProfileEntity } from './profile.entity';
 import { RoomEntity } from './room.entity';
-import { UserEntity } from './user.entity';
 
 @Entity('message')
 export class MessageEntity extends AbstractEntity<MessageDto> {
@@ -13,8 +13,8 @@ export class MessageEntity extends AbstractEntity<MessageDto> {
     @ManyToOne(() => RoomEntity, (room) => room.messages)
     room: RoomEntity;
 
-    @ManyToOne(() => UserEntity, (user) => user.messages)
-    sender: UserEntity;
+    @ManyToOne(() => ProfileEntity, (profile) => profile.messages)
+    sender: ProfileEntity;
 
     @Column()
     sent: boolean;
