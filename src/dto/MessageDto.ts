@@ -3,8 +3,8 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { AbstractDto } from '../common/dto/AbstractDto';
 import { MessageEntity } from '../entities/message.entity';
 import { UtilsService } from '../providers/utils.service';
+import { ProfileDto } from './ProfileDto';
 import { RoomDto } from './RoomDto';
-import { UserDto } from './UserDto';
 
 export class MessageDto extends AbstractDto {
     @ApiPropertyOptional()
@@ -14,7 +14,7 @@ export class MessageDto extends AbstractDto {
     room: RoomDto;
 
     @ApiPropertyOptional()
-    sender: UserDto;
+    sender: ProfileDto;
 
     @ApiPropertyOptional()
     sent: boolean;

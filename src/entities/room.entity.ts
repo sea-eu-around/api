@@ -4,7 +4,7 @@ import { AbstractEntity } from '../common/abstract.entity';
 import { RoomDto } from '../dto/RoomDto';
 import { MatchingEntity } from './matching.entity';
 import { MessageEntity } from './message.entity';
-import { UserRoomEntity } from './userRoom.entity';
+import { ProfileRoomEntity } from './profileRoom.entity';
 
 @Entity('room')
 export class RoomEntity extends AbstractEntity<RoomDto> {
@@ -14,10 +14,10 @@ export class RoomEntity extends AbstractEntity<RoomDto> {
     @OneToOne(() => MatchingEntity, (matching) => matching.room)
     matching?: MatchingEntity;
 
-    @OneToMany(() => UserRoomEntity, (userRoom) => userRoom.room, {
+    @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.room, {
         cascade: true,
     })
-    userRooms: UserRoomEntity[];
+    profiles: ProfileRoomEntity[];
 
     dtoClass = RoomDto;
 }

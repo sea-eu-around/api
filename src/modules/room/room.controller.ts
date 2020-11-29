@@ -9,9 +9,10 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+import { RoomType } from '../../common/constants/room-type';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
-import { RoomEntity } from '../../entities/room.entity';
+import { RoomDto } from '../../dto/RoomDto';
 import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
@@ -19,8 +20,8 @@ import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.se
 import { GetRoomsQueryDto } from './dto/GetRoomsQueryDto';
 import { RoomService } from './room.service';
 
-@Controller('room')
-@ApiTags('Room')
+@Controller('rooms')
+@ApiTags('Rooms')
 @UseGuards(AuthGuard, RolesGuard)
 @UseInterceptors(AuthUserInterceptor)
 export class RoomController {
@@ -30,13 +31,19 @@ export class RoomController {
     @HttpCode(HttpStatus.OK)
     @ApiBearerAuth()
     @ApiQuery({
+        name: 'type',
+        enum: RoomType,
+        isArray: false,
+        required: false,
+    })
+    @ApiQuery({
         name: 'page',
     })
     @ApiQuery({
         name: 'limit',
     })
     @ApiResponse({
-        type: RoomEntity,
+        type: RoomDto,
         status: HttpStatus.OK,
         description: 'successefully-retrieved-rooms',
     })
@@ -46,11 +53,15 @@ export class RoomController {
     ): Promise<PayloadSuccessDto> {
         const limit = query.limit > 100 ? 100 : query.limit;
 
-        const rooms = await this._roomService.getRooms(user, {
-            limit,
-            page: query.page,
-            route: 'http://localhost:3000/profiles',
-        });
+        const rooms = await this._roomService.getRooms(
+            user.id,
+            {
+                limit,
+                page: query.page,
+                route: 'http://localhost:3000/rooms',
+            },
+            query.type,
+        );
 
         return {
             description: 'successefully-retrieved-rooms',

@@ -20,7 +20,9 @@ import { EducationFieldEntity } from './educationField.entity';
 import { InterestEntity } from './interest.entity';
 import { LanguageEntity } from './language.entity';
 import { MatchingEntity } from './matching.entity';
+import { MessageEntity } from './message.entity';
 import { ProfileOfferEntity } from './profileOffer.entity';
+import { ProfileRoomEntity } from './profileRoom.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('profile')
@@ -100,6 +102,12 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
         { eager: true },
     )
     profileOffers: ProfileOfferEntity[];
+
+    @OneToMany(() => MessageEntity, (message) => message.sender)
+    messages: MessageEntity[];
+
+    @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.profile)
+    rooms: ProfileRoomEntity[];
 
     dtoClass = ProfileDto;
 }
