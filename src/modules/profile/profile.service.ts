@@ -77,7 +77,9 @@ export class ProfileService {
         matches.forEach((match) => {
             unwantedProfiles.push(match.id);
         });
-        unwantedProfiles.concat(history);
+        history.forEach((match) => {
+            unwantedProfiles.push(match);
+        });
 
         return unwantedProfiles;
     }
