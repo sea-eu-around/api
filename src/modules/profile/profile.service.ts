@@ -26,10 +26,12 @@ import { ProfileNotFoundException } from '../../exceptions/profile-not-found.exc
 import { EducationFieldRepository } from '../../repositories/educationField.repository';
 import { InterestRepository } from '../../repositories/interest.repository';
 import { LanguageRepository } from '../../repositories/language.repository';
+import { MatchingRepository } from '../../repositories/matching.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
 import { ProfileOfferRepository } from '../../repositories/profileOffer.repository';
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
+import { MatchingService } from '../matching/matching.service';
 import { UserRepository } from '../user/user.repository';
 import { AddEducationFieldToProfileDto } from './dto/AddEducationFieldToProfileDto';
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
@@ -49,6 +51,8 @@ export class ProfileService {
         private readonly _profileOfferRepository: ProfileOfferRepository,
         private readonly _educationFieldRepository: EducationFieldRepository,
         private readonly _userRepository: UserRepository,
+        private readonly _matchingRepository: MatchingRepository,
+        private readonly _matchingServices: MatchingService,
     ) {}
 
     async findOneById(id: string): Promise<ProfileEntity> {
@@ -61,7 +65,25 @@ export class ProfileService {
         return profile;
     }
 
+    private async _getUnwantedProfileIds(profileId: string): Promise<string[]> {
+        const matchesQuery = this._matchingServices.getMyMatches(profileId);
+        const historyQuery = this._matchingServices.getHistory(profileId);
+        const unwantedProfiles = [profileId];
+        const [matches, history] = await Promise.all([
+            matchesQuery,
+            historyQuery,
+        ]);
+
+        matches.forEach((match) => {
+            unwantedProfiles.push(match.id);
+        });
+        unwantedProfiles.concat(history);
+
+        return unwantedProfiles;
+    }
+
     async getProfiles(
+        profileId: string,
         universities: PartnerUniversity[],
         spokenLanguages: LanguageType[],
         degrees: DegreeType[],
@@ -69,12 +91,17 @@ export class ProfileService {
         types: ProfileType[],
         options: IPaginationOptions,
     ): Promise<Pagination<ProfileEntity>> {
+        const unwantedProfiles = await this._getUnwantedProfileIds(profileId);
+
         let profiles = this._profileRepository
             .createQueryBuilder('profile')
             .leftJoinAndSelect('profile.profileOffers', 'profileOffers')
             .leftJoinAndSelect('profileOffers.offer', 'offer')
             .leftJoinAndSelect('profile.interests', 'interests')
-            .leftJoinAndSelect('profile.languages', 'languages');
+            .leftJoinAndSelect('profile.languages', 'languages')
+            .where('profile.id NOT IN (:...unwantedProfiles)', {
+                unwantedProfiles,
+            });
 
         if (genders && genders.length > 0) {
             profiles = profiles.andWhere('profile.gender IN (:...genders)', {
