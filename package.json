@@ -45,7 +45,7 @@
         "@nestjsx/crud": "^4.6.2",
         "@nestjsx/crud-typeorm": "^4.6.2",
         "aws-sdk": "~2.683.0",
-        "bcrypt": "~3.0.6",
+        "bcrypt": "~5.0.0",
         "class-transformer": "^0.2.3",
         "class-validator": "^0.12.2",
         "compression": "~1.7.4",
