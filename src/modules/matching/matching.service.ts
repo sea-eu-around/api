@@ -139,7 +139,7 @@ export class MatchingService {
                 room.profiles = this._profileRoomRepository.createForProfileIds(
                     [fromProfileId, toProfileId],
                 );
-                await this._profileRoomRepository.save(room);
+                await this._roomRepository.save(room);
 
                 return savedMatch;
             }
