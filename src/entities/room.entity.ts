@@ -15,7 +15,9 @@ export class RoomEntity extends AbstractEntity<RoomDto> {
     @JoinColumn()
     lastMessage: MessageEntity;
 
-    @OneToOne(() => MatchingEntity, (matching) => matching.room)
+    @OneToOne(() => MatchingEntity, (matching) => matching.room, {
+        cascade: true,
+    })
     matching?: MatchingEntity;
 
     @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.room, {
