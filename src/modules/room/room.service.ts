@@ -1,8 +1,4 @@
-import {
-    ForbiddenException,
-    Injectable,
-    NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import {
     IPaginationOptions,
     paginate,
@@ -63,16 +59,12 @@ export class RoomService {
         roomId: string,
         options: IPaginationOptions,
     ): Promise<Pagination<MessageEntity>> {
-        const room = await this._roomRepository.findOne({
-            where: { id: roomId },
-            relations: ['profiles'],
-        });
-
-        if (!room) {
-            throw new NotFoundException();
-        }
-
-        if (room && !room.profiles.map((x) => profileId).includes(profileId)) {
+        if (
+            !(await this._profileRoomRepository.isProfileInRoom(
+                profileId,
+                roomId,
+            ))
+        ) {
             throw new ForbiddenException();
         }
 
