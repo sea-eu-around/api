@@ -14,6 +14,9 @@ export class MessageDto extends AbstractDto {
     room: RoomDto;
 
     @ApiPropertyOptional()
+    roomId: string;
+
+    @ApiPropertyOptional()
     sender: ProfileDto;
 
     @ApiPropertyOptional()
@@ -28,6 +31,7 @@ export class MessageDto extends AbstractDto {
         this.text = message.text;
         this.sent = message.sent;
         this.senderId = message.senderId;
+        this.roomId = message.roomId;
         this.room = UtilsService.isDto(message.room)
             ? message.room.toDto()
             : message.room;
