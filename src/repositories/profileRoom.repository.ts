@@ -11,4 +11,8 @@ export class ProfileRoomRepository extends Repository<ProfileRoomEntity> {
             return profileRoom;
         });
     }
+
+    async isProfileInRoom(profileId: string, roomId: string): Promise<boolean> {
+        return (await this.find({ profileId, roomId })).length > 0;
+    }
 }
