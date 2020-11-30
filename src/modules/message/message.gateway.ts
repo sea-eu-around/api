@@ -50,6 +50,7 @@ export class MessageGateway
         // TODO: send notification to offline profile
 
         let message = this._messageRepository.create()
+        message.id = data.id;
         message.text = data.text;
         message.roomId = data.roomId;
         message.senderId = user.id;
