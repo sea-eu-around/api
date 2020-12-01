@@ -3,10 +3,9 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { FindConditions } from 'typeorm';
+import { FindConditions, FindOneOptions } from 'typeorm';
 
 import { LanguageType } from '../../common/constants/language-type';
-import { PageMetaDto } from '../../common/dto/PageMetaDto';
 import { UserEntity } from '../../entities/user.entity';
 import { AwsS3Service } from '../../shared/services/aws-s3.service';
 import { ConfigService } from '../../shared/services/config.service';
@@ -28,8 +27,11 @@ export class UserService {
     /**
      * Find single user
      */
-    findOne(findData: FindConditions<UserEntity>): Promise<UserEntity> {
-        return this.userRepository.findOne(findData);
+    findOne(
+        conditions?: FindConditions<UserEntity>,
+        options?: FindOneOptions<UserEntity>,
+    ): Promise<UserEntity> {
+        return this.userRepository.findOne(conditions, options);
     }
     async findByUsernameOrEmail(
         options: Partial<{ username: string; email: string }>,
