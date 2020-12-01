@@ -54,6 +54,34 @@ export class RoomService {
         return paginate<RoomEntity>(rooms, options);
     }
 
+    async getRoom(roomId: string, profileId: string): Promise<RoomEntity> {
+        const isProfileInRoom = await this._profileRoomRepository.isProfileInRoom(
+            profileId,
+            roomId,
+        );
+        if (!isProfileInRoom) {
+            throw new ForbiddenException();
+        }
+
+        return this._roomRepository
+            .createQueryBuilder('room')
+            .select([
+                'room.id',
+                'room.updatedAt',
+                'lastMessage',
+                'profiles',
+                'profile.id',
+                'profile.firstName',
+                'profile.lastName',
+                'profile.avatar',
+            ])
+            .leftJoin('room.lastMessage', 'lastMessage')
+            .leftJoin('room.profiles', 'profiles')
+            .leftJoin('profiles.profile', 'profile')
+            .where('room.id = :roomId', { roomId })
+            .getOne();
+    }
+
     async getRoomsMessages(
         profileId: string,
         roomId: string,
