@@ -22,7 +22,7 @@ export class MessageEntity extends AbstractEntity<MessageDto> {
     @Column()
     senderId: string;
 
-    @Column()
+    @Column({ default: true })
     sent: boolean;
 
     dtoClass = MessageDto;
