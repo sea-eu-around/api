@@ -24,6 +24,7 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
+import { GetRoomParamsDto } from './dto/GetRoomParamsDto';
 import { GetRoomsMessagesParamsDto } from './dto/GetRoomsMessagesParamsDto';
 import { GetRoomsMessagesQueryDto } from './dto/GetRoomsMessagesQueryDto';
 import { GetRoomsQueryDto } from './dto/GetRoomsQueryDto';
@@ -77,6 +78,30 @@ export class RoomController {
             data: rooms.items,
             meta: rooms.meta,
             links: rooms.links,
+        };
+    }
+
+    @Get('/:id')
+    @HttpCode(HttpStatus.OK)
+    @ApiBearerAuth()
+    @ApiParam({
+        name: 'id',
+        type: 'string',
+    })
+    @ApiResponse({
+        type: RoomDto,
+        status: HttpStatus.OK,
+        description: 'successfully-retrieved-rooms',
+    })
+    async getRoom(
+        @Param() param: GetRoomParamsDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const room = await this._roomService.getRoom(param.id, user.id);
+
+        return {
+            description: 'successfully-retrieved-room',
+            data: room,
         };
     }
 
