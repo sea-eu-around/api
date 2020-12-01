@@ -17,7 +17,7 @@ export class UserEntity extends AbstractEntity<UserDto> {
     @Column({ nullable: true })
     password: string;
 
-    @OneToOne(() => ProfileEntity, (profile) => profile.user)
+    @OneToOne(() => ProfileEntity, (profile) => profile.user, { eager: true })
     profile: ProfileEntity;
 
     @Column({ nullable: false, default: false })
