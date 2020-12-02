@@ -15,4 +15,13 @@ export class ProfileRoomRepository extends Repository<ProfileRoomEntity> {
     async isProfileInRoom(profileId: string, roomId: string): Promise<boolean> {
         return (await this.find({ profileId, roomId })).length > 0;
     }
+
+    async getRoomProfileIds(roomId: string): Promise<string[]> {
+        return (
+            await this.find({
+                where: { roomId },
+                select: ['profileId'],
+            })
+        ).map((profileRoom) => profileRoom.profileId);
+    }
 }

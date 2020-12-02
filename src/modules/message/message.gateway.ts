@@ -22,7 +22,9 @@ import { MessageRepository } from '../../repositories/message.repository';
 import { ProfileRoomRepository } from '../../repositories/profileRoom.repository';
 import { RoomRepository } from '../../repositories/room.repository';
 import { UserService } from '../user/user.service';
+import { IsWritingDto } from './dto/IsWritingDto';
 import { JoinRoomDto } from './dto/JoinRoomDto';
+import { ReadMessageDto } from './dto/ReadMessageDto';
 import { SendMessageDto } from './dto/SendMessageDto';
 
 @WebSocketGateway({ namespace: '/chat' })
@@ -49,10 +51,6 @@ export class MessageGateway
     async sendMessage(@WsAuthUser() user: UserEntity, @MessageBody() data: SendMessageDto, @ConnectedSocket() client: Socket): Promise<any> {
         const room = await this._roomRepository.findOne({where: {id: data.roomId}, relations: ['profiles']})
         const roomProfileIds = room.profiles.map(x => x.profileId);   
-        
-        if (!roomProfileIds.includes(user.id)) {
-            throw new WsException('Forbidden');
-        }
 
         // Create the message
         let message = this._messageRepository.create({...data, senderId: user.id})
@@ -63,22 +61,9 @@ export class MessageGateway
         await this._roomRepository.save(room);
 
         // Get the ids of the rooms to which the event must be sent
-        let roomIds = new Set();
-        for(const profileId of roomProfileIds){
-            if(profileId in this._onlineProfiles){
-                if(this._onlineProfiles[profileId].roomId === data.roomId){
-                    roomIds.add(data.roomId);
-                }else{
-                    roomIds.add(this._onlineProfiles[profileId].socketId);
-                }
-            }
-        }
+        let roomIds = this._getWhereToEmitEvent(data.roomId, roomProfileIds);
 
-        let event = this.server
-        for(const roomId of roomIds){
-            event = event.to(roomId);
-        }
-        event.emit('receiveMessage', message.toDto());
+        this._emitToRooms(roomIds, 'receiveMessage', message.toDto())
 
         // Get ids of offline profiles and ids of online profiles but in an other room (conversation)
         const offlineOrInOtherRoomProfileIds = roomProfileIds.filter(profileId => !(profileId in this._onlineProfiles) || (profileId in this._onlineProfiles && this._onlineProfiles[profileId] !== data.roomId));
@@ -111,11 +96,28 @@ export class MessageGateway
         client.emit('leftRoom', data.roomId);
     }
 
-    public afterInit(server: Server): void {
+    @SubscribeMessage('isWriting')
+    isWriting(@WsAuthUser() user: UserEntity, @MessageBody() data: IsWritingDto): void {
+        this.server.to(data.roomId).emit('isWriting', {profileId: user.id})
+    }
+
+    @SubscribeMessage('readMessage')
+    async readMessage(@WsAuthUser() user: UserEntity, @MessageBody() data: ReadMessageDto): Promise<void> {
+        const profileRoom = await this._profileRoomRepository.findOne({profileId: user.id, roomId: data.roomId});
+        profileRoom.lastMessageSeenId = data.messageId;
+        await this._profileRoomRepository.save(profileRoom);
+
+        const profileIds = await this._profileRoomRepository.getRoomProfileIds(data.roomId);
+        const roomIds = this._getWhereToEmitEvent(data.roomId, profileIds);
+
+        this._emitToRooms(roomIds, 'readMessage', {profileId: user.id, messageId: data.messageId});
+    }
+
+    afterInit(server: Server): void {
         return this._logger.log('Init');
     }
 
-    public handleDisconnect(@ConnectedSocket() client: Socket): void {
+    handleDisconnect(@ConnectedSocket() client: Socket): void {
         return this._logger.log(`Client disconnected: ${client.id}`);
     }
 
@@ -136,5 +138,28 @@ export class MessageGateway
         this._logger.log(this._onlineProfiles);
 
         return this._logger.log(`Client connected: ${client.id}`);
+    }
+
+    private _getWhereToEmitEvent(roomId: string, roomProfileIds: string[]): Set<string>{
+        let roomIds: Set<string> = new Set();
+        for(const profileId of roomProfileIds){
+            if(profileId in this._onlineProfiles){
+                if(this._onlineProfiles[profileId].roomId === roomId){
+                    roomIds.add(roomId);
+                }else{
+                    roomIds.add(this._onlineProfiles[profileId].socketId);
+                }
+            }
+        }
+
+        return roomIds;
+    }
+
+    private _emitToRooms(roomIds: Set<string>, eventName: string, data: any){
+        let event = this.server
+        for(const roomId of roomIds){
+            event = event.to(roomId);
+        }
+        event.emit(eventName, data);
     }
 }
