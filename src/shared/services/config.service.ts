@@ -92,6 +92,16 @@ export class ConfigService {
         };
     }
 
+    get postgresIoAdapterConfig(): any {
+        return {
+            host: this.get('DB_HOST'),
+            port: this.getNumber('DB_PORT'),
+            user: this.get('DB_USERNAME'),
+            password: this.get('DB_PASSWORD'),
+            database: this.get('DB_DATABASE'),
+        };
+    }
+
     get awsS3Config(): IAwsConfig {
         return {
             accessKeyId: this.get('AWS_S3_ACCESS_KEY_ID'),

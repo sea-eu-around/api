@@ -4,7 +4,6 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
-import { Transport } from '@nestjs/microservices';
 import {
     ExpressAdapter,
     NestExpressApplication,
@@ -19,6 +18,7 @@ import {
     patchTypeORMRepositoryWithBaseRepository,
 } from 'typeorm-transactional-cls-hooked';
 
+import { PostgresIoAdapter } from './adapters/postgres.adapter';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { QueryFailedFilter } from './filters/query-failed.filter';
@@ -80,16 +80,7 @@ async function bootstrap() {
 
     const configService = app.select(SharedModule).get(ConfigService);
 
-    app.connectMicroservice({
-        transport: Transport.TCP,
-        options: {
-            port: configService.getNumber('TRANSPORT_PORT'),
-            retryAttempts: 5,
-            retryDelay: 3000,
-        },
-    });
-
-    await app.startAllMicroservicesAsync();
+    app.useWebSocketAdapter(new PostgresIoAdapter(app));
 
     if (['development', 'staging'].includes(configService.nodeEnv)) {
         setupSwagger(app);
