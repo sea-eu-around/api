@@ -27,7 +27,7 @@ jobs:
         on:
           branch: develop
       after_deploy:
-        - "curl --location --request POST 'https://portainer.lad-dev.team/api/webhooks/0e4f6fcc-2c87-4076-977a-b0716e57984e'"
+        - "curl --location --request POST 'https://portainer.lad-dev.team/api/webhooks/c041df5b-3681-4e7d-95cf-59b2113b8071'"
 
     - stage: Build and deploy prod
       if: branch = master
