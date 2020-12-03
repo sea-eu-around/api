@@ -1,6 +1,9 @@
-import { IsUUID } from 'class-validator';
+import { IsBoolean, IsUUID } from 'class-validator';
 
 export class IsWritingDto {
     @IsUUID()
     roomId: string;
+
+    @IsBoolean()
+    state: boolean;
 }

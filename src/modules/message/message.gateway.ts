@@ -49,6 +49,7 @@ export class MessageGateway
 
     @SubscribeMessage('sendMessage')
     async sendMessage(@WsAuthUser() user: UserEntity, @MessageBody() data: SendMessageDto, @ConnectedSocket() client: Socket): Promise<any> {
+        this._logger.log("sendMessage");
         const room = await this._roomRepository.findOne({where: {id: data.roomId}, relations: ['profiles']})
         const roomProfileIds = room.profiles.map(x => x.profileId);   
 
@@ -67,6 +68,7 @@ export class MessageGateway
 
         // Get ids of offline profiles and ids of online profiles but in an other room (conversation)
         const offlineOrInOtherRoomProfileIds = roomProfileIds.filter(profileId => !(profileId in this._onlineProfiles) || (profileId in this._onlineProfiles && this._onlineProfiles[profileId] !== data.roomId));
+
         // TODO: send notification to these profiles
     }
 
@@ -98,7 +100,7 @@ export class MessageGateway
 
     @SubscribeMessage('isWriting')
     isWriting(@WsAuthUser() user: UserEntity, @MessageBody() data: IsWritingDto): void {
-        this.server.to(data.roomId).emit('isWriting', {profileId: user.id})
+        this.server.to(data.roomId).emit('isWriting', {profileId: user.id, ...data})
     }
 
     @SubscribeMessage('readMessage')
