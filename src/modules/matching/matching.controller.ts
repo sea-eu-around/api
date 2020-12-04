@@ -58,7 +58,7 @@ export class MatchingController {
 
         return {
             description: 'user-liked',
-            data: match.status,
+            data: match,
         };
     }
 
@@ -79,7 +79,7 @@ export class MatchingController {
 
         return {
             description: 'user-declined',
-            data: match.status,
+            data: match,
         };
     }
 
@@ -100,7 +100,7 @@ export class MatchingController {
 
         return {
             description: 'user-blocked',
-            data: match.status,
+            data: match,
         };
     }
 }
