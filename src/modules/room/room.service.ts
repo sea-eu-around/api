@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import {
     IPaginationOptions,
     paginate,
@@ -14,11 +14,15 @@ import { RoomRepository } from '../../repositories/room.repository';
 
 @Injectable()
 export class RoomService {
+    private _logger: Logger;
+
     constructor(
         private readonly _roomRepository: RoomRepository,
         private readonly _profileRoomRepository: ProfileRoomRepository,
         private readonly _messageRepository: MessageRepository,
-    ) {}
+    ) {
+        this._logger = new Logger('RoomService');
+    }
 
     async getRooms(
         profileId: string,
@@ -86,6 +90,7 @@ export class RoomService {
         profileId: string,
         roomId: string,
         options: IPaginationOptions,
+        beforeDate?: string,
     ): Promise<Pagination<MessageEntity>> {
         if (
             !(await this._profileRoomRepository.isProfileInRoom(
@@ -96,9 +101,18 @@ export class RoomService {
             throw new ForbiddenException();
         }
 
-        return paginate<MessageEntity>(this._messageRepository, options, {
-            where: { roomId },
-            order: { updatedAt: 'DESC' },
-        });
+        let messages = this._messageRepository
+            .createQueryBuilder('messages')
+            .where('messages.roomId = :roomId', { roomId })
+            .orderBy('messages.updatedAt', 'DESC')
+            .take(10);
+
+        if (beforeDate) {
+            messages = messages.andWhere('messages.updatedAt < :beforeDate', {
+                beforeDate,
+            });
+        }
+
+        return paginate<MessageEntity>(messages, options);
     }
 }

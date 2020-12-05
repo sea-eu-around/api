@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsInt } from 'class-validator';
+import { IsDateString, IsInt, IsOptional } from 'class-validator';
 
 export class GetRoomsMessagesQueryDto {
     @IsInt()
@@ -9,4 +9,8 @@ export class GetRoomsMessagesQueryDto {
     @IsInt()
     @Transform(parseInt)
     limit: number;
+
+    @IsOptional()
+    @IsDateString()
+    beforeDate: string;
 }

@@ -113,6 +113,11 @@ export class RoomController {
         type: 'string',
     })
     @ApiQuery({
+        name: 'beforeDate',
+        type: 'date',
+        required: false,
+    })
+    @ApiQuery({
         name: 'page',
     })
     @ApiQuery({
@@ -138,6 +143,7 @@ export class RoomController {
                 page: query.page,
                 route: 'http://localhost:3000/rooms',
             },
+            query.beforeDate,
         );
 
         return {
