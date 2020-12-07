@@ -63,15 +63,11 @@ export class RoomController {
     ): Promise<PayloadSuccessDto> {
         const limit = query.limit > 100 ? 100 : query.limit;
 
-        const rooms = await this._roomService.getRooms(
-            user.id,
-            {
-                limit,
-                page: query.page,
-                route: 'http://localhost:3000/rooms',
-            },
-            query.type,
-        );
+        const rooms = await this._roomService.getRooms(user.id, {
+            limit,
+            page: query.page,
+            route: 'http://localhost:3000/rooms',
+        });
 
         return {
             description: 'successefully-retrieved-rooms',

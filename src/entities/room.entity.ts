@@ -17,11 +17,13 @@ export class RoomEntity extends AbstractEntity<RoomDto> {
 
     @OneToOne(() => MatchingEntity, (matching) => matching.room, {
         cascade: true,
+        onDelete: 'CASCADE',
     })
     matching?: MatchingEntity;
 
     @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.room, {
         cascade: true,
+        onDelete: 'CASCADE',
     })
     profiles: ProfileRoomEntity[];
 

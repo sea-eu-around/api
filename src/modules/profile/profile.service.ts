@@ -20,16 +20,17 @@ import { LanguageEntity } from '../../entities/language.entity';
 import { ProfileEntity } from '../../entities/profile.entity';
 import { ProfileOfferEntity } from '../../entities/profileOffer.entity';
 import { StaffProfileEntity } from '../../entities/staffProfile.entity';
+import { StaffRoleEntity } from '../../entities/staffRole.entity';
 import { StudentProfileEntity } from '../../entities/studentProfile.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { ProfileNotFoundException } from '../../exceptions/profile-not-found.exception';
 import { EducationFieldRepository } from '../../repositories/educationField.repository';
 import { InterestRepository } from '../../repositories/interest.repository';
 import { LanguageRepository } from '../../repositories/language.repository';
-import { MatchingRepository } from '../../repositories/matching.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
 import { ProfileOfferRepository } from '../../repositories/profileOffer.repository';
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
+import { StaffRoleRepository } from '../../repositories/staffRole.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
 import { MatchingService } from '../matching/matching.service';
 import { UserRepository } from '../user/user.repository';
@@ -37,6 +38,7 @@ import { AddEducationFieldToProfileDto } from './dto/AddEducationFieldToProfileD
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
 import { AddLanguageToProfileDto } from './dto/AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './dto/AddOfferToProfileDto';
+import { AddStaffRolesToProfileDto } from './dto/AddStaffRolesToProfileDto';
 import { ProfileCreationDto } from './dto/ProfileCreationDto';
 import { UpdateAvatarDto } from './dto/UpdateAvatarDto';
 
@@ -51,8 +53,8 @@ export class ProfileService {
         private readonly _profileOfferRepository: ProfileOfferRepository,
         private readonly _educationFieldRepository: EducationFieldRepository,
         private readonly _userRepository: UserRepository,
-        private readonly _matchingRepository: MatchingRepository,
         private readonly _matchingServices: MatchingService,
+        private readonly _staffRoleRepository: StaffRoleRepository,
     ) {}
 
     async findOneById(id: string): Promise<ProfileEntity> {
@@ -184,6 +186,7 @@ export class ProfileService {
             delete profile.languages;
             delete profile.profileOffers;
             delete profile.educationFields;
+            delete (<StaffProfileEntity>profile).staffRoles;
             profile.user = user;
 
             savedProfile = await this._staffProfileRepository.save(profile);
@@ -215,6 +218,15 @@ export class ProfileService {
         if (profileCreationDto.educationFields) {
             savedProfile.educationFields = await this.addEducationFields(
                 profileCreationDto.educationFields,
+                savedProfile.id,
+            );
+        }
+
+        if (profileCreationDto.staffRoles) {
+            (<StaffProfileEntity>(
+                savedProfile
+            )).staffRoles = await this.addStaffRoles(
+                profileCreationDto.staffRoles,
                 savedProfile.id,
             );
         }
@@ -308,6 +320,21 @@ export class ProfileService {
         );
 
         return this._educationFieldRepository.save(educationFields);
+    }
+
+    async addStaffRoles(
+        addStaffRolesToProfileDto: AddStaffRolesToProfileDto[],
+        profileId?: string,
+        user?: UserEntity,
+    ): Promise<StaffRoleEntity[]> {
+        const staffRoles = addStaffRolesToProfileDto.map((staffRole) =>
+            Object.assign(this._educationFieldRepository.create(), {
+                ...staffRole,
+                profileId: profileId || user.id,
+            }),
+        );
+
+        return this._staffRoleRepository.save(staffRoles);
     }
 
     private static _findUnivFromEmail(email: string) {

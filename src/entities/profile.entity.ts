@@ -37,6 +37,7 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     @OneToOne(() => UserEntity, (user) => user.profile, {
         cascade: true,
         primary: true,
+        onDelete: 'CASCADE',
     })
     @JoinColumn({ name: 'id' })
     user: UserEntity;
@@ -52,6 +53,7 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
 
     @ManyToMany(() => InterestEntity, (interests) => interests.profile, {
         eager: true,
+        onDelete: 'CASCADE',
     })
     @JoinTable()
     interests: InterestEntity[];
@@ -67,6 +69,7 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
         (educationField) => educationField.profile,
         {
             eager: true,
+            onDelete: 'CASCADE',
         },
     )
     educationFields: EducationFieldEntity[];
@@ -83,30 +86,37 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     @OneToMany(() => LanguageEntity, (language) => language.profile, {
         cascade: true,
         eager: true,
+        onDelete: 'CASCADE',
     })
     languages: LanguageEntity[];
 
     @OneToMany(() => MatchingEntity, (matching) => matching.fromProfile, {
         cascade: true,
+        onDelete: 'CASCADE',
     })
     givenLikes: MatchingEntity[];
 
     @OneToMany(() => MatchingEntity, (matching) => matching.fromProfile, {
         cascade: true,
+        onDelete: 'CASCADE',
     })
     receivedLikes: MatchingEntity[];
 
     @OneToMany(
         () => ProfileOfferEntity,
         (profileOffer) => profileOffer.profile,
-        { eager: true },
+        { eager: true, onDelete: 'CASCADE' },
     )
     profileOffers: ProfileOfferEntity[];
 
-    @OneToMany(() => MessageEntity, (message) => message.sender)
+    @OneToMany(() => MessageEntity, (message) => message.sender, {
+        onDelete: 'CASCADE',
+    })
     messages: MessageEntity[];
 
-    @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.profile)
+    @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.profile, {
+        onDelete: 'CASCADE',
+    })
     rooms: ProfileRoomEntity[];
 
     dtoClass = ProfileDto;

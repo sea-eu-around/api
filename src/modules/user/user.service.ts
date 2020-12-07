@@ -3,7 +3,7 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { FindConditions, FindOneOptions } from 'typeorm';
+import { DeleteResult, FindConditions, FindOneOptions } from 'typeorm';
 
 import { LanguageType } from '../../common/constants/language-type';
 import { UserEntity } from '../../entities/user.entity';
@@ -106,5 +106,9 @@ export class UserService {
             return this.userRepository.save(user);
         }
         return null;
+    }
+
+    async deleteUser(userId: string): Promise<DeleteResult> {
+        return this.userRepository.delete({ id: userId });
     }
 }
