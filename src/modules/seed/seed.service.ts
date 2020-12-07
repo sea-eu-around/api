@@ -154,9 +154,11 @@ export class SeedService {
                     );
                 } else {
                     profile.type = ProfileType.STAFF;
-                    profile.staffRole = faker.random.arrayElement(
-                        Object.values(StaffRoleType),
-                    );
+                    profile.staffRoles = faker.random
+                        .arrayElements(Object.values(StaffRoleType))
+                        .map((x) => ({
+                            id: x,
+                        }));
                 }
 
                 return profile;
