@@ -2,10 +2,8 @@
 
 export enum StaffRoleType {
     TEACHING = 'teaching',
-    RESEARCHER = 'researcher',
-    SUPPORTING = 'supporting',
-    ADMINISTRATIVE = 'administrative',
+    RESEARCHER = 'research',
+    ADMINISTRATIVE = 'administration',
     TECHNICAL = 'technical',
-    AMBASSADOR = 'ambassador',
     OTHER = 'other',
 }

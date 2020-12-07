@@ -17,6 +17,7 @@ import { StaffRoleType } from '../../../common/constants/staff-role-type';
 import { AddEducationFieldToProfileDto } from './AddEducationFieldToProfileDto';
 import { AddLanguageToProfileDto } from './AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './AddOfferToProfileDto';
+import { AddStaffRolesToProfileDto } from './AddStaffRolesToProfileDto';
 
 export class ProfileCreationDto {
     @ApiProperty()
@@ -76,6 +77,13 @@ export class ProfileCreationDto {
     @ValidateIf((o) => o.type === ProfileType.STAFF)
     @IsEnum(StaffRoleType)
     staffRole: StaffRoleType;
+
+    @ApiPropertyOptional()
+    @ValidateIf((o) => o.type === ProfileType.STAFF)
+    @IsOptional()
+    @IsArray()
+    @IsNotEmpty()
+    staffRoles: AddStaffRolesToProfileDto[];
 
     @ApiPropertyOptional()
     @IsOptional()

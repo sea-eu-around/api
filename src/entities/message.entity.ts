@@ -16,7 +16,9 @@ export class MessageEntity extends AbstractEntity<MessageDto> {
     @Column()
     roomId: string;
 
-    @ManyToOne(() => ProfileEntity, (profile) => profile.messages)
+    @ManyToOne(() => ProfileEntity, (profile) => profile.messages, {
+        onDelete: 'CASCADE',
+    })
     sender: ProfileEntity;
 
     @Column()

@@ -17,10 +17,14 @@ export class ProfileRoomEntity extends AbstractCompositeEntity<ProfileRoomDto> {
     @PrimaryColumn()
     roomId!: string;
 
-    @ManyToOne(() => ProfileEntity, (profile) => profile.rooms)
+    @ManyToOne(() => ProfileEntity, (profile) => profile.rooms, {
+        onDelete: 'CASCADE',
+    })
     profile: ProfileEntity;
 
-    @ManyToOne(() => RoomEntity, (room) => room.profiles)
+    @ManyToOne(() => RoomEntity, (room) => room.profiles, {
+        onDelete: 'CASCADE',
+    })
     room: RoomEntity;
 
     @Column({ nullable: true })
