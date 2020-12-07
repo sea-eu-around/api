@@ -26,5 +26,8 @@ export class ProfileRoomEntity extends AbstractCompositeEntity<ProfileRoomDto> {
     @Column({ nullable: true })
     lastMessageSeenDate?: Date;
 
+    @Column({ nullable: true })
+    lastMessageSeenId?: string;
+
     dtoClass = ProfileRoomDto;
 }
