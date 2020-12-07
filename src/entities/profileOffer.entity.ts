@@ -32,11 +32,14 @@ export class ProfileOfferEntity extends AbstractCompositeEntity<ProfileOfferDto>
     @Column({ nullable: true })
     allowOther?: boolean;
 
-    @ManyToOne(() => ProfileEntity, (profile) => profile.profileOffers)
+    @ManyToOne(() => ProfileEntity, (profile) => profile.profileOffers, {
+        onDelete: 'CASCADE',
+    })
     profile: ProfileEntity;
 
     @ManyToOne(() => OfferEntity, (offer) => offer.profileOffers, {
         eager: true,
+        onDelete: 'CASCADE',
     })
     offer: OfferEntity;
 
