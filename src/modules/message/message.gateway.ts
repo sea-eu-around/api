@@ -112,7 +112,7 @@ export class MessageGateway
         const profileIds = await this._profileRoomRepository.getRoomProfileIds(data.roomId);
         const roomIds = this._getWhereToEmitEvent(data.roomId, profileIds);
 
-        this._emitToRooms(roomIds, 'readMessage', {profileId: user.id, messageId: data.messageId});
+        this._emitToRooms(roomIds, 'readMessage', {profileId: user.id, ...data});
     }
 
     afterInit(server: Server): void {
