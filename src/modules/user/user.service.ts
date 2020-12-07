@@ -7,6 +7,10 @@ import { FindConditions, FindOneOptions } from 'typeorm';
 
 import { LanguageType } from '../../common/constants/language-type';
 import { UserEntity } from '../../entities/user.entity';
+import { MatchingRepository } from '../../repositories/matching.repository';
+import { MessageRepository } from '../../repositories/message.repository';
+import { ProfileRepository } from '../../repositories/profile.repository';
+import { ProfileRoomRepository } from '../../repositories/profileRoom.repository';
 import { AwsS3Service } from '../../shared/services/aws-s3.service';
 import { ConfigService } from '../../shared/services/config.service';
 import { ValidatorService } from '../../shared/services/validator.service';
@@ -22,6 +26,10 @@ export class UserService {
         public readonly awsS3Service: AwsS3Service,
         public readonly configService: ConfigService,
         public readonly mailerService: MailerService,
+        private readonly _profileRepository: ProfileRepository,
+        private readonly _matchingRepository: MatchingRepository,
+        private readonly _profileRoomRepository: ProfileRoomRepository,
+        private readonly _messageRepository: MessageRepository,
     ) {}
 
     /**
@@ -106,5 +114,23 @@ export class UserService {
             return this.userRepository.save(user);
         }
         return null;
+    }
+
+    async getUserWithAllInfomations(user: UserEntity) {
+        const profile = await this._profileRepository.findOne(user.id);
+        profile.givenLikes = await this._matchingRepository.find({
+            fromProfileId: user.id,
+        });
+        profile.messages = await this._messageRepository.find({
+            senderId: user.id,
+        });
+        profile.rooms = await this._profileRoomRepository.find({
+            where: { profileId: user.id },
+            relations: ['room'],
+        });
+
+        user.profile = profile;
+
+        return user;
     }
 }

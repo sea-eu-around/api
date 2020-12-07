@@ -9,7 +9,9 @@ import { UtilsService } from '../providers/utils.service';
 import { EducationFieldDto } from './EducationFieldDto';
 import { InterestDto } from './InterestDto';
 import { LanguageDto } from './LanguageDto';
+import { MessageDto } from './MessageDto';
 import { ProfileOfferDto } from './ProfileOfferDto';
+import { ProfileRoomDto } from './ProfileRoomDto';
 
 export class ProfileDto extends AbstractCompositeDto {
     @ApiPropertyOptional()
@@ -51,6 +53,12 @@ export class ProfileDto extends AbstractCompositeDto {
     @ApiPropertyOptional()
     avatar?: string;
 
+    @ApiPropertyOptional()
+    rooms?: ProfileRoomDto[];
+
+    @ApiPropertyOptional()
+    messages: MessageDto[];
+
     constructor(profile: ProfileEntity) {
         super();
         this.id = profile.id;
@@ -74,5 +82,11 @@ export class ProfileDto extends AbstractCompositeDto {
         this.profileOffers = UtilsService.isDtos(profile.profileOffers)
             ? profile.profileOffers.toDtos()
             : profile.profileOffers;
+        this.rooms = UtilsService.isDtos(profile.rooms)
+            ? profile.rooms.toDtos()
+            : profile.rooms;
+        this.messages = UtilsService.isDtos(profile.messages)
+            ? profile.messages.toDtos()
+            : profile.messages;
     }
 }
