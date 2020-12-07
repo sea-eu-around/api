@@ -27,7 +27,9 @@ export class MatchingEntity extends AbstractEntity<MatchingDto> {
     })
     status: MatchingStatusType;
 
-    @OneToOne(() => RoomEntity, (room) => room.matching)
+    @OneToOne(() => RoomEntity, (room) => room.matching, {
+        onDelete: 'CASCADE',
+    })
     @JoinColumn()
     room?: RoomEntity;
 

@@ -6,9 +6,7 @@ import { EducationFieldDto } from '../dto/EducationFieldDto';
 import { ProfileEntity } from './profile.entity';
 
 @Entity('education_field')
-export class EducationFieldEntity extends AbstractCompositeEntity<
-    EducationFieldDto
-> {
+export class EducationFieldEntity extends AbstractCompositeEntity<EducationFieldDto> {
     @Index()
     @Column({ enum: EducationFieldType, type: 'enum' })
     @PrimaryColumn({ enum: EducationFieldType, type: 'enum' })
@@ -19,7 +17,9 @@ export class EducationFieldEntity extends AbstractCompositeEntity<
     @PrimaryColumn()
     profileId: string;
 
-    @ManyToOne(() => ProfileEntity, (profile) => profile.educationFields)
+    @ManyToOne(() => ProfileEntity, (profile) => profile.educationFields, {
+        onDelete: 'CASCADE',
+    })
     profile: ProfileEntity;
 
     dtoClass = EducationFieldDto;

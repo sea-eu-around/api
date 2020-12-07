@@ -19,7 +19,9 @@ export class LanguageEntity extends AbstractCompositeEntity<LanguageDto> {
     @Column({ enum: LanguageLevelType, type: 'enum', nullable: true })
     level: LanguageLevelType;
 
-    @ManyToOne(() => ProfileEntity, (profile) => profile.languages)
+    @ManyToOne(() => ProfileEntity, (profile) => profile.languages, {
+        onDelete: 'CASCADE',
+    })
     profile: ProfileEntity;
 
     dtoClass = LanguageDto;
