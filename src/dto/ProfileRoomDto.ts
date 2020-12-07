@@ -16,7 +16,7 @@ export class ProfileRoomDto extends AbstractCompositeDto {
     roomId: string;
 
     @ApiPropertyOptional()
-    lastMessageSeenId?: string;
+    lastMessageSeenDate?: Date;
 
     constructor(profileRoom: ProfileRoomEntity) {
         super();
@@ -26,6 +26,6 @@ export class ProfileRoomDto extends AbstractCompositeDto {
         if (UtilsService.isDto(profileRoom.profile)) {
             Object.assign(this, profileRoom.profile.toDto());
         }
-        this.lastMessageSeenId = profileRoom.lastMessageSeenId;
+        this.lastMessageSeenDate = profileRoom.lastMessageSeenDate;
     }
 }
