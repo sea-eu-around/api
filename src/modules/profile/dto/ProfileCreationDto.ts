@@ -13,7 +13,6 @@ import { DegreeType } from '../../../common/constants/degree-type';
 import { GenderType } from '../../../common/constants/gender-type';
 import { NationalityType } from '../../../common/constants/nationality-type';
 import { ProfileType } from '../../../common/constants/profile-type';
-import { StaffRoleType } from '../../../common/constants/staff-role-type';
 import { AddEducationFieldToProfileDto } from './AddEducationFieldToProfileDto';
 import { AddLanguageToProfileDto } from './AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './AddOfferToProfileDto';
@@ -72,11 +71,6 @@ export class ProfileCreationDto {
     @ValidateIf((o) => o.type === ProfileType.STUDENT)
     @IsEnum(DegreeType)
     degree: DegreeType;
-
-    @ApiProperty()
-    @ValidateIf((o) => o.type === ProfileType.STAFF)
-    @IsEnum(StaffRoleType)
-    staffRole: StaffRoleType;
 
     @ApiPropertyOptional()
     @ValidateIf((o) => o.type === ProfileType.STAFF)
