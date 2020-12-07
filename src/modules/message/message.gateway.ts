@@ -106,7 +106,7 @@ export class MessageGateway
     @SubscribeMessage('readMessage')
     async readMessage(@WsAuthUser() user: UserEntity, @MessageBody() data: ReadMessageDto): Promise<void> {
         const profileRoom = await this._profileRoomRepository.findOne({profileId: user.id, roomId: data.roomId});
-        profileRoom.lastMessageSeenId = data.messageId;
+        profileRoom.lastMessageSeenDate = data.date;
         await this._profileRoomRepository.save(profileRoom);
 
         const profileIds = await this._profileRoomRepository.getRoomProfileIds(data.roomId);

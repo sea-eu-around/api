@@ -1,4 +1,4 @@
-import { IsUUID } from 'class-validator';
+import { IsDateString, IsUUID } from 'class-validator';
 
 export class ReadMessageDto {
     @IsUUID()
@@ -6,4 +6,7 @@ export class ReadMessageDto {
 
     @IsUUID()
     messageId: string;
+
+    @IsDateString()
+    date: Date;
 }
