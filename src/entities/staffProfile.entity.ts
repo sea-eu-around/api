@@ -1,7 +1,6 @@
-import { ChildEntity, Column, OneToMany } from 'typeorm';
+import { ChildEntity, OneToMany } from 'typeorm';
 
 import { ProfileType } from '../common/constants/profile-type';
-import { StaffRoleType } from '../common/constants/staff-role-type';
 import { StaffProfileDto } from '../dto/StaffProfileDto';
 import { ProfileEntity } from './profile.entity';
 import { StaffRoleEntity } from './staffRole.entity';
@@ -13,9 +12,6 @@ export class StaffProfileEntity extends ProfileEntity {
         onDelete: 'CASCADE',
     })
     staffRoles: StaffRoleEntity[];
-
-    @Column({ type: 'enum', enum: StaffRoleType })
-    staffRole: StaffRoleType;
 
     dtoClass = StaffProfileDto;
 }
