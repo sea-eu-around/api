@@ -44,21 +44,35 @@ export class UnprocessableEntityFilter implements ExceptionFilter {
         validationErrors: ValidationError[],
     ): IValidationError[] {
         const errors: IValidationError[] = [];
+
         for (const validationError of validationErrors) {
             const error: IValidationError = {
                 property: validationError.property,
-                codes: [],
             };
-            for (const [constraintKey, constraint] of Object.entries(
-                validationError.constraints,
-            )) {
-                error.codes.push({
-                    description: _.capitalize(constraint),
-                    code: `error.validation.${
-                        validationError.property
-                    }.${_.snakeCase(constraintKey)}`,
-                });
+
+            if (validationError.constraints) {
+                error.codes = [];
+                for (const [constraintKey, constraint] of Object.entries(
+                    validationError.constraints,
+                )) {
+                    error.codes.push({
+                        description: _.capitalize(constraint),
+                        code: `error.validation.${
+                            validationError.property
+                        }.${_.snakeCase(constraintKey)}`,
+                    });
+                }
             }
+
+            if (
+                validationError.children &&
+                validationError.children.length > 0
+            ) {
+                error.children = this._validationFilter(
+                    validationError.children,
+                );
+            }
+
             errors.push(error);
         }
         return errors;
