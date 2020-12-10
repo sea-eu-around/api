@@ -1,4 +1,4 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
     IsArray,
@@ -69,12 +69,13 @@ export class ProfileUpdateDto {
     @Type(() => AddOfferToProfileDto)
     profileOffers: AddOfferToProfileDto[];
 
-    @ApiPropertyOptional()
+    @ApiProperty()
     @IsEnum(ProfileType)
     type: ProfileType;
 
     @ApiPropertyOptional()
     @ValidateIf((o) => o.type === ProfileType.STUDENT)
+    @IsOptional()
     @IsEnum(DegreeType)
     degree: DegreeType;
 
