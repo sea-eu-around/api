@@ -20,6 +20,7 @@ import {
 
 import { PostgresIoAdapter } from './adapters/postgres.adapter';
 import { AppModule } from './app.module';
+import { ErrorFilter } from './filters/errors.filter';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { QueryFailedFilter } from './filters/query-failed.filter';
 import { UnprocessableEntityFilter } from './filters/unprocessable-entity.filter';
@@ -50,6 +51,7 @@ async function bootstrap() {
     const reflector = app.get(Reflector);
 
     app.useGlobalFilters(
+        new ErrorFilter(),
         new HttpExceptionFilter(reflector),
         new UnprocessableEntityFilter(reflector),
         new QueryFailedFilter(reflector),
