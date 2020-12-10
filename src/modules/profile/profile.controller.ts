@@ -165,7 +165,6 @@ export class ProfileController {
         profileCreationDto: ProfileCreationDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        throw Error('test');
         const createdProfile = await this._profileService.createOrUpdate(
             profileCreationDto,
             user,
