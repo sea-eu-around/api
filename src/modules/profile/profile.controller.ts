@@ -12,13 +12,7 @@ import {
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
-import {
-    ApiBearerAuth,
-    ApiExtraModels,
-    ApiQuery,
-    ApiResponse,
-    ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { DegreeType } from '../../common/constants/degree-type';
 import { GenderType } from '../../common/constants/gender-type';
@@ -39,8 +33,6 @@ import { AddOfferToProfileDto } from './dto/AddOfferToProfileDto';
 import { ProfileCreationDto } from './dto/ProfileCreationDto';
 import { ProfileQueryDto } from './dto/ProfileQueryDto';
 import { ProfileUpdateDto } from './dto/ProfileUpdateDto';
-import { StaffProfileCreationDto } from './dto/StaffProfileCreationDto';
-import { StudentProfileCreationDto } from './dto/StudentProfileCreationDto';
 import { UpdateAvatarDto } from './dto/UpdateAvatarDto';
 import { ProfileService } from './profile.service';
 
@@ -163,7 +155,6 @@ export class ProfileController {
     @Post()
     @HttpCode(HttpStatus.CREATED)
     @ApiBearerAuth()
-    @ApiExtraModels(StaffProfileCreationDto, StudentProfileCreationDto)
     @ApiResponse({
         status: HttpStatus.CREATED,
         description: 'profile-created',
@@ -188,7 +179,6 @@ export class ProfileController {
     @Patch()
     @HttpCode(HttpStatus.OK)
     @ApiBearerAuth()
-    @ApiExtraModels(StaffProfileCreationDto, StudentProfileCreationDto)
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'profile-updated',
