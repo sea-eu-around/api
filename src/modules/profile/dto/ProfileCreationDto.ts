@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
     IsArray,
     IsDateString,
@@ -7,6 +8,7 @@ import {
     IsOptional,
     IsString,
     ValidateIf,
+    ValidateNested,
 } from 'class-validator';
 
 import { DegreeType } from '../../../common/constants/degree-type';
@@ -41,14 +43,14 @@ export class ProfileCreationDto {
 
     @ApiPropertyOptional()
     @IsOptional()
-    @IsArray()
-    @IsNotEmpty()
+    @ValidateNested()
+    @Type(() => AddLanguageToProfileDto)
     languages: AddLanguageToProfileDto[];
 
     @ApiPropertyOptional()
     @IsOptional()
-    @IsArray()
-    @IsNotEmpty()
+    @ValidateNested()
+    @Type(() => AddEducationFieldToProfileDto)
     educationFields: AddEducationFieldToProfileDto[];
 
     @ApiPropertyOptional()
@@ -59,8 +61,8 @@ export class ProfileCreationDto {
 
     @ApiPropertyOptional()
     @IsOptional()
-    @IsArray()
-    @IsNotEmpty()
+    @ValidateNested()
+    @Type(() => AddOfferToProfileDto)
     profileOffers: AddOfferToProfileDto[];
 
     @ApiProperty()
@@ -74,9 +76,8 @@ export class ProfileCreationDto {
 
     @ApiPropertyOptional()
     @ValidateIf((o) => o.type === ProfileType.STAFF)
-    @IsOptional()
-    @IsArray()
-    @IsNotEmpty()
+    @ValidateNested()
+    @Type(() => AddStaffRolesToProfileDto)
     staffRoles: AddStaffRolesToProfileDto[];
 
     @ApiPropertyOptional()
