@@ -1,4 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
     IsArray,
     IsEnum,
@@ -46,12 +47,17 @@ export class ProfileUpdateDto {
 
     @ApiPropertyOptional()
     @IsOptional()
-    @IsArray()
-    @IsNotEmpty()
+    @ValidateNested()
+    @Type(() => AddLanguageToProfileDto)
     languages: AddLanguageToProfileDto[];
 
     @ApiPropertyOptional()
     @IsOptional()
+    @ValidateNested()
+    @Type(() => AddEducationFieldToProfileDto)
+    educationFields: AddEducationFieldToProfileDto[];
+
+    @ApiPropertyOptional()
     @IsOptional()
     @IsArray()
     @IsNotEmpty()
@@ -59,31 +65,23 @@ export class ProfileUpdateDto {
 
     @ApiPropertyOptional()
     @IsOptional()
-    @IsArray()
-    @IsNotEmpty()
+    @ValidateNested()
+    @Type(() => AddOfferToProfileDto)
     profileOffers: AddOfferToProfileDto[];
 
     @ApiPropertyOptional()
-    @IsOptional()
-    @IsArray()
-    @IsNotEmpty()
-    educationFields: AddEducationFieldToProfileDto[];
-
-    @ApiPropertyOptional()
-    @IsOptional()
     @IsEnum(ProfileType)
     type: ProfileType;
 
     @ApiPropertyOptional()
-    @IsOptional()
     @ValidateIf((o) => o.type === ProfileType.STUDENT)
     @IsEnum(DegreeType)
     degree: DegreeType;
 
     @ApiPropertyOptional()
     @ValidateIf((o) => o.type === ProfileType.STAFF)
-    @IsOptional()
     @ValidateNested()
+    @Type(() => AddStaffRolesToProfileDto)
     staffRoles: AddStaffRolesToProfileDto[];
 
     @ApiPropertyOptional()
