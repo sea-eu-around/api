@@ -3,18 +3,15 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { FindConditions } from 'typeorm';
+import { DeleteResult, FindConditions, FindOneOptions } from 'typeorm';
 
 import { LanguageType } from '../../common/constants/language-type';
-import { PageMetaDto } from '../../common/dto/PageMetaDto';
 import { UserEntity } from '../../entities/user.entity';
 import { AwsS3Service } from '../../shared/services/aws-s3.service';
 import { ConfigService } from '../../shared/services/config.service';
 import { ValidatorService } from '../../shared/services/validator.service';
 import { UserRegisterDto } from '../auth/dto/UserRegisterDto';
 import { UserVerificationQueryDto } from '../auth/dto/UserVerificationQueryDto';
-import { UsersPageDto } from './dto/UsersPageDto';
-import { UsersPageOptionsDto } from './dto/UsersPageOptionsDto';
 import { UserRepository } from './user.repository';
 
 @Injectable()
@@ -30,8 +27,11 @@ export class UserService {
     /**
      * Find single user
      */
-    findOne(findData: FindConditions<UserEntity>): Promise<UserEntity> {
-        return this.userRepository.findOne(findData);
+    findOne(
+        conditions?: FindConditions<UserEntity>,
+        options?: FindOneOptions<UserEntity>,
+    ): Promise<UserEntity> {
+        return this.userRepository.findOne(conditions, options);
     }
     async findByUsernameOrEmail(
         options: Partial<{ username: string; email: string }>,
@@ -108,17 +108,7 @@ export class UserService {
         return null;
     }
 
-    async getUsers(pageOptionsDto: UsersPageOptionsDto): Promise<UsersPageDto> {
-        const queryBuilder = this.userRepository.createQueryBuilder('user');
-        const [users, usersCount] = await queryBuilder
-            .skip(pageOptionsDto.skip)
-            .take(pageOptionsDto.take)
-            .getManyAndCount();
-
-        const pageMetaDto = new PageMetaDto({
-            pageOptionsDto,
-            itemCount: usersCount,
-        });
-        return new UsersPageDto(users.toDtos(), pageMetaDto);
+    async deleteUser(userId: string): Promise<DeleteResult> {
+        return this.userRepository.delete({ id: userId });
     }
 }

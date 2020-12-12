@@ -1,6 +1,9 @@
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import {
+    ClassSerializerInterceptor,
+    UnprocessableEntityException,
+    ValidationPipe,
+} from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
-import { Transport } from '@nestjs/microservices';
 import {
     ExpressAdapter,
     NestExpressApplication,
@@ -15,9 +18,12 @@ import {
     patchTypeORMRepositoryWithBaseRepository,
 } from 'typeorm-transactional-cls-hooked';
 
+import { PostgresIoAdapter } from './adapters/postgres.adapter';
 import { AppModule } from './app.module';
-import { BadRequestExceptionFilter } from './filters/bad-request.filter';
+import { ErrorFilter } from './filters/errors.filter';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { QueryFailedFilter } from './filters/query-failed.filter';
+import { UnprocessableEntityFilter } from './filters/unprocessable-entity.filter';
 import { ResponseTransformInterceptor } from './interceptors/response-transform-interceptor.service';
 import { ConfigService } from './shared/services/config.service';
 import { SharedModule } from './shared/shared.module';
@@ -45,7 +51,9 @@ async function bootstrap() {
     const reflector = app.get(Reflector);
 
     app.useGlobalFilters(
-        new BadRequestExceptionFilter(reflector),
+        new ErrorFilter(),
+        new HttpExceptionFilter(reflector),
+        new UnprocessableEntityFilter(reflector),
         new QueryFailedFilter(reflector),
     );
 
@@ -59,8 +67,13 @@ async function bootstrap() {
             whitelist: true,
             transform: true,
             dismissDefaultMessages: false,
+            errorHttpStatusCode: 422,
+            exceptionFactory: (errors) => {
+                throw new UnprocessableEntityException(errors);
+            },
             validationError: {
                 target: false,
+                value: false,
             },
         }),
     );
@@ -69,16 +82,7 @@ async function bootstrap() {
 
     const configService = app.select(SharedModule).get(ConfigService);
 
-    app.connectMicroservice({
-        transport: Transport.TCP,
-        options: {
-            port: configService.getNumber('TRANSPORT_PORT'),
-            retryAttempts: 5,
-            retryDelay: 3000,
-        },
-    });
-
-    await app.startAllMicroservicesAsync();
+    app.useWebSocketAdapter(new PostgresIoAdapter(app));
 
     if (['development', 'staging'].includes(configService.nodeEnv)) {
         setupSwagger(app);

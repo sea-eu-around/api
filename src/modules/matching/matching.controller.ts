@@ -18,7 +18,7 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
-import { ToUserDto } from './dto/toUserDto';
+import { ToProfileDto } from './dto/toProfileDto';
 import { MatchingService } from './matching.service';
 
 @Controller('matching')
@@ -33,7 +33,7 @@ export class MatchingController {
     @ApiBearerAuth()
     @ApiResponse({ type: ProfileEntity, description: 'my-matches' })
     async get(@AuthUser() user: UserEntity): Promise<PayloadSuccessDto> {
-        const profiles = await this._matchingService.getMyMatches(user);
+        const profiles = await this._matchingService.getMyMatches(user.id);
 
         return {
             description: 'my matches',
@@ -48,17 +48,17 @@ export class MatchingController {
     @ApiBearerAuth()
     @ApiResponse({ type: MatchingDto, description: 'like' })
     async like(
-        @Body() toUserDto: ToUserDto,
+        @Body() toProfileDto: ToProfileDto,
         @AuthUser() fromUser: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const match = await this._matchingService.like(
-            fromUser,
-            toUserDto.toUserId,
+            fromUser.id,
+            toProfileDto.toProfileId,
         );
 
         return {
             description: 'user-liked',
-            data: match.status,
+            data: match,
         };
     }
 
@@ -69,17 +69,17 @@ export class MatchingController {
     @ApiBearerAuth()
     @ApiResponse({ type: MatchingDto, description: 'decline' })
     async decline(
-        @Body() toUserDto: ToUserDto,
+        @Body() toProfileDto: ToProfileDto,
         @AuthUser() fromUser: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const match = await this._matchingService.decline(
-            fromUser,
-            toUserDto.toUserId,
+            fromUser.id,
+            toProfileDto.toProfileId,
         );
 
         return {
             description: 'user-declined',
-            data: match.status,
+            data: match,
         };
     }
 
@@ -90,17 +90,17 @@ export class MatchingController {
     @ApiBearerAuth()
     @ApiResponse({ type: MatchingDto, description: 'block' })
     async block(
-        @Body() toUserDto: ToUserDto,
+        @Body() toProfileDto: ToProfileDto,
         @AuthUser() fromUser: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const match = await this._matchingService.block(
-            fromUser,
-            toUserDto.toUserId,
+            fromUser.id,
+            toProfileDto.toProfileId,
         );
 
         return {
             description: 'user-blocked',
-            data: match.status,
+            data: match,
         };
     }
 }

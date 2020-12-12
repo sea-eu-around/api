@@ -6,9 +6,7 @@ import { OfferEntity } from './offer.entity';
 import { ProfileEntity } from './profile.entity';
 
 @Entity('profile_offer')
-export class ProfileOfferEntity extends AbstractCompositeEntity<
-    ProfileOfferDto
-> {
+export class ProfileOfferEntity extends AbstractCompositeEntity<ProfileOfferDto> {
     @Index()
     @Column()
     @PrimaryColumn()
@@ -34,11 +32,14 @@ export class ProfileOfferEntity extends AbstractCompositeEntity<
     @Column({ nullable: true })
     allowOther?: boolean;
 
-    @ManyToOne(() => ProfileEntity, (profile) => profile.profileOffers)
+    @ManyToOne(() => ProfileEntity, (profile) => profile.profileOffers, {
+        onDelete: 'CASCADE',
+    })
     profile: ProfileEntity;
 
     @ManyToOne(() => OfferEntity, (offer) => offer.profileOffers, {
         eager: true,
+        onDelete: 'CASCADE',
     })
     offer: OfferEntity;
 

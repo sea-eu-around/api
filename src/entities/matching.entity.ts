@@ -1,23 +1,24 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { MatchingStatusType } from '../common/constants/matching-status-type';
 import { MatchingDto } from '../dto/MatchingDto';
-import { UserEntity } from './user.entity';
+import { ProfileEntity } from './profile.entity';
+import { RoomEntity } from './room.entity';
 
 @Entity('matching')
 export class MatchingEntity extends AbstractEntity<MatchingDto> {
-    @ManyToOne(() => UserEntity, (user) => user.givenLikes)
-    fromUser: UserEntity;
+    @ManyToOne(() => ProfileEntity, (profile) => profile.givenLikes)
+    fromProfile: ProfileEntity;
 
-    @ManyToOne(() => UserEntity, (user) => user.receivedLikes)
-    toUser: UserEntity;
-
-    @Column()
-    fromUserId: string;
+    @ManyToOne(() => ProfileEntity, (profile) => profile.receivedLikes)
+    toProfile: ProfileEntity;
 
     @Column()
-    toUserId: string;
+    fromProfileId: string;
+
+    @Column()
+    toProfileId: string;
 
     @Column({
         type: 'enum',
@@ -25,6 +26,15 @@ export class MatchingEntity extends AbstractEntity<MatchingDto> {
         default: MatchingStatusType.REQUEST,
     })
     status: MatchingStatusType;
+
+    @OneToOne(() => RoomEntity, (room) => room.matching, {
+        onDelete: 'CASCADE',
+    })
+    @JoinColumn()
+    room?: RoomEntity;
+
+    @Column({ nullable: true })
+    roomId?: string;
 
     dtoClass = MatchingDto;
 }

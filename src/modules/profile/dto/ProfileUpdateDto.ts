@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
     IsArray,
     IsEnum,
@@ -6,16 +7,17 @@ import {
     IsOptional,
     IsString,
     ValidateIf,
+    ValidateNested,
 } from 'class-validator';
 
 import { DegreeType } from '../../../common/constants/degree-type';
 import { GenderType } from '../../../common/constants/gender-type';
 import { NationalityType } from '../../../common/constants/nationality-type';
 import { ProfileType } from '../../../common/constants/profile-type';
-import { StaffRoleType } from '../../../common/constants/staff-role-type';
 import { AddEducationFieldToProfileDto } from './AddEducationFieldToProfileDto';
 import { AddLanguageToProfileDto } from './AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './AddOfferToProfileDto';
+import { AddStaffRolesToProfileDto } from './AddStaffRolesToProfileDto';
 
 export class ProfileUpdateDto {
     @ApiPropertyOptional()
@@ -45,12 +47,17 @@ export class ProfileUpdateDto {
 
     @ApiPropertyOptional()
     @IsOptional()
-    @IsArray()
-    @IsNotEmpty()
+    @ValidateNested()
+    @Type(() => AddLanguageToProfileDto)
     languages: AddLanguageToProfileDto[];
 
     @ApiPropertyOptional()
     @IsOptional()
+    @ValidateNested()
+    @Type(() => AddEducationFieldToProfileDto)
+    educationFields: AddEducationFieldToProfileDto[];
+
+    @ApiPropertyOptional()
     @IsOptional()
     @IsArray()
     @IsNotEmpty()
@@ -58,32 +65,25 @@ export class ProfileUpdateDto {
 
     @ApiPropertyOptional()
     @IsOptional()
-    @IsArray()
-    @IsNotEmpty()
+    @ValidateNested()
+    @Type(() => AddOfferToProfileDto)
     profileOffers: AddOfferToProfileDto[];
 
-    @ApiPropertyOptional()
-    @IsOptional()
-    @IsArray()
-    @IsNotEmpty()
-    educationFields: AddEducationFieldToProfileDto[];
-
-    @ApiPropertyOptional()
-    @IsOptional()
+    @ApiProperty()
     @IsEnum(ProfileType)
     type: ProfileType;
 
     @ApiPropertyOptional()
-    @IsOptional()
     @ValidateIf((o) => o.type === ProfileType.STUDENT)
+    @IsOptional()
     @IsEnum(DegreeType)
     degree: DegreeType;
 
-    @ApiProperty()
-    @IsOptional()
+    @ApiPropertyOptional()
     @ValidateIf((o) => o.type === ProfileType.STAFF)
-    @IsEnum(StaffRoleType)
-    staffRole: StaffRoleType;
+    @ValidateNested()
+    @Type(() => AddStaffRolesToProfileDto)
+    staffRoles: AddStaffRolesToProfileDto[];
 
     @ApiPropertyOptional()
     @IsOptional()
