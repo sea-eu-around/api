@@ -23,7 +23,9 @@ export class OfferEntity extends AbstractCompositeEntity<OfferDto> {
     @Column()
     allowInterRole: boolean;
 
-    @OneToMany(() => ProfileOfferEntity, (profileOffer) => profileOffer.offer)
+    @OneToMany(() => ProfileOfferEntity, (profileOffer) => profileOffer.offer, {
+        onDelete: 'CASCADE',
+    })
     profileOffers: ProfileOfferEntity[];
 
     dtoClass = OfferDto;

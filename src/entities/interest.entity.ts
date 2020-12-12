@@ -9,7 +9,9 @@ export class InterestEntity extends AbstractCompositeEntity<InterestDto> {
     @PrimaryColumn()
     id: string;
 
-    @ManyToMany(() => ProfileEntity, (profile) => profile.interests)
+    @ManyToMany(() => ProfileEntity, (profile) => profile.interests, {
+        onDelete: 'CASCADE',
+    })
     profile: ProfileEntity;
 
     dtoClass = InterestDto;

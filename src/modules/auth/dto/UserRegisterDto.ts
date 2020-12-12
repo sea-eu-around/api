@@ -16,7 +16,7 @@ export class UserRegisterDto {
     @IsString()
     @IsEmail({}, { message: 'email.invalid' })
     @IsSEAEmail({
-        message: 'validation.email.invalidDomain',
+        message: 'Email is not a valid SEA-EU email',
     })
     @IsNotEmpty()
     @ApiProperty()
@@ -25,7 +25,7 @@ export class UserRegisterDto {
     @IsString()
     @Matches(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,}$/,
-        { message: 'validation.password.notStrongEnough' },
+        { message: 'Password is not enough strong' },
     )
     @ApiProperty({ minLength: 8 })
     readonly password: string;
