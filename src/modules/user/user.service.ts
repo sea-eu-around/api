@@ -73,7 +73,10 @@ export class UserService {
         await this.mailerService.sendMail({
             to: user.email, // list of receivers
             from: 'sea-eu.around@univ-brest.fr', // sender address
-            subject: 'Your verification token', // Subject line
+            subject:
+                user.locale === LanguageType.FR
+                    ? 'Valider votre compte'
+                    : 'Validate your account', // Subject line
             template: mailTemplate,
             context: {
                 link: `${this.configService.get(
