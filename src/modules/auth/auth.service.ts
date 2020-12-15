@@ -94,7 +94,10 @@ export class AuthService {
             await this.mailerService.sendMail({
                 to: user.email, // list of receivers
                 from: 'sea-eu.around@univ-brest.fr', // sender address
-                subject: 'Change your password', // Subject line
+                subject:
+                    user.locale === LanguageType.FR
+                        ? 'Mise à jour de votre mot de passe'
+                        : 'Change your password', // Subject line
                 template: mailTemplate,
                 context: {
                     link: `${this.configService.get(
