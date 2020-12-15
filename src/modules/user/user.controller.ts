@@ -1,6 +1,7 @@
 'use strict';
 
 import {
+    Body,
     Controller,
     Delete,
     HttpCode,
@@ -17,6 +18,7 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
+import { UserDeleteDto } from './dto/UserDeleteDto';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -34,8 +36,11 @@ export class UserController {
         description: 'user-deleted',
         type: DeleteResult,
     })
-    async deleteUser(@AuthUser() user: UserEntity): Promise<PayloadSuccessDto> {
-        await this._userService.deleteUser(user.id);
+    async deleteUser(
+        @Body() userDeleteDto: UserDeleteDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        await this._userService.deleteUser(userDeleteDto, user);
 
         return {
             description: 'successfully-deleted-user',

@@ -7,18 +7,20 @@ import { DeleteResult, FindConditions, FindOneOptions } from 'typeorm';
 
 import { LanguageType } from '../../common/constants/language-type';
 import { UserEntity } from '../../entities/user.entity';
+import { EmailOrPasswordIncorrectException } from '../../exceptions/email-or-password-incorrect.exception';
+import { UserNotVerifiedException } from '../../exceptions/user-not-verified.exception';
+import { UtilsService } from '../../providers/utils.service';
 import { AwsS3Service } from '../../shared/services/aws-s3.service';
 import { ConfigService } from '../../shared/services/config.service';
-import { ValidatorService } from '../../shared/services/validator.service';
 import { UserRegisterDto } from '../auth/dto/UserRegisterDto';
 import { UserVerificationQueryDto } from '../auth/dto/UserVerificationQueryDto';
+import { UserDeleteDto } from './dto/UserDeleteDto';
 import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
     constructor(
         public readonly userRepository: UserRepository,
-        public readonly validatorService: ValidatorService,
         public readonly awsS3Service: AwsS3Service,
         public readonly configService: ConfigService,
         public readonly mailerService: MailerService,
@@ -111,7 +113,23 @@ export class UserService {
         return null;
     }
 
-    async deleteUser(userId: string): Promise<DeleteResult> {
-        return this.userRepository.delete({ id: userId });
+    async deleteUser(
+        userDeleteDto: UserDeleteDto,
+        user: UserEntity,
+    ): Promise<DeleteResult> {
+        const isPasswordValid = await UtilsService.validateHash(
+            userDeleteDto.password,
+            user && user.password,
+        );
+
+        if (!user || !isPasswordValid) {
+            throw new EmailOrPasswordIncorrectException();
+        }
+
+        if (user && !user.isVerified) {
+            throw new UserNotVerifiedException();
+        }
+
+        return this.userRepository.delete({ id: user.id });
     }
 }
