@@ -281,6 +281,8 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<LanguageEntity[]> {
+        await this._languageRepository.delete({ profileId });
+
         const languages = addLanguagesToProfileDto.map((language) =>
             Object.assign(this._languageRepository.create(), {
                 ...language,
@@ -296,6 +298,8 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<ProfileOfferEntity[]> {
+        await this._profileOfferRepository.delete({ profileId });
+
         const profileOffers = addOffersToProfileDto.map((profileOffer) =>
             Object.assign(this._profileOfferRepository.create(), {
                 ...profileOffer,
@@ -311,6 +315,8 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<EducationFieldEntity[]> {
+        await this._educationFieldRepository.delete({ profileId });
+
         const educationFields = addEducationFieldsToProfileDto.map(
             (educationField) =>
                 Object.assign(this._educationFieldRepository.create(), {
@@ -327,8 +333,10 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<StaffRoleEntity[]> {
+        await this._staffRoleRepository.delete({ profileId });
+
         const staffRoles = addStaffRolesToProfileDto.map((staffRole) =>
-            Object.assign(this._educationFieldRepository.create(), {
+            Object.assign(this._staffRoleRepository.create(), {
                 ...staffRole,
                 profileId: profileId || user.id,
             }),
