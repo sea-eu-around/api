@@ -1,3 +1,4 @@
+import { MailerOptions } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
@@ -111,7 +112,7 @@ export class ConfigService {
         };
     }
 
-    get mailerConfig(): unknown {
+    get mailerConfig(): MailerOptions {
         return {
             transport: this.get('TRANSPORT_MAIL'),
             defaults: {
