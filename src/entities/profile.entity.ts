@@ -64,6 +64,9 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     @Column({ nullable: true })
     avatar?: string;
 
+    @Column({ default: true })
+    isActive: boolean;
+
     @OneToMany(
         () => EducationFieldEntity,
         (educationField) => educationField.profile,

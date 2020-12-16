@@ -3,13 +3,14 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { DeleteResult, FindConditions, FindOneOptions } from 'typeorm';
+import { FindConditions, FindOneOptions } from 'typeorm';
 
 import { LanguageType } from '../../common/constants/language-type';
 import { UserEntity } from '../../entities/user.entity';
 import { EmailOrPasswordIncorrectException } from '../../exceptions/email-or-password-incorrect.exception';
 import { UserNotVerifiedException } from '../../exceptions/user-not-verified.exception';
 import { UtilsService } from '../../providers/utils.service';
+import { ProfileRepository } from '../../repositories/profile.repository';
 import { AwsS3Service } from '../../shared/services/aws-s3.service';
 import { ConfigService } from '../../shared/services/config.service';
 import { UserRegisterDto } from '../auth/dto/UserRegisterDto';
@@ -21,6 +22,7 @@ import { UserRepository } from './user.repository';
 export class UserService {
     constructor(
         public readonly userRepository: UserRepository,
+        public readonly profileRepository: ProfileRepository,
         public readonly awsS3Service: AwsS3Service,
         public readonly configService: ConfigService,
         public readonly mailerService: MailerService,
@@ -116,7 +118,7 @@ export class UserService {
     async deleteUser(
         userDeleteDto: UserDeleteDto,
         user: UserEntity,
-    ): Promise<DeleteResult> {
+    ): Promise<void> {
         const isPasswordValid = await UtilsService.validateHash(
             userDeleteDto.password,
             user && user.password,
@@ -130,6 +132,9 @@ export class UserService {
             throw new UserNotVerifiedException();
         }
 
-        return this.userRepository.delete({ id: user.id });
+        user.deletedAt = new Date();
+        await this.userRepository.save(user);
+
+        await this.profileRepository.save({ id: user.id, isActive: false });
     }
 }
