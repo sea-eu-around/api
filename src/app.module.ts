@@ -2,6 +2,7 @@ import './boilerplate.polyfill';
 
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { contextMiddleware } from './middlewares';
@@ -39,6 +40,7 @@ import { SharedModule } from './shared/shared.module';
                 configService.mailerConfig,
             inject: [ConfigService],
         }),
+        ScheduleModule.forRoot(),
     ],
 })
 export class AppModule implements NestModule {

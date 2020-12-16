@@ -1,7 +1,9 @@
 /* eslint-disable complexity */
 
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
 import * as jwt from 'jsonwebtoken';
 import { FindConditions, FindOneOptions } from 'typeorm';
 
@@ -11,7 +13,6 @@ import { EmailOrPasswordIncorrectException } from '../../exceptions/email-or-pas
 import { UserNotVerifiedException } from '../../exceptions/user-not-verified.exception';
 import { UtilsService } from '../../providers/utils.service';
 import { ProfileRepository } from '../../repositories/profile.repository';
-import { AwsS3Service } from '../../shared/services/aws-s3.service';
 import { ConfigService } from '../../shared/services/config.service';
 import { UserRegisterDto } from '../auth/dto/UserRegisterDto';
 import { UserVerificationQueryDto } from '../auth/dto/UserVerificationQueryDto';
@@ -20,12 +21,14 @@ import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
+    private readonly _logger = new Logger(UserService.name);
+
     constructor(
-        public readonly userRepository: UserRepository,
-        public readonly profileRepository: ProfileRepository,
-        public readonly awsS3Service: AwsS3Service,
-        public readonly configService: ConfigService,
-        public readonly mailerService: MailerService,
+        private readonly _userRepository: UserRepository,
+        private readonly _profileRepository: ProfileRepository,
+        private readonly _configService: ConfigService,
+        private readonly _mailerService: MailerService,
+        private readonly _schedulerRegistry: SchedulerRegistry,
     ) {}
 
     /**
@@ -35,12 +38,12 @@ export class UserService {
         conditions?: FindConditions<UserEntity>,
         options?: FindOneOptions<UserEntity>,
     ): Promise<UserEntity> {
-        return this.userRepository.findOne(conditions, options);
+        return this._userRepository.findOne(conditions, options);
     }
     async findByUsernameOrEmail(
         options: Partial<{ username: string; email: string }>,
     ): Promise<UserEntity | undefined> {
-        const queryBuilder = this.userRepository.createQueryBuilder('user');
+        const queryBuilder = this._userRepository.createQueryBuilder('user');
 
         if (options.email) {
             queryBuilder.orWhere('user.email = :email', {
@@ -57,16 +60,16 @@ export class UserService {
     }
 
     async createUser(userRegisterDto: UserRegisterDto): Promise<UserEntity> {
-        const preUser = this.userRepository.create({ ...userRegisterDto });
+        const preUser = this._userRepository.create({ ...userRegisterDto });
 
-        const user = await this.userRepository.save(preUser);
+        const user = await this._userRepository.save(preUser);
 
         const jwtToken = jwt.sign(
             {
                 userId: user.id,
             },
-            this.configService.get('JWT_SECRET_KEY'),
-            { expiresIn: this.configService.get('JWT_EXPIRATION_TIME') + 's' },
+            this._configService.get('JWT_SECRET_KEY'),
+            { expiresIn: this._configService.get('JWT_EXPIRATION_TIME') + 's' },
         );
 
         const mailTemplate =
@@ -74,7 +77,7 @@ export class UserService {
                 ? 'validateMailFR'
                 : 'validateMailEN';
 
-        await this.mailerService.sendMail({
+        await this._mailerService.sendMail({
             to: user.email, // list of receivers
             from: 'sea-eu.around@univ-brest.fr', // sender address
             subject:
@@ -83,13 +86,13 @@ export class UserService {
                     : 'Validate your account', // Subject line
             template: mailTemplate,
             context: {
-                link: `${this.configService.get(
+                link: `${this._configService.get(
                     'CLIENT_URL',
                 )}/validate/${jwtToken}`,
             },
         });
 
-        if (['development', 'staging'].includes(this.configService.nodeEnv)) {
+        if (['development', 'staging'].includes(this._configService.nodeEnv)) {
             user.verificationToken = jwtToken;
         }
 
@@ -102,15 +105,15 @@ export class UserService {
         const { userId, iat, exp } = <any>(
             jwt.verify(
                 userVerificationQueryDto.token,
-                this.configService.get('JWT_SECRET_KEY'),
+                this._configService.get('JWT_SECRET_KEY'),
             )
         );
-        const user = await this.userRepository.findOne(userId);
+        const user = await this._userRepository.findOne(userId);
 
         if (user) {
             user.isVerified = true;
 
-            return this.userRepository.save(user);
+            return this._userRepository.save(user);
         }
         return null;
     }
@@ -133,8 +136,35 @@ export class UserService {
         }
 
         user.deletedAt = new Date();
-        await this.userRepository.save(user);
+        await this._userRepository.save(user);
+        const deletionDate = user.deletedAt;
+        const daysOffset =
+            parseInt(
+                this._configService.get('USER_DELETION_DAYS_OFFSET'),
+                10,
+            ) || 30;
+        deletionDate.setSeconds(deletionDate.getSeconds() + daysOffset * 86400);
 
-        await this.profileRepository.save({ id: user.id, isActive: false });
+        if (await this._profileRepository.findOne({ id: user.id })) {
+            await this._profileRepository.save({
+                id: user.id,
+                isActive: false,
+            });
+        }
+
+        // Delete user one month later
+        const job = new CronJob(deletionDate, async () => {
+            await this._userRepository.delete({ id: user.id });
+            this._logger.warn(`User ${user.id} deleted.`);
+        });
+
+        this._schedulerRegistry.addCronJob(`delete-user-${user.id}`, job);
+        job.start();
+
+        this._logger.warn(
+            `User ${
+                user.id
+            } will be deleted at ${deletionDate.toLocaleString()}.`,
+        );
     }
 }
