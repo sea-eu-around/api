@@ -111,8 +111,8 @@ export class AuthService {
 
             const mailTemplate =
                 user.locale === LanguageType.FR
-                    ? 'changePasswordFR'
-                    : 'changePasswordEN';
+                    ? 'changePassword-fr'
+                    : 'changePassword-en';
 
             await this._mailerService.sendMail({
                 to: user.email, // list of receivers

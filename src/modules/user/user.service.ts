@@ -5,6 +5,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import * as jwt from 'jsonwebtoken';
+import * as moment from 'moment';
 import { FindConditions, FindOneOptions } from 'typeorm';
 
 import { LanguageType } from '../../common/constants/language-type';
@@ -18,7 +19,6 @@ import { UserRegisterDto } from '../auth/dto/UserRegisterDto';
 import { UserVerificationQueryDto } from '../auth/dto/UserVerificationQueryDto';
 import { UserDeleteDto } from './dto/UserDeleteDto';
 import { UserRepository } from './user.repository';
-
 @Injectable()
 export class UserService {
     private readonly _logger = new Logger(UserService.name);
@@ -74,8 +74,8 @@ export class UserService {
 
         const mailTemplate =
             user.locale === LanguageType.FR
-                ? 'validateMailFR'
-                : 'validateMailEN';
+                ? 'validateMail-fr'
+                : 'validateMail-en';
 
         await this._mailerService.sendMail({
             to: user.email, // list of receivers
@@ -155,16 +155,29 @@ export class UserService {
         // Delete user one month later
         const job = new CronJob(deletionDate, async () => {
             await this._userRepository.delete({ id: user.id });
-            this._logger.warn(`User ${user.id} deleted.`);
         });
 
         this._schedulerRegistry.addCronJob(`delete-user-${user.id}`, job);
         job.start();
 
-        this._logger.warn(
-            `User ${
-                user.id
-            } will be deleted at ${deletionDate.toLocaleString()}.`,
-        );
+        const mailTemplate =
+            user.locale === LanguageType.FR
+                ? 'deletionRequestConfirmation-fr'
+                : 'deletionRequestConfirmation-en';
+
+        await this._mailerService.sendMail({
+            to: user.email, // list of receivers
+            from: 'sea-eu.around@univ-brest.fr', // sender address
+            subject:
+                user.locale === LanguageType.FR
+                    ? 'Demande de suppression du compte'
+                    : 'Account deletion request', // Subject line
+            template: mailTemplate,
+            context: {
+                date: moment(deletionDate)
+                    .locale(user.locale === LanguageType.FR ? 'fr' : 'en')
+                    .format('LLLL'),
+            },
+        });
     }
 }
