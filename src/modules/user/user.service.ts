@@ -2,11 +2,10 @@
 
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, Logger } from '@nestjs/common';
-import { SchedulerRegistry } from '@nestjs/schedule';
-import { CronJob } from 'cron';
+import { Cron, SchedulerRegistry } from '@nestjs/schedule';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
-import { FindConditions, FindOneOptions } from 'typeorm';
+import { Between, FindConditions, FindOneOptions } from 'typeorm';
 
 import { LanguageType } from '../../common/constants/language-type';
 import { UserEntity } from '../../entities/user.entity';
@@ -118,7 +117,7 @@ export class UserService {
         return null;
     }
 
-    async deleteUser(
+    async softDeleteUser(
         userDeleteDto: UserDeleteDto,
         user: UserEntity,
     ): Promise<void> {
@@ -135,30 +134,33 @@ export class UserService {
             throw new UserNotVerifiedException();
         }
 
-        user.deletedAt = new Date();
-        await this._userRepository.save(user);
-        const deletionDate = user.deletedAt;
-        const daysOffset =
-            parseInt(
-                this._configService.get('USER_DELETION_DAYS_OFFSET'),
-                10,
-            ) || 30;
-        deletionDate.setSeconds(deletionDate.getSeconds() + daysOffset * 86400);
+        const userToDelete = await this._userRepository
+            .createQueryBuilder('user')
+            .where({ id: user.id })
+            .leftJoinAndSelect('user.profile', 'profile')
+            .leftJoinAndSelect('profile.rooms', 'rooms')
+            .leftJoinAndSelect('profile.educationFields', 'educationFields')
+            .leftJoinAndSelect('profile.profileOffers', 'profileOffers')
+            .leftJoinAndSelect('rooms.room', 'room')
+            .leftJoinAndSelect('room.matching', 'matching')
+            .getOne();
 
-        if (await this._profileRepository.findOne({ id: user.id })) {
+        await this._userRepository.softRemove(userToDelete);
+
+        if (userToDelete.profile) {
             await this._profileRepository.save({
                 id: user.id,
                 isActive: false,
             });
         }
 
-        // Delete user one month later
-        const job = new CronJob(deletionDate, async () => {
-            await this._userRepository.delete({ id: user.id });
-        });
-
-        this._schedulerRegistry.addCronJob(`delete-user-${user.id}`, job);
-        job.start();
+        const deletionDate = new Date();
+        const daysOffset =
+            parseInt(
+                this._configService.get('USER_DELETION_DAYS_OFFSET'),
+                10,
+            ) || 30;
+        deletionDate.setSeconds(deletionDate.getSeconds() + daysOffset * 86400);
 
         const mailTemplate =
             user.locale === LanguageType.FR
@@ -179,5 +181,33 @@ export class UserService {
                     .format('LLLL'),
             },
         });
+    }
+    @Cron('10 * * * * *')
+    async userDeletionCron(): Promise<void> {
+        const from = new Date();
+        // from.setMonth(from.getMonth() - 1);
+        from.setHours(from.getHours() - 24);
+
+        const to = new Date(from.getTime());
+        to.setHours(to.getHours() + 24);
+        this._logger.log({
+            startDate: from.toString(),
+            endDate: to.toString(),
+        });
+
+        const usersToDelete = await this._userRepository.find({
+            where: { deletedAt: Between(from, to) },
+            withDeleted: true,
+        });
+
+        const promesses: Promise<any>[] = [];
+
+        for (const user of usersToDelete) {
+            promesses.push(this._userRepository.delete({ id: user.id }));
+        }
+
+        await Promise.all(promesses);
+
+        this._logger.debug(usersToDelete);
     }
 }
