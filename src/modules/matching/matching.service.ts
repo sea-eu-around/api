@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import Expo, { ExpoPushMessage } from 'expo-server-sdk';
 import { random } from 'lodash';
 import { Brackets } from 'typeorm/query-builder/Brackets';
 
@@ -12,6 +13,8 @@ import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class MatchingService {
+    private _expo: Expo = new Expo();
+
     constructor(
         private readonly _matchingRepository: MatchingRepository,
         private readonly _userRepository: UserRepository,
@@ -100,6 +103,14 @@ export class MatchingService {
                         [fromProfileId, toProfileId],
                     );
                     await this._roomRepository.save(room);
+
+                    const notification: ExpoPushMessage = {
+                        to: toUser.expoPushToken || toUser.email,
+                        sound: 'default',
+                        body: 'You have a new match!',
+                    };
+
+                    await this._expo.sendPushNotificationsAsync([notification]);
 
                     return this._matchingRepository.save(mirrorEntity);
                 }
