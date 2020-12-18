@@ -94,6 +94,7 @@ export class ProfileService {
         genders: GenderType[],
         types: ProfileType[],
         options: IPaginationOptions,
+        user: UserEntity,
     ): Promise<Pagination<ProfileEntity>> {
         const unwantedProfiles = await this._getUnwantedProfileIds(profileId);
 
