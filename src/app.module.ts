@@ -11,6 +11,7 @@ import { CommonModule } from './modules/common/common.module';
 import { InterestModule } from './modules/interest/interest.module';
 import { MatchingModule } from './modules/matching/matching.module';
 import { MessageModule } from './modules/message/message.module';
+import { NotificationModule } from './modules/notification/notification.module';
 import { OfferModule } from './modules/offer/offer.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { RoomModule } from './modules/room/room.module';
@@ -41,6 +42,7 @@ import { SharedModule } from './shared/shared.module';
             inject: [ConfigService],
         }),
         ScheduleModule.forRoot(),
+        NotificationModule,
     ],
 })
 export class AppModule implements NestModule {
