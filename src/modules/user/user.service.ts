@@ -155,12 +155,12 @@ export class UserService {
         }
 
         const deletionDate = new Date();
-        const daysOffset =
+        const offset =
             parseInt(
-                this._configService.get('USER_DELETION_DAYS_OFFSET'),
+                this._configService.get('USER_DELETION_MONTHS_OFFSET'),
                 10,
-            ) || 30;
-        deletionDate.setSeconds(deletionDate.getSeconds() + daysOffset * 86400);
+            ) || 6;
+        deletionDate.setMonth(deletionDate.getMonth() + offset);
 
         const mailTemplate =
             user.locale === LanguageType.FR
@@ -182,11 +182,16 @@ export class UserService {
             },
         });
     }
+
     @Cron('10 * * * * *')
     async userDeletionCron(): Promise<void> {
         const from = new Date();
-        // from.setMonth(from.getMonth() - 1);
-        from.setHours(from.getHours() - 24);
+        const offset =
+            parseInt(
+                this._configService.get('USER_DELETION_MONTHS_OFFSET'),
+                10,
+            ) || 6;
+        from.setMonth(from.getMonth() - offset);
 
         const to = new Date(from.getTime());
         to.setHours(to.getHours() + 24);
@@ -204,6 +209,23 @@ export class UserService {
 
         for (const user of usersToDelete) {
             promesses.push(this._userRepository.delete({ id: user.id }));
+
+            const mailTemplate =
+                user.locale === LanguageType.FR
+                    ? 'deletionConfirmation-fr'
+                    : 'deletionConfirmation-en';
+
+            promesses.push(
+                this._mailerService.sendMail({
+                    to: user.email, // list of receivers
+                    from: 'sea-eu.around@univ-brest.fr', // sender address
+                    subject:
+                        user.locale === LanguageType.FR
+                            ? 'Compte supprimé'
+                            : 'Account deleted', // Subject line
+                    template: mailTemplate,
+                }),
+            );
         }
 
         await Promise.all(promesses);
