@@ -229,7 +229,5 @@ export class UserService {
         }
 
         await Promise.all(promesses);
-
-        this._logger.debug(usersToDelete);
     }
 }
