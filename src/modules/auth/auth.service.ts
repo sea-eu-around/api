@@ -55,31 +55,40 @@ export class AuthService {
             user && user.password,
         );
         if (!user || !isPasswordValid) {
+            // Check if user has been deleted
+            const softDeletedUser = await this._userRepository
+                .createQueryBuilder('user')
+                .where({
+                    email: userLoginDto.email,
+                })
+                .leftJoinAndSelect('user.profile', 'profile')
+                .leftJoinAndSelect('profile.rooms', 'rooms')
+                .leftJoinAndSelect('profile.educationFields', 'educationFields')
+                .leftJoinAndSelect('profile.profileOffers', 'profileOffers')
+                .leftJoinAndSelect('rooms.room', 'room')
+                .leftJoinAndSelect('room.matching', 'matching')
+                .withDeleted()
+                .getOne();
+
+            if (softDeletedUser) {
+                user = await this._userRepository.recover(softDeletedUser);
+
+                if (softDeletedUser.profile) {
+                    await this._profileRepository.save({
+                        id: user.id,
+                        isActive: true,
+                    });
+                }
+
+                return user;
+            }
+
             throw new EmailOrPasswordIncorrectException();
         }
 
         if (user && !user.isVerified) {
             throw new UserNotVerifiedException();
         }
-
-        // Check if user will be deleted
-        // If yes, login must reactivate user
-        if (user.deletedAt) {
-            user.deletedAt = null;
-            user = await this._userRepository.save(user);
-
-            if (user.profile) {
-                await this._profileRepository.save({
-                    id: user.id,
-                    isActive: true,
-                });
-            }
-
-            this._schedulerRegistry.deleteCronJob(`delete-user-${user.id}`);
-
-            this._logger.warn(`User ${user.id} has been reactivated.`);
-        }
-
         return user;
     }
 

@@ -2,6 +2,7 @@
 
 import {
     CreateDateColumn,
+    DeleteDateColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
@@ -24,6 +25,12 @@ export abstract class AbstractEntity<T extends AbstractDto = AbstractDto> {
         name: 'updated_at',
     })
     updatedAt: Date;
+
+    @DeleteDateColumn({
+        type: 'timestamp without time zone',
+        name: 'deleted_at',
+    })
+    deletedAt: Date;
 
     abstract dtoClass: new (entity: AbstractEntity, options?: any) => T;
 
