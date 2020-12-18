@@ -18,7 +18,7 @@ export class UserEntity extends AbstractEntity<UserDto> {
     password: string;
 
     @OneToOne(() => ProfileEntity, (profile) => profile.user, {
-        onDelete: 'CASCADE',
+        cascade: true,
     })
     profile: ProfileEntity;
 

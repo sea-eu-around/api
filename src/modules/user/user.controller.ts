@@ -40,7 +40,7 @@ export class UserController {
         @Body() userDeleteDto: UserDeleteDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        await this._userService.deleteUser(userDeleteDto, user);
+        await this._userService.softDeleteUser(userDeleteDto, user);
 
         return {
             description: 'successfully-deleted-user',

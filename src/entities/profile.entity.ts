@@ -35,7 +35,6 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     type: ProfileType;
 
     @OneToOne(() => UserEntity, (user) => user.profile, {
-        cascade: true,
         primary: true,
         onDelete: 'CASCADE',
     })
@@ -51,9 +50,9 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     @Column({ nullable: false, type: 'enum', enum: PartnerUniversity })
     university: PartnerUniversity;
 
-    @ManyToMany(() => InterestEntity, (interests) => interests.profile, {
+    @ManyToMany(() => InterestEntity, (interests) => interests.profiles, {
         eager: true,
-        onDelete: 'CASCADE',
+        cascade: true,
     })
     @JoinTable()
     interests: InterestEntity[];
@@ -64,12 +63,15 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     @Column({ nullable: true })
     avatar?: string;
 
+    @Column({ default: true })
+    isActive: boolean;
+
     @OneToMany(
         () => EducationFieldEntity,
         (educationField) => educationField.profile,
         {
             eager: true,
-            onDelete: 'CASCADE',
+            cascade: true,
         },
     )
     educationFields: EducationFieldEntity[];
@@ -86,36 +88,33 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     @OneToMany(() => LanguageEntity, (language) => language.profile, {
         cascade: true,
         eager: true,
-        onDelete: 'CASCADE',
     })
     languages: LanguageEntity[];
 
     @OneToMany(() => MatchingEntity, (matching) => matching.fromProfile, {
         cascade: true,
-        onDelete: 'CASCADE',
     })
     givenLikes: MatchingEntity[];
 
     @OneToMany(() => MatchingEntity, (matching) => matching.fromProfile, {
         cascade: true,
-        onDelete: 'CASCADE',
     })
     receivedLikes: MatchingEntity[];
 
     @OneToMany(
         () => ProfileOfferEntity,
         (profileOffer) => profileOffer.profile,
-        { eager: true, onDelete: 'CASCADE' },
+        { eager: true, cascade: true },
     )
     profileOffers: ProfileOfferEntity[];
 
     @OneToMany(() => MessageEntity, (message) => message.sender, {
-        onDelete: 'CASCADE',
+        cascade: true,
     })
     messages: MessageEntity[];
 
     @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.profile, {
-        onDelete: 'CASCADE',
+        cascade: true,
     })
     rooms: ProfileRoomEntity[];
 

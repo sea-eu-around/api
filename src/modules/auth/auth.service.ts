@@ -1,6 +1,7 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { SchedulerRegistry } from '@nestjs/schedule';
 import * as jwt from 'jsonwebtoken';
 
 import { LanguageType } from '../../common/constants/language-type';
@@ -11,6 +12,7 @@ import { UserNotFoundException } from '../../exceptions/user-not-found.exception
 import { UserNotVerifiedException } from '../../exceptions/user-not-verified.exception';
 import { ContextService } from '../../providers/context.service';
 import { UtilsService } from '../../providers/utils.service';
+import { ProfileRepository } from '../../repositories/profile.repository';
 import { ConfigService } from '../../shared/services/config.service';
 import { UserRepository } from '../user/user.repository';
 import { UserService } from '../user/user.service';
@@ -22,24 +24,27 @@ import { UserLoginDto } from './dto/UserLoginDto';
 @Injectable()
 export class AuthService {
     private static _authUserKey = 'user_key';
+    private readonly _logger: Logger = new Logger(AuthService.name);
 
     constructor(
-        public readonly jwtService: JwtService,
-        public readonly configService: ConfigService,
-        public readonly userService: UserService,
-        public readonly userRepository: UserRepository,
-        public readonly mailerService: MailerService,
+        private readonly _jwtService: JwtService,
+        private readonly _configService: ConfigService,
+        private readonly _userService: UserService,
+        private readonly _userRepository: UserRepository,
+        private readonly _profileRepository: ProfileRepository,
+        private readonly _mailerService: MailerService,
+        private readonly _schedulerRegistry: SchedulerRegistry,
     ) {}
 
     async createToken(user: UserEntity | UserDto): Promise<TokenPayloadDto> {
         return new TokenPayloadDto({
-            expiresIn: this.configService.getNumber('JWT_EXPIRATION_TIME'),
-            accessToken: await this.jwtService.signAsync({ id: user.id }),
+            expiresIn: this._configService.getNumber('JWT_EXPIRATION_TIME'),
+            accessToken: await this._jwtService.signAsync({ id: user.id }),
         });
     }
 
     async validateUser(userLoginDto: UserLoginDto): Promise<UserEntity> {
-        const user = await this.userService.findOne(
+        let user = await this._userService.findOne(
             {
                 email: userLoginDto.email,
             },
@@ -50,18 +55,45 @@ export class AuthService {
             user && user.password,
         );
         if (!user || !isPasswordValid) {
+            // Check if user has been deleted
+            const softDeletedUser = await this._userRepository
+                .createQueryBuilder('user')
+                .where({
+                    email: userLoginDto.email,
+                })
+                .leftJoinAndSelect('user.profile', 'profile')
+                .leftJoinAndSelect('profile.rooms', 'rooms')
+                .leftJoinAndSelect('profile.educationFields', 'educationFields')
+                .leftJoinAndSelect('profile.profileOffers', 'profileOffers')
+                .leftJoinAndSelect('rooms.room', 'room')
+                .leftJoinAndSelect('room.matching', 'matching')
+                .withDeleted()
+                .getOne();
+
+            if (softDeletedUser) {
+                user = await this._userRepository.recover(softDeletedUser);
+
+                if (softDeletedUser.profile) {
+                    await this._profileRepository.save({
+                        id: user.id,
+                        isActive: true,
+                    });
+                }
+
+                return user;
+            }
+
             throw new EmailOrPasswordIncorrectException();
         }
 
         if (user && !user.isVerified) {
             throw new UserNotVerifiedException();
         }
-
         return user;
     }
 
     async getUserWithProfile(user: UserEntity | UserDto): Promise<UserEntity> {
-        return this.userRepository.findOne(
+        return this._userRepository.findOne(
             { id: user.id },
             { relations: ['profile'] },
         );
@@ -70,7 +102,7 @@ export class AuthService {
     async forgotPassword(
         forgotPasswordDto: ForgotPasswordDto,
     ): Promise<UserEntity> {
-        const user = await this.userRepository.findOne({
+        const user = await this._userRepository.findOne({
             email: forgotPasswordDto.email,
         });
 
@@ -79,19 +111,19 @@ export class AuthService {
                 {
                     userId: user.id,
                 },
-                this.configService.get('JWT_SECRET_KEY'),
+                this._configService.get('JWT_SECRET_KEY'),
                 {
                     expiresIn:
-                        this.configService.get('JWT_EXPIRATION_TIME') + 's',
+                        this._configService.get('JWT_EXPIRATION_TIME') + 's',
                 },
             );
 
             const mailTemplate =
                 user.locale === LanguageType.FR
-                    ? 'changePasswordFR'
-                    : 'changePasswordEN';
+                    ? 'changePassword-fr'
+                    : 'changePassword-en';
 
-            await this.mailerService.sendMail({
+            await this._mailerService.sendMail({
                 to: user.email, // list of receivers
                 from: 'sea-eu.around@univ-brest.fr', // sender address
                 subject:
@@ -100,7 +132,7 @@ export class AuthService {
                         : 'Change your password', // Subject line
                 template: mailTemplate,
                 context: {
-                    link: `${this.configService.get(
+                    link: `${this._configService.get(
                         'CLIENT_URL',
                     )}/reset-password/${jwtToken}`,
                 },
@@ -116,14 +148,14 @@ export class AuthService {
         const { userId, iat, exp } = <any>(
             jwt.verify(
                 resetPasswordDto.token,
-                this.configService.get('JWT_SECRET_KEY'),
+                this._configService.get('JWT_SECRET_KEY'),
             )
         );
 
-        const user = await this.userRepository.findOne(userId);
+        const user = await this._userRepository.findOne(userId);
         user.password = resetPasswordDto.password;
 
-        return this.userRepository.save(user);
+        return this._userRepository.save(user);
     }
 
     static setAuthUser(user: UserEntity): void {

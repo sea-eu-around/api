@@ -8,10 +8,14 @@ import { RoomEntity } from './room.entity';
 
 @Entity('matching')
 export class MatchingEntity extends AbstractEntity<MatchingDto> {
-    @ManyToOne(() => ProfileEntity, (profile) => profile.givenLikes)
+    @ManyToOne(() => ProfileEntity, (profile) => profile.givenLikes, {
+        onDelete: 'CASCADE',
+    })
     fromProfile: ProfileEntity;
 
-    @ManyToOne(() => ProfileEntity, (profile) => profile.receivedLikes)
+    @ManyToOne(() => ProfileEntity, (profile) => profile.receivedLikes, {
+        onDelete: 'CASCADE',
+    })
     toProfile: ProfileEntity;
 
     @Column()
@@ -27,9 +31,7 @@ export class MatchingEntity extends AbstractEntity<MatchingDto> {
     })
     status: MatchingStatusType;
 
-    @OneToOne(() => RoomEntity, (room) => room.matching, {
-        onDelete: 'CASCADE',
-    })
+    @OneToOne(() => RoomEntity, (room) => room.matching)
     @JoinColumn()
     room?: RoomEntity;
 

@@ -24,6 +24,7 @@ export class ProfileRoomEntity extends AbstractCompositeEntity<ProfileRoomDto> {
 
     @ManyToOne(() => RoomEntity, (room) => room.profiles, {
         onDelete: 'CASCADE',
+        cascade: true,
     })
     room: RoomEntity;
 
