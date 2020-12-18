@@ -21,7 +21,10 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
         }
     }
     beforeUpdate(event: UpdateEvent<UserEntity>) {
-        if (event.entity.password !== event.databaseEntity.password) {
+        if (
+            event.entity.password &&
+            event.entity.password !== event.databaseEntity.password
+        ) {
             event.entity.password = UtilsService.generateHash(
                 event.entity.password,
             );

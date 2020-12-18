@@ -11,8 +11,9 @@ export class InterestEntity extends AbstractCompositeEntity<InterestDto> {
 
     @ManyToMany(() => ProfileEntity, (profile) => profile.interests, {
         onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
     })
-    profile: ProfileEntity;
+    profiles: ProfileEntity[];
 
     dtoClass = InterestDto;
 }

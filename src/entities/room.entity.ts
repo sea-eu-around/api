@@ -8,10 +8,12 @@ import { ProfileRoomEntity } from './profileRoom.entity';
 
 @Entity('room')
 export class RoomEntity extends AbstractEntity<RoomDto> {
-    @OneToMany(() => MessageEntity, (message) => message.room)
+    @OneToMany(() => MessageEntity, (message) => message.room, {
+        onDelete: 'CASCADE',
+    })
     messages: MessageEntity[];
 
-    @OneToOne(() => MessageEntity)
+    @OneToOne(() => MessageEntity, { onDelete: 'CASCADE' })
     @JoinColumn()
     lastMessage: MessageEntity;
 
@@ -19,12 +21,9 @@ export class RoomEntity extends AbstractEntity<RoomDto> {
         cascade: true,
         onDelete: 'CASCADE',
     })
-    matching?: MatchingEntity;
+    matching: MatchingEntity;
 
-    @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.room, {
-        cascade: true,
-        onDelete: 'CASCADE',
-    })
+    @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.room)
     profiles: ProfileRoomEntity[];
 
     dtoClass = RoomDto;
