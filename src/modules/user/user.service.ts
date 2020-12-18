@@ -2,7 +2,7 @@
 
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, SchedulerRegistry } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import { Between, FindConditions, FindOneOptions } from 'typeorm';
@@ -27,7 +27,6 @@ export class UserService {
         private readonly _profileRepository: ProfileRepository,
         private readonly _configService: ConfigService,
         private readonly _mailerService: MailerService,
-        private readonly _schedulerRegistry: SchedulerRegistry,
     ) {}
 
     /**
@@ -195,10 +194,6 @@ export class UserService {
 
         const to = new Date(from.getTime());
         to.setHours(to.getHours() + 24);
-        this._logger.log({
-            startDate: from.toString(),
-            endDate: to.toString(),
-        });
 
         const usersToDelete = await this._userRepository.find({
             where: { deletedAt: Between(from, to) },
@@ -229,5 +224,14 @@ export class UserService {
         }
 
         await Promise.all(promesses);
+
+        this._logger.warn(
+            {
+                message: `Successfully deleted users between ${from.toString()} and ${to.toString()}.`,
+                affectedRows: usersToDelete.length,
+                timestamp: new Date(),
+            },
+            'UserCronDeletion',
+        );
     }
 }
