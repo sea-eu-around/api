@@ -182,7 +182,7 @@ export class UserService {
         });
     }
 
-    @Cron('10 * * * * *')
+    @Cron('0 0 0 * * *')
     async userDeletionCron(): Promise<void> {
         const from = new Date();
         const offset =
