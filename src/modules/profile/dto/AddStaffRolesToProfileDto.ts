@@ -4,7 +4,7 @@ import { IsEnum } from 'class-validator';
 import { StaffRoleType } from '../../../common/constants/staff-role-type';
 
 export class AddStaffRolesToProfileDto {
-    @ApiProperty()
+    @ApiProperty({ enum: StaffRoleType })
     @IsEnum(StaffRoleType)
     id: StaffRoleType;
 }

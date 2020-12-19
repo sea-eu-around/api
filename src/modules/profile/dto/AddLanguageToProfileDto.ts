@@ -5,11 +5,11 @@ import { LanguageLevelType } from '../../../common/constants/language-level-type
 import { LanguageType } from '../../../common/constants/language-type';
 
 export class AddLanguageToProfileDto {
-    @ApiProperty()
+    @ApiProperty({ enum: LanguageType })
     @IsEnum(LanguageType)
     code: LanguageType;
 
-    @ApiProperty()
+    @ApiProperty({ enum: LanguageLevelType })
     @IsEnum(LanguageLevelType)
     level: LanguageLevelType;
 }
