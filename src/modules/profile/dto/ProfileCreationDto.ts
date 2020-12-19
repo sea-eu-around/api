@@ -29,7 +29,7 @@ export class ProfileCreationDto {
     @IsString()
     lastName: string;
 
-    @ApiProperty()
+    @ApiProperty({ enum: GenderType })
     @IsEnum(GenderType)
     gender: GenderType;
 
@@ -37,7 +37,7 @@ export class ProfileCreationDto {
     @IsDateString()
     birthdate: Date;
 
-    @ApiProperty()
+    @ApiProperty({ enum: NationalityType })
     @IsEnum(NationalityType)
     nationality: NationalityType;
 
@@ -65,11 +65,11 @@ export class ProfileCreationDto {
     @Type(() => AddOfferToProfileDto)
     profileOffers: AddOfferToProfileDto[];
 
-    @ApiProperty()
+    @ApiProperty({ enum: ProfileType })
     @IsEnum(ProfileType)
     type: ProfileType;
 
-    @ApiProperty()
+    @ApiProperty({ enum: DegreeType })
     @ValidateIf((o) => o.type === ProfileType.STUDENT)
     @IsEnum(DegreeType)
     degree: DegreeType;

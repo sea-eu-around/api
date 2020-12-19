@@ -30,7 +30,7 @@ export class ProfileUpdateDto {
     @IsString()
     lastName: string;
 
-    @ApiPropertyOptional()
+    @ApiPropertyOptional({ enum: GenderType })
     @IsOptional()
     @IsEnum(GenderType)
     gender: GenderType;
@@ -40,7 +40,7 @@ export class ProfileUpdateDto {
     @IsString()
     birthdate: Date;
 
-    @ApiPropertyOptional()
+    @ApiPropertyOptional({ enum: NationalityType })
     @IsOptional()
     @IsEnum(NationalityType)
     nationality: NationalityType;
@@ -69,11 +69,11 @@ export class ProfileUpdateDto {
     @Type(() => AddOfferToProfileDto)
     profileOffers: AddOfferToProfileDto[];
 
-    @ApiProperty()
+    @ApiProperty({ enum: ProfileType })
     @IsEnum(ProfileType)
     type: ProfileType;
 
-    @ApiPropertyOptional()
+    @ApiPropertyOptional({ enum: DegreeType })
     @ValidateIf((o) => o.type === ProfileType.STUDENT)
     @IsOptional()
     @IsEnum(DegreeType)
