@@ -7,7 +7,7 @@ import {
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
@@ -15,34 +15,30 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
-import { RegisterTokenDto } from './dto/RegisterTokenDto';
-import { NotificationService } from './notification.service';
+import { CreateReportDto } from './dto/CreateReportDto';
+import { ReportService } from './report.service';
 
-@Controller('notifications')
-@ApiTags('Notification')
-export class NotificationController {
-    constructor(private readonly _notificationService: NotificationService) {}
-
-    @Post('register')
-    @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiResponse({
-        status: HttpStatus.NO_CONTENT,
-        description: 'successfully-registered-token',
-    })
+@Controller('reports')
+@ApiTags('Reports')
+export class ReportController {
+    constructor(private readonly _reportService: ReportService) {}
+    @Post()
+    @HttpCode(HttpStatus.OK)
     @UseGuards(AuthGuard, RolesGuard)
     @UseInterceptors(AuthUserInterceptor)
     @ApiBearerAuth()
-    async registerToken(
-        @Body() registerTokenDto: RegisterTokenDto,
+    async createReport(
+        @Body() createReportDto: CreateReportDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        await this._notificationService.registerToken(
-            registerTokenDto.token,
+        const report = await this._reportService.createReport(
+            createReportDto,
             user,
         );
 
         return {
-            description: 'successfully-registered-token',
+            description: 'successfully-created-report',
+            data: report,
         };
     }
 }

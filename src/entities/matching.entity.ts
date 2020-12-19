@@ -3,7 +3,9 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { AbstractEntity } from '../common/abstract.entity';
 import { MatchingStatusType } from '../common/constants/matching-status-type';
 import { MatchingDto } from '../dto/MatchingDto';
+import { PolymorphicChildren } from '../polymorphic/decorators';
 import { ProfileEntity } from './profile.entity';
+import { ReportEntity } from './report.entity';
 import { RoomEntity } from './room.entity';
 
 @Entity('matching')
@@ -37,6 +39,11 @@ export class MatchingEntity extends AbstractEntity<MatchingDto> {
 
     @Column({ nullable: true })
     roomId?: string;
+
+    @PolymorphicChildren(() => ReportEntity, {
+        eager: false,
+    })
+    receivedReports: ReportEntity[];
 
     dtoClass = MatchingDto;
 }
