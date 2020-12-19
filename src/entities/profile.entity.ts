@@ -16,6 +16,7 @@ import { NationalityType } from '../common/constants/nationality-type';
 import { ProfileType } from '../common/constants/profile-type';
 import { PartnerUniversity } from '../common/constants/sea';
 import { ProfileDto } from '../dto/ProfileDto';
+import { PolymorphicChildren } from '../polymorphic/decorators';
 import { EducationFieldEntity } from './educationField.entity';
 import { InterestEntity } from './interest.entity';
 import { LanguageEntity } from './language.entity';
@@ -23,6 +24,7 @@ import { MatchingEntity } from './matching.entity';
 import { MessageEntity } from './message.entity';
 import { ProfileOfferEntity } from './profileOffer.entity';
 import { ProfileRoomEntity } from './profileRoom.entity';
+import { ReportEntity } from './report.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('profile')
@@ -117,6 +119,16 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
         cascade: true,
     })
     rooms: ProfileRoomEntity[];
+
+    @OneToMany(() => ReportEntity, (report) => report.profile, {
+        cascade: true,
+    })
+    reports: ReportEntity[];
+
+    @PolymorphicChildren(() => ReportEntity, {
+        eager: false,
+    })
+    receivedReports: ReportEntity[];
 
     dtoClass = ProfileDto;
 }
