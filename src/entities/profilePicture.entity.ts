@@ -6,7 +6,7 @@ import { ProfileEntity } from './profile.entity';
 
 @ChildEntity(MediaType.PROFILE_PICTURE)
 export class ProfilePictureEntity extends MediaEntity {
-    @ManyToOne(() => ProfileEntity)
+    @ManyToOne(() => ProfileEntity, { onDelete: 'CASCADE' })
     profile: ProfileEntity;
 
     @Column()
