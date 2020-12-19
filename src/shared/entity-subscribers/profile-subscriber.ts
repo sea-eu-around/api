@@ -1,18 +1,11 @@
-import {
-    EntitySubscriberInterface,
-    EventSubscriber,
-    InsertEvent,
-    LoadEvent,
-    UpdateEvent,
-} from 'typeorm';
+import { EntitySubscriberInterface, EventSubscriber } from 'typeorm';
 
 import { ProfileEntity } from '../../entities/profile.entity';
-import { UtilsService } from '../../providers/utils.service';
 
 @EventSubscriber()
 export class ProfileSubscriber
     implements EntitySubscriberInterface<ProfileEntity> {
-    listenTo() {
+    /*listenTo() {
         return ProfileEntity;
     }
 
@@ -38,5 +31,5 @@ export class ProfileSubscriber
                 'https://aas-bucket.s3.eu-west-3.amazonaws.com/' +
                 event.entity.avatar;
         }
-    }
+    }*/
 }

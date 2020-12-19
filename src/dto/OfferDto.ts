@@ -34,6 +34,6 @@ export class OfferDto extends AbstractCompositeDto {
         this.allowInterRole = offer.allowInterRole;
         this.profileOffers = UtilsService.isDtos(offer.profileOffers)
             ? offer.profileOffers.toDtos()
-            : offer.profileOffers;
+            : null;
     }
 }

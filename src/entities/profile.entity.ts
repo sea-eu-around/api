@@ -23,6 +23,7 @@ import { LanguageEntity } from './language.entity';
 import { MatchingEntity } from './matching.entity';
 import { MessageEntity } from './message.entity';
 import { ProfileOfferEntity } from './profileOffer.entity';
+import { ProfilePictureEntity } from './profilePicture.entity';
 import { ProfileRoomEntity } from './profileRoom.entity';
 import { ReportEntity } from './report.entity';
 import { UserEntity } from './user.entity';
@@ -62,8 +63,13 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     @Column({ nullable: false, type: 'timestamp without time zone' })
     birthdate: Date;
 
-    @Column({ nullable: true })
-    avatar?: string;
+    @OneToOne(() => ProfilePictureEntity, {
+        eager: true,
+        nullable: true,
+        cascade: true,
+    })
+    @JoinColumn()
+    avatar?: ProfilePictureEntity;
 
     @Column({ default: true })
     isActive: boolean;
@@ -124,6 +130,12 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
         cascade: true,
     })
     reports: ReportEntity[];
+
+    @OneToMany(
+        () => ProfilePictureEntity,
+        (profilePicture) => profilePicture.profile,
+    )
+    profilePictures: ProfilePictureEntity[];
 
     @PolymorphicChildren(() => ReportEntity, {
         eager: false,

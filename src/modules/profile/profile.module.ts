@@ -8,6 +8,7 @@ import { LanguageRepository } from '../../repositories/language.repository';
 import { MatchingRepository } from '../../repositories/matching.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
 import { ProfileOfferRepository } from '../../repositories/profileOffer.repository';
+import { ProfilePictureRepository } from '../../repositories/profilePicture.repository';
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
 import { StaffRoleRepository } from '../../repositories/staffRole.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
@@ -31,6 +32,7 @@ import { ProfileService } from './profile.service';
             WhitelistedEmailRepository,
             MatchingRepository,
             StaffRoleRepository,
+            ProfilePictureRepository,
         ]),
         forwardRef(() => MatchingModule),
     ],
