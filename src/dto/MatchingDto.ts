@@ -20,8 +20,8 @@ export class MatchingDto extends AbstractDto {
 
     constructor(matching: MatchingEntity) {
         super(matching);
-        this.fromProfile = matching.fromProfile;
-        this.toProfile = matching.toProfile;
+        this.fromProfile = matching.fromProfile.toDto();
+        this.toProfile = matching.toProfile.toDto();
         this.status = matching.status;
         this.roomId = matching.roomId;
     }

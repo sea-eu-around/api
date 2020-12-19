@@ -29,10 +29,12 @@ export class RoomDto extends AbstractDto {
             : room.lastMessage;
         this.messages = UtilsService.isDtos(room.messages)
             ? room.messages.toDtos()
-            : room.messages;
-        this.matching = room.matching;
+            : null;
+        this.matching = UtilsService.isDtos(room.matching)
+            ? room.matching.toDto()
+            : null;
         this.profiles = UtilsService.isDtos(room.profiles)
             ? room.profiles.toDtos()
-            : room.profiles;
+            : null;
     }
 }
