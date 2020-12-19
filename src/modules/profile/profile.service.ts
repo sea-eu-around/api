@@ -29,6 +29,7 @@ import { InterestRepository } from '../../repositories/interest.repository';
 import { LanguageRepository } from '../../repositories/language.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
 import { ProfileOfferRepository } from '../../repositories/profileOffer.repository';
+import { ProfilePictureRepository } from '../../repositories/profilePicture.repository';
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
 import { StaffRoleRepository } from '../../repositories/staffRole.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
@@ -55,6 +56,7 @@ export class ProfileService {
         private readonly _userRepository: UserRepository,
         private readonly _matchingServices: MatchingService,
         private readonly _staffRoleRepository: StaffRoleRepository,
+        private readonly _profilePictureRepository: ProfilePictureRepository,
     ) {}
 
     async findOneById(id: string): Promise<ProfileEntity> {
@@ -172,6 +174,7 @@ export class ProfileService {
 
             Object.assign(profile, profileCreationDto);
 
+            delete profile.avatar;
             delete profile.languages;
             delete profile.profileOffers;
             delete profile.educationFields;
@@ -184,6 +187,7 @@ export class ProfileService {
 
             Object.assign(profile, profileCreationDto);
 
+            delete profile.avatar;
             delete profile.languages;
             delete profile.profileOffers;
             delete profile.educationFields;
@@ -191,6 +195,15 @@ export class ProfileService {
             profile.user = user;
 
             savedProfile = await this._staffProfileRepository.save(profile);
+        }
+
+        if (profileCreationDto.avatar) {
+            savedProfile.avatar = (
+                await this.updateAvatar(
+                    { fileName: profileCreationDto.avatar },
+                    savedProfile.id,
+                )
+            ).avatar;
         }
 
         if (profileCreationDto.languages) {
@@ -244,16 +257,20 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<ProfileEntity> {
-        const profile =
-            user.profile ||
-            (await this._profileRepository.findOne(
-                { id: user.id || profileId },
-                { loadEagerRelations: false },
-            ));
+        let profile = await this._profileRepository.findOne(
+            { id: profileId || user.id },
+            { loadEagerRelations: false },
+        );
 
-        profile.avatar = updateAvatarDto.fileName;
+        profile.avatar = this._profilePictureRepository.create({
+            profileId: { id: profileId || user.id },
+            path: updateAvatarDto.fileName,
+            id: updateAvatarDto.fileName.split('.')[0],
+        });
 
-        return this._profileRepository.save(profile);
+        profile = await this._profileRepository.save(profile);
+
+        return profile;
     }
 
     async addInterests(
