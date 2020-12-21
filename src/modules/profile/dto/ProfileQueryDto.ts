@@ -45,4 +45,9 @@ export class ProfileQueryDto {
     @IsEnum(ProfileType, { each: true })
     @Transform((value: string) => value.split(','))
     types?: ProfileType[];
+
+    @IsOptional()
+    @IsArray()
+    @Transform((value: string) => value.split(','))
+    offers?: string[];
 }

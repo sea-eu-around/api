@@ -127,6 +127,8 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     })
     rooms: ProfileRoomEntity[];
 
+    score?: number;
+
     @OneToMany(() => ReportEntity, (report) => report.profile, {
         cascade: true,
     })
