@@ -96,7 +96,6 @@ export class ProfileService {
         genders: GenderType[],
         types: ProfileType[],
         options: IPaginationOptions,
-        user: UserEntity,
     ): Promise<Pagination<ProfileEntity>> {
         const unwantedProfiles = await this._getUnwantedProfileIds(profileId);
 
@@ -262,6 +261,10 @@ export class ProfileService {
             { loadEagerRelations: false },
         );
 
+        if (!profile) {
+            throw new ProfileNotFoundException();
+        }
+
         profile.avatar = this._profilePictureRepository.create({
             profileId: { id: profileId || user.id },
             path: updateAvatarDto.fileName,
@@ -283,6 +286,10 @@ export class ProfileService {
             { loadEagerRelations: false },
         );
 
+        if (!profile) {
+            throw new ProfileNotFoundException();
+        }
+
         const interests = await this._interestRepository.findByIds(
             addInterestsToProfileDto.interests,
         );
@@ -299,6 +306,15 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<LanguageEntity[]> {
+        const profile = await this._profileRepository.findOne(
+            { id: profileId || user.id },
+            { loadEagerRelations: false },
+        );
+
+        if (!profile) {
+            throw new ProfileNotFoundException();
+        }
+
         await this._languageRepository.delete({ profileId });
 
         const languages = addLanguagesToProfileDto.map((language) =>
@@ -316,6 +332,15 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<ProfileOfferEntity[]> {
+        const profile = await this._profileRepository.findOne(
+            { id: profileId || user.id },
+            { loadEagerRelations: false },
+        );
+
+        if (!profile) {
+            throw new ProfileNotFoundException();
+        }
+
         await this._profileOfferRepository.delete({ profileId });
 
         const profileOffers = addOffersToProfileDto.map((profileOffer) =>
@@ -333,6 +358,15 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<EducationFieldEntity[]> {
+        const profile = await this._profileRepository.findOne(
+            { id: profileId || user.id },
+            { loadEagerRelations: false },
+        );
+
+        if (!profile) {
+            throw new ProfileNotFoundException();
+        }
+
         await this._educationFieldRepository.delete({ profileId });
 
         const educationFields = addEducationFieldsToProfileDto.map(
@@ -351,6 +385,15 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<StaffRoleEntity[]> {
+        const profile = await this._profileRepository.findOne(
+            { id: profileId || user.id },
+            { loadEagerRelations: false },
+        );
+
+        if (!profile) {
+            throw new ProfileNotFoundException();
+        }
+
         await this._staffRoleRepository.delete({ profileId });
 
         const staffRoles = addStaffRolesToProfileDto.map((staffRole) =>
