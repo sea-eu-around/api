@@ -1,6 +1,7 @@
 'use strict';
 
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
     IsEmail,
     IsEnum,
@@ -20,6 +21,7 @@ export class UserRegisterDto {
     })
     @IsNotEmpty()
     @ApiProperty()
+    @Transform((email) => email.toLowerCase())
     readonly email: string;
 
     @IsString()
