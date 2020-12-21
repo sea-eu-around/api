@@ -61,13 +61,7 @@ export class MatchingService {
             .where('matching.fromProfileId = :id', { id: profileId })
             .getMany();
 
-        const profileIds: string[] = [];
-
-        history.forEach((match) => {
-            profileIds.push(match.toProfileId);
-        });
-
-        return profileIds;
+        return history.map((match) => match.toProfileId);
     }
 
     async like(

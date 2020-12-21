@@ -90,6 +90,12 @@ export class ProfileController {
         explode: false,
         required: false,
     })
+    @ApiQuery({
+        name: 'offers',
+        isArray: true,
+        explode: false,
+        required: false,
+    })
     @ApiResponse({
         type: ProfileDto,
         status: HttpStatus.OK,
@@ -106,6 +112,7 @@ export class ProfileController {
             degrees,
             genders,
             types,
+            offers,
         } = query;
 
         const limit = query.limit > 100 ? 100 : query.limit;
@@ -117,6 +124,7 @@ export class ProfileController {
             degrees,
             genders,
             types,
+            offers,
             {
                 page,
                 limit,
