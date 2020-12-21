@@ -5,6 +5,7 @@ import {
     paginate,
     Pagination,
 } from 'nestjs-typeorm-paginate';
+import { Brackets } from 'typeorm';
 
 import { DegreeType } from '../../common/constants/degree-type';
 import { GenderType } from '../../common/constants/gender-type';
@@ -88,6 +89,103 @@ export class ProfileService {
         return unwantedProfiles;
     }
 
+    /* private async _commonHistoryScore(
+        fromProfile: ProfileEntity,
+        withProfile: ProfileEntity,
+    ): Promise<number> {
+        const myHistoryQuery = this._matchingServices.getHistory(
+            fromProfile.id,
+        );
+        const withHistoryQuery = this._matchingServices.getHistory(
+            withProfile.id,
+        );
+        const [myHistory, withHistory] = await Promise.all([
+            myHistoryQuery,
+            withHistoryQuery,
+        ]);
+
+        if (fromProfile.givenLikes) {
+            const test = fromProfile.givenLikes.map((like) => like.toProfileId);
+            console.log(test);
+        }
+
+        let score = 0;
+
+        const mySet = new Set(myHistory);
+
+        console.log(myHistory);
+
+        withHistory.forEach((action) => {
+            if (mySet.has(action)) {
+                score += 1;
+            }
+        });
+
+        return score;
+    }*/
+
+    private _commonInterestScore(
+        fromProfile: ProfileEntity,
+        withProfile: ProfileEntity,
+    ): number {
+        const myInterestsIds = fromProfile.interests.map(
+            (interest) => interest.id,
+        );
+        const withInterestsIds = withProfile.interests.map(
+            (interest) => interest.id,
+        );
+
+        let score = 0;
+
+        const mySet = new Set(myInterestsIds);
+        // console.log(mySet);
+        // console.log(withInterestsIds);
+
+        withInterestsIds.forEach((interest) => {
+            if (mySet.has(interest)) {
+                score += 1;
+            }
+        });
+
+        return score;
+    }
+
+    private _offerScore(withProfile: ProfileEntity, offers: string[]): number {
+        let score = 0;
+
+        if (!offers || offers.length === 0) {
+            return 0;
+        }
+        const offerSet = new Set(offers);
+        const withOfferIds = withProfile.profileOffers.map(
+            (offer) => offer.offerId,
+        );
+
+        withOfferIds.forEach((offer) => {
+            if (offerSet.has(offer)) {
+                score += 1;
+            }
+        });
+
+        return score;
+    }
+
+    public sortProfiles(
+        fromProfile: ProfileEntity,
+        profiles: ProfileEntity[],
+        offers: string[],
+    ): ProfileEntity[] {
+        profiles.map((profile) => {
+            const os = this._offerScore(profile, offers);
+            // const chs = await this._commonHistoryScore(fromProfile, profile);
+            const cis = this._commonInterestScore(fromProfile, profile);
+            const score = /*3 * chs +*/ 7 * cis + 2 * os;
+            profile.score = score;
+        });
+
+        return profiles;
+    }
+
     async getProfiles(
         profileId: string,
         universities: PartnerUniversity[],
@@ -95,16 +193,19 @@ export class ProfileService {
         degrees: DegreeType[],
         genders: GenderType[],
         types: ProfileType[],
+        offers: string[],
         options: IPaginationOptions,
     ): Promise<Pagination<ProfileEntity>> {
         const unwantedProfiles = await this._getUnwantedProfileIds(profileId);
+        const myProfile = await this._profileRepository.findOne(profileId);
 
         let profiles = this._profileRepository
             .createQueryBuilder('profile')
             .leftJoinAndSelect('profile.profileOffers', 'profileOffers')
-            .leftJoinAndSelect('profileOffers.offer', 'offer')
             .leftJoinAndSelect('profile.interests', 'interests')
             .leftJoinAndSelect('profile.languages', 'languages')
+            .leftJoinAndSelect('profile.givenLikes', 'givenLikes')
+            .leftJoinAndSelect('profile.receivedLikes', 'revceivedLikes')
             .where('profile.id NOT IN (:...unwantedProfiles)', {
                 unwantedProfiles,
             });
@@ -113,6 +214,48 @@ export class ProfileService {
             profiles = profiles.andWhere('profile.gender IN (:...genders)', {
                 genders,
             });
+        }
+
+        if (offers && offers.length > 0) {
+            profiles = profiles.andWhere(
+                new Brackets((qb) => {
+                    if (myProfile.gender === GenderType.MALE) {
+                        qb.andWhere('profileOffers.allowMale = :bool', {
+                            bool: true,
+                        });
+                    }
+                    if (myProfile.gender === GenderType.FEMALE) {
+                        qb.andWhere('profileOffers.allowFemale = :bool', {
+                            bool: true,
+                        });
+                    }
+                    if (myProfile.gender === GenderType.OTHER) {
+                        qb.andWhere('profileOffers.allowOther = :bool', {
+                            bool: true,
+                        });
+                    }
+                    if (myProfile.type === ProfileType.STUDENT) {
+                        qb.andWhere('profileOffers.allowStudent = :bool', {
+                            bool: true,
+                        });
+                    }
+                    if (myProfile.type === ProfileType.STAFF) {
+                        qb.andWhere('profileOffers.allowStaff = :bool', {
+                            bool: true,
+                        });
+                    }
+
+                    qb.andWhere(
+                        new Brackets((subQb) => {
+                            for (const offer of offers) {
+                                subQb.orWhere(
+                                    `profileOffers.offerId = '${offer}'`,
+                                );
+                            }
+                        }),
+                    );
+                }),
+            );
         }
 
         if (universities && universities.length > 0) {
@@ -144,7 +287,13 @@ export class ProfileService {
                 degrees,
             });
         }
+        // const rProfiles = await profiles.take(10).getMany();
 
+        // const scoredProfiles = this.sortProfiles(myProfile, rProfiles, offers);
+        // const sortedProfiles = scoredProfiles.sort(
+        //    (profile1, profile2) => profile2.score - profile1.score,
+        // );
+        // console.log(await profiles.getMany());
         return paginate<ProfileEntity>(profiles, options);
     }
 
@@ -261,10 +410,6 @@ export class ProfileService {
             { loadEagerRelations: false },
         );
 
-        if (!profile) {
-            throw new ProfileNotFoundException();
-        }
-
         profile.avatar = this._profilePictureRepository.create({
             creatorId: { id: profileId || user.id },
             path: updateAvatarDto.fileName,
@@ -286,10 +431,6 @@ export class ProfileService {
             { loadEagerRelations: false },
         );
 
-        if (!profile) {
-            throw new ProfileNotFoundException();
-        }
-
         const interests = await this._interestRepository.findByIds(
             addInterestsToProfileDto.interests,
         );
@@ -306,15 +447,6 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<LanguageEntity[]> {
-        const profile = await this._profileRepository.findOne(
-            { id: profileId || user.id },
-            { loadEagerRelations: false },
-        );
-
-        if (!profile) {
-            throw new ProfileNotFoundException();
-        }
-
         await this._languageRepository.delete({ profileId });
 
         const languages = addLanguagesToProfileDto.map((language) =>
@@ -332,15 +464,6 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<ProfileOfferEntity[]> {
-        const profile = await this._profileRepository.findOne(
-            { id: profileId || user.id },
-            { loadEagerRelations: false },
-        );
-
-        if (!profile) {
-            throw new ProfileNotFoundException();
-        }
-
         await this._profileOfferRepository.delete({ profileId });
 
         const profileOffers = addOffersToProfileDto.map((profileOffer) =>
@@ -358,15 +481,6 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<EducationFieldEntity[]> {
-        const profile = await this._profileRepository.findOne(
-            { id: profileId || user.id },
-            { loadEagerRelations: false },
-        );
-
-        if (!profile) {
-            throw new ProfileNotFoundException();
-        }
-
         await this._educationFieldRepository.delete({ profileId });
 
         const educationFields = addEducationFieldsToProfileDto.map(
@@ -385,15 +499,6 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<StaffRoleEntity[]> {
-        const profile = await this._profileRepository.findOne(
-            { id: profileId || user.id },
-            { loadEagerRelations: false },
-        );
-
-        if (!profile) {
-            throw new ProfileNotFoundException();
-        }
-
         await this._staffRoleRepository.delete({ profileId });
 
         const staffRoles = addStaffRolesToProfileDto.map((staffRole) =>
