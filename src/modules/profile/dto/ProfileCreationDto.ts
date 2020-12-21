@@ -23,10 +23,12 @@ import { AddStaffRolesToProfileDto } from './AddStaffRolesToProfileDto';
 export class ProfileCreationDto {
     @ApiProperty()
     @IsString()
+    @IsNotEmpty()
     firstName: string;
 
     @ApiProperty()
     @IsString()
+    @IsNotEmpty()
     lastName: string;
 
     @ApiProperty({ enum: GenderType })

@@ -23,11 +23,13 @@ export class ProfileUpdateDto {
     @ApiPropertyOptional()
     @IsOptional()
     @IsString()
+    @IsNotEmpty()
     firstName: string;
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsString()
+    @IsNotEmpty()
     lastName: string;
 
     @ApiPropertyOptional({ enum: GenderType })
