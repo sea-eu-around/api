@@ -266,7 +266,7 @@ export class ProfileService {
         }
 
         profile.avatar = this._profilePictureRepository.create({
-            profileId: { id: profileId || user.id },
+            creatorId: { id: profileId || user.id },
             path: updateAvatarDto.fileName,
             id: updateAvatarDto.fileName.split('.')[0],
         });

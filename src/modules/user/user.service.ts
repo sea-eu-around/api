@@ -12,7 +12,9 @@ import { UserEntity } from '../../entities/user.entity';
 import { EmailOrPasswordIncorrectException } from '../../exceptions/email-or-password-incorrect.exception';
 import { UserNotVerifiedException } from '../../exceptions/user-not-verified.exception';
 import { UtilsService } from '../../providers/utils.service';
+import { MediaRepository } from '../../repositories/media.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
+import { AwsS3Service } from '../../shared/services/aws-s3.service';
 import { ConfigService } from '../../shared/services/config.service';
 import { UserRegisterDto } from '../auth/dto/UserRegisterDto';
 import { UserVerificationQueryDto } from '../auth/dto/UserVerificationQueryDto';
@@ -27,6 +29,8 @@ export class UserService {
         private readonly _profileRepository: ProfileRepository,
         private readonly _configService: ConfigService,
         private readonly _mailerService: MailerService,
+        private readonly _mediaRepository: MediaRepository,
+        private readonly _awsS3Service: AwsS3Service,
     ) {}
 
     /**
@@ -138,6 +142,7 @@ export class UserService {
             .where({ id: user.id })
             .leftJoinAndSelect('user.profile', 'profile')
             .leftJoinAndSelect('profile.rooms', 'rooms')
+            .leftJoinAndSelect('profile.medias', 'medias')
             .leftJoinAndSelect('profile.educationFields', 'educationFields')
             .leftJoinAndSelect('profile.profileOffers', 'profileOffers')
             .leftJoinAndSelect('rooms.room', 'room')
@@ -180,6 +185,8 @@ export class UserService {
                     .format('LLLL'),
             },
         });
+
+        await this.userDeletionCron();
     }
 
     @Cron('0 0 0 * * *')
@@ -203,6 +210,16 @@ export class UserService {
         const promesses: Promise<any>[] = [];
 
         for (const user of usersToDelete) {
+            // Retrieve user media
+            const medias = await this._mediaRepository.find({
+                where: { creatorId: user.id },
+                withDeleted: true,
+            });
+
+            for (const media of medias) {
+                promesses.push(this._awsS3Service.deleteFile(media.path));
+            }
+
             promesses.push(this._userRepository.delete({ id: user.id }));
 
             const mailTemplate =

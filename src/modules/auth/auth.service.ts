@@ -63,6 +63,7 @@ export class AuthService {
                 })
                 .leftJoinAndSelect('user.profile', 'profile')
                 .leftJoinAndSelect('profile.rooms', 'rooms')
+                .leftJoinAndSelect('profile.medias', 'medias')
                 .leftJoinAndSelect('profile.educationFields', 'educationFields')
                 .leftJoinAndSelect('profile.profileOffers', 'profileOffers')
                 .leftJoinAndSelect('rooms.room', 'room')
