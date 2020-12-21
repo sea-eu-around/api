@@ -122,7 +122,6 @@ export class ProfileController {
                 limit,
                 route: 'http://localhost:3000/profiles',
             },
-            user,
         );
 
         return {
