@@ -21,6 +21,7 @@ import { EducationFieldEntity } from './educationField.entity';
 import { InterestEntity } from './interest.entity';
 import { LanguageEntity } from './language.entity';
 import { MatchingEntity } from './matching.entity';
+import { MediaEntity } from './media.entity';
 import { MessageEntity } from './message.entity';
 import { ProfileOfferEntity } from './profileOffer.entity';
 import { ProfilePictureEntity } from './profilePicture.entity';
@@ -131,11 +132,8 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     })
     reports: ReportEntity[];
 
-    @OneToMany(
-        () => ProfilePictureEntity,
-        (profilePicture) => profilePicture.profile,
-    )
-    profilePictures: ProfilePictureEntity[];
+    @OneToMany(() => MediaEntity, (media) => media.creator, { cascade: true })
+    medias: MediaEntity[];
 
     @PolymorphicChildren(() => ReportEntity, {
         eager: false,
