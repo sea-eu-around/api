@@ -50,10 +50,11 @@ export class AuthService {
             },
             { relations: ['profile'] },
         );
-        const isPasswordValid = await UtilsService.validateHash(
+        let isPasswordValid = await UtilsService.validateHash(
             userLoginDto.password,
             user && user.password,
         );
+
         if (!user || !isPasswordValid) {
             // Check if user has been deleted
             const softDeletedUser = await this._userRepository
@@ -71,20 +72,25 @@ export class AuthService {
                 .withDeleted()
                 .getOne();
 
-            if (softDeletedUser) {
-                user = await this._userRepository.recover(softDeletedUser);
+            isPasswordValid = await UtilsService.validateHash(
+                userLoginDto.password,
+                softDeletedUser && softDeletedUser.password,
+            );
 
-                if (softDeletedUser.profile) {
-                    await this._profileRepository.save({
-                        id: user.id,
-                        isActive: true,
-                    });
-                }
-
-                return user;
+            if (!softDeletedUser || !isPasswordValid) {
+                throw new EmailOrPasswordIncorrectException();
             }
 
-            throw new EmailOrPasswordIncorrectException();
+            user = await this._userRepository.recover(softDeletedUser);
+
+            if (softDeletedUser.profile) {
+                await this._profileRepository.save({
+                    id: user.id,
+                    isActive: true,
+                });
+            }
+
+            return user;
         }
 
         if (user && !user.isVerified) {
@@ -146,7 +152,7 @@ export class AuthService {
     async resetPassword(
         resetPasswordDto: ResetPasswordDto,
     ): Promise<UserEntity> {
-        const { userId, iat, exp } = <any>(
+        const { userId } = <any>(
             jwt.verify(
                 resetPasswordDto.token,
                 this._configService.get('JWT_SECRET_KEY'),

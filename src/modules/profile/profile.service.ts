@@ -1,5 +1,5 @@
 /* eslint-disable complexity */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
     IPaginationOptions,
     paginate,
@@ -46,6 +46,8 @@ import { UpdateAvatarDto } from './dto/UpdateAvatarDto';
 
 @Injectable()
 export class ProfileService {
+    private readonly _logger: Logger = new Logger(ProfileService.name);
+
     constructor(
         private readonly _studentProfileRepository: StudentProfileRepository,
         private readonly _staffProfileRepository: StaffProfileRepository,
@@ -206,6 +208,7 @@ export class ProfileService {
             .leftJoinAndSelect('profile.languages', 'languages')
             .leftJoinAndSelect('profile.givenLikes', 'givenLikes')
             .leftJoinAndSelect('profile.receivedLikes', 'revceivedLikes')
+            .leftJoinAndSelect('profile.avatar', 'avatar')
             .where('profile.id NOT IN (:...unwantedProfiles)', {
                 unwantedProfiles,
             });
