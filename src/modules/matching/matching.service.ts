@@ -84,9 +84,19 @@ export class MatchingService {
             });
 
         if (getHistoryDto.search && getHistoryDto.search.length > 0) {
-            historyQuery.andWhere('toProfile.name LIKE search', {
-                search: getHistoryDto.search,
-            });
+            const fullName = getHistoryDto.search.split(' ');
+            historyQuery.andWhere(
+                new Brackets((qb) => {
+                    for (const word of fullName) {
+                        qb.andWhere('toProfile.firstName ilike :search', {
+                            search: `%${word}%`,
+                        });
+                        qb.orWhere('toProfile.lastName ilike :search', {
+                            search: `%${word}%`,
+                        });
+                    }
+                }),
+            );
         }
 
         historyQuery.orderBy('matching.updatedAt', 'DESC');
