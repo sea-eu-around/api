@@ -17,6 +17,7 @@ import { MatchingModule } from '../matching/matching.module';
 import { UserRepository } from '../user/user.repository';
 import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
+import { ProfileUtils } from './profile.utils';
 
 @Module({
     imports: [
@@ -38,6 +39,6 @@ import { ProfileService } from './profile.service';
     ],
     controllers: [ProfileController],
     exports: [ProfileService],
-    providers: [ProfileService, IsSEAEmailConstraint],
+    providers: [ProfileService, IsSEAEmailConstraint, ProfileUtils],
 })
 export class ProfileModule {}

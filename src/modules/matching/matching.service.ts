@@ -59,7 +59,7 @@ export class MatchingService {
         return profiles;
     }
 
-    async getAllHistory(profileId: string): Promise<string[]> {
+    async getFullHistory(profileId: string): Promise<string[]> {
         const history = await this._matchingRepository
             .createQueryBuilder('matching')
             .leftJoinAndSelect('matching.fromProfile', 'fromProfile')

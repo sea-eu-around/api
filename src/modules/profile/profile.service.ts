@@ -1,11 +1,7 @@
 /* eslint-disable complexity */
 import { Injectable, Logger } from '@nestjs/common';
-import {
-    IPaginationOptions,
-    paginate,
-    Pagination,
-} from 'nestjs-typeorm-paginate';
-import { Brackets } from 'typeorm';
+import { IPaginationOptions } from 'nestjs-typeorm-paginate';
+import { SelectQueryBuilder } from 'typeorm';
 
 import { DegreeType } from '../../common/constants/degree-type';
 import { GenderType } from '../../common/constants/gender-type';
@@ -43,6 +39,7 @@ import { AddOfferToProfileDto } from './dto/AddOfferToProfileDto';
 import { AddStaffRolesToProfileDto } from './dto/AddStaffRolesToProfileDto';
 import { ProfileCreationDto } from './dto/ProfileCreationDto';
 import { UpdateAvatarDto } from './dto/UpdateAvatarDto';
+import { ProfileUtils } from './profile.utils';
 
 @Injectable()
 export class ProfileService {
@@ -60,6 +57,7 @@ export class ProfileService {
         private readonly _matchingServices: MatchingService,
         private readonly _staffRoleRepository: StaffRoleRepository,
         private readonly _profilePictureRepository: ProfilePictureRepository,
+        private readonly _profileUtils: ProfileUtils,
     ) {}
 
     async findOneById(id: string): Promise<ProfileEntity> {
@@ -72,120 +70,27 @@ export class ProfileService {
         return profile;
     }
 
-    private async _getUnwantedProfileIds(profileId: string): Promise<string[]> {
-        const matchesQuery = this._matchingServices.getMyMatches(profileId);
-        const historyQuery = this._matchingServices.getAllHistory(profileId);
-        const unwantedProfiles = [profileId];
-        const [matches, history] = await Promise.all([
-            matchesQuery,
-            historyQuery,
-        ]);
-
-        matches.forEach((match) => {
-            unwantedProfiles.push(match.id);
-        });
-        history.forEach((match) => {
-            unwantedProfiles.push(match);
-        });
-
-        return unwantedProfiles;
-    }
-
-    /* private async _commonHistoryScore(
+    public async sortProfiles(
         fromProfile: ProfileEntity,
-        withProfile: ProfileEntity,
-    ): Promise<number> {
-        const myHistoryQuery = this._matchingServices.getHistory(
-            fromProfile.id,
-        );
-        const withHistoryQuery = this._matchingServices.getHistory(
-            withProfile.id,
-        );
-        const [myHistory, withHistory] = await Promise.all([
-            myHistoryQuery,
-            withHistoryQuery,
-        ]);
-
-        if (fromProfile.givenLikes) {
-            const test = fromProfile.givenLikes.map((like) => like.toProfileId);
-            console.log(test);
-        }
-
-        let score = 0;
-
-        const mySet = new Set(myHistory);
-
-        console.log(myHistory);
-
-        withHistory.forEach((action) => {
-            if (mySet.has(action)) {
-                score += 1;
-            }
-        });
-
-        return score;
-    }*/
-
-    private _commonInterestScore(
-        fromProfile: ProfileEntity,
-        withProfile: ProfileEntity,
-    ): number {
-        const myInterestsIds = fromProfile.interests.map(
-            (interest) => interest.id,
-        );
-        const withInterestsIds = withProfile.interests.map(
-            (interest) => interest.id,
-        );
-
-        let score = 0;
-
-        const mySet = new Set(myInterestsIds);
-        // console.log(mySet);
-        // console.log(withInterestsIds);
-
-        withInterestsIds.forEach((interest) => {
-            if (mySet.has(interest)) {
-                score += 1;
-            }
-        });
-
-        return score;
-    }
-
-    private _offerScore(withProfile: ProfileEntity, offers: string[]): number {
-        let score = 0;
-
-        if (!offers || offers.length === 0) {
-            return 0;
-        }
-        const offerSet = new Set(offers);
-        const withOfferIds = withProfile.profileOffers.map(
-            (offer) => offer.offerId,
-        );
-
-        withOfferIds.forEach((offer) => {
-            if (offerSet.has(offer)) {
-                score += 1;
-            }
-        });
-
-        return score;
-    }
-
-    public sortProfiles(
-        fromProfile: ProfileEntity,
-        profiles: ProfileEntity[],
+        profilesQuery: SelectQueryBuilder<ProfileEntity>,
         offers: string[],
-    ): ProfileEntity[] {
+    ): Promise<ProfileEntity[]> {
+        const profiles = await profilesQuery.take(80).getMany();
+
         profiles.map((profile) => {
-            const os = this._offerScore(profile, offers);
+            const os = this._profileUtils.offerScore(profile, offers);
             // const chs = await this._commonHistoryScore(fromProfile, profile);
-            const cis = this._commonInterestScore(fromProfile, profile);
+            const cis = this._profileUtils.commonInterestScore(
+                fromProfile,
+                profile,
+            );
             const score = /*3 * chs +*/ 7 * cis + 2 * os;
             profile.score = score;
         });
 
-        return profiles;
+        return profiles.sort(
+            (profile1, profile2) => profile2.score - profile1.score,
+        );
     }
 
     async getProfiles(
@@ -197,8 +102,10 @@ export class ProfileService {
         types: ProfileType[],
         offers: string[],
         options: IPaginationOptions,
-    ): Promise<Pagination<ProfileEntity>> {
-        const unwantedProfiles = await this._getUnwantedProfileIds(profileId);
+    ): Promise<any> {
+        const unwantedProfiles = await this._profileUtils.getUnwantedProfileIds(
+            profileId,
+        );
         const myProfile = await this._profileRepository.findOne(profileId);
 
         let profiles = this._profileRepository
@@ -220,44 +127,10 @@ export class ProfileService {
         }
 
         if (offers && offers.length > 0) {
-            profiles = profiles.andWhere(
-                new Brackets((qb) => {
-                    if (myProfile.gender === GenderType.MALE) {
-                        qb.andWhere('profileOffers.allowMale = :bool', {
-                            bool: true,
-                        });
-                    }
-                    if (myProfile.gender === GenderType.FEMALE) {
-                        qb.andWhere('profileOffers.allowFemale = :bool', {
-                            bool: true,
-                        });
-                    }
-                    if (myProfile.gender === GenderType.OTHER) {
-                        qb.andWhere('profileOffers.allowOther = :bool', {
-                            bool: true,
-                        });
-                    }
-                    if (myProfile.type === ProfileType.STUDENT) {
-                        qb.andWhere('profileOffers.allowStudent = :bool', {
-                            bool: true,
-                        });
-                    }
-                    if (myProfile.type === ProfileType.STAFF) {
-                        qb.andWhere('profileOffers.allowStaff = :bool', {
-                            bool: true,
-                        });
-                    }
-
-                    qb.andWhere(
-                        new Brackets((subQb) => {
-                            for (const offer of offers) {
-                                subQb.orWhere(
-                                    `profileOffers.offerId = '${offer}'`,
-                                );
-                            }
-                        }),
-                    );
-                }),
+            profiles = this._profileUtils.filterOffers(
+                myProfile,
+                profiles,
+                offers,
             );
         }
 
@@ -290,14 +163,29 @@ export class ProfileService {
                 degrees,
             });
         }
-        // const rProfiles = await profiles.take(10).getMany();
 
-        // const scoredProfiles = this.sortProfiles(myProfile, rProfiles, offers);
-        // const sortedProfiles = scoredProfiles.sort(
-        //    (profile1, profile2) => profile2.score - profile1.score,
-        // );
-        // console.log(await profiles.getMany());
-        return paginate<ProfileEntity>(profiles, options);
+        const sortedProfiles = await this.sortProfiles(
+            myProfile,
+            profiles,
+            offers,
+        );
+
+        const lowIndex = (options.page - 1) * options.limit;
+        const highIndex = lowIndex + options.limit;
+        const currentPage = sortedProfiles.slice(lowIndex, highIndex);
+
+        return {
+            items: currentPage,
+            meta: {
+                totalItems: sortedProfiles.length,
+                itemCount: currentPage.length,
+                itemsPerPage: options.limit,
+                totalPages: sortedProfiles.length % options.limit,
+                currentPage: options.page,
+            },
+        };
+
+        // return paginate<ProfileEntity>(profiles, options);
     }
 
     async createOrUpdate(
