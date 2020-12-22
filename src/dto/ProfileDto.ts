@@ -51,6 +51,9 @@ export class ProfileDto extends AbstractCompositeDto {
     @ApiPropertyOptional()
     avatar?: string;
 
+    @ApiPropertyOptional()
+    score?: number;
+
     constructor(profile: ProfileEntity) {
         super();
         this.id = profile.id;
@@ -78,5 +81,6 @@ export class ProfileDto extends AbstractCompositeDto {
                 ? `https://aas-bucket.s3.eu-west-3.amazonaws.com/${profile.avatar.path}`
                 : profile.avatar.path
             : null;
+        this.score = profile.score;
     }
 }
