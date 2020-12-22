@@ -141,7 +141,10 @@ export class MatchingController {
 
         return {
             description: 'history',
-            data: history.items.map((item) => item.toProfile),
+            data: history.items.map((item) => ({
+                profile: item.toProfile,
+                status: item.status,
+            })),
             meta: history.meta,
             links: history.links,
         };
