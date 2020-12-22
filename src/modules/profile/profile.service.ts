@@ -74,7 +74,7 @@ export class ProfileService {
 
     private async _getUnwantedProfileIds(profileId: string): Promise<string[]> {
         const matchesQuery = this._matchingServices.getMyMatches(profileId);
-        const historyQuery = this._matchingServices.getHistory(profileId);
+        const historyQuery = this._matchingServices.getAllHistory(profileId);
         const unwantedProfiles = [profileId];
         const [matches, history] = await Promise.all([
             matchesQuery,
