@@ -83,10 +83,13 @@ export class MessageGateway
             notifications.push({
                 to: user.expoPushToken || user.email,
                 sound: 'default',
-                body: `${sender.firstName} ${sender.lastName}: ${data.text}`,
+                title: `${sender.firstName} ${sender.lastName}`,
+                body: data.text,
                 data
             });
         }
+
+        console.log(notifications);
 
         await this._expo.sendPushNotificationsAsync(notifications);
     }
