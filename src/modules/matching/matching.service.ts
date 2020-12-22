@@ -1,6 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import Expo, { ExpoPushMessage } from 'expo-server-sdk';
 import { random } from 'lodash';
+import {
+    IPaginationOptions,
+    paginate,
+    Pagination,
+} from 'nestjs-typeorm-paginate';
 import { Brackets } from 'typeorm/query-builder/Brackets';
 
 import { MatchingStatusType } from '../../common/constants/matching-status-type';
@@ -10,6 +15,7 @@ import { MatchingRepository } from '../../repositories/matching.repository';
 import { ProfileRoomRepository } from '../../repositories/profileRoom.repository';
 import { RoomRepository } from '../../repositories/room.repository';
 import { UserRepository } from '../user/user.repository';
+import { GetHistoryDto } from './dto/getHistoryDto';
 
 @Injectable()
 export class MatchingService {
@@ -53,7 +59,7 @@ export class MatchingService {
         return profiles;
     }
 
-    async getHistory(profileId: string): Promise<string[]> {
+    async getAllHistory(profileId: string): Promise<string[]> {
         const history = await this._matchingRepository
             .createQueryBuilder('matching')
             .leftJoinAndSelect('matching.fromProfile', 'fromProfile')
@@ -62,6 +68,35 @@ export class MatchingService {
             .getMany();
 
         return history.map((match) => match.toProfileId);
+    }
+
+    async getHistory(
+        profileId: string,
+        getHistoryDto: GetHistoryDto,
+    ): Promise<Pagination<MatchingEntity>> {
+        const historyQuery = this._matchingRepository
+            .createQueryBuilder('matching')
+            .leftJoinAndSelect('matching.toProfile', 'toProfile')
+            .leftJoinAndSelect('toProfile.avatar', 'avatar')
+            .where('matching.fromProfileId = :id', { id: profileId })
+            .andWhere('matching.status IN (:...status)', {
+                status: getHistoryDto.status,
+            });
+
+        if (getHistoryDto.search && getHistoryDto.search.length > 0) {
+            historyQuery.andWhere('toProfile.name LIKE search', {
+                search: getHistoryDto.search,
+            });
+        }
+
+        historyQuery.orderBy('matching.updatedAt', 'DESC');
+
+        const options: IPaginationOptions = {
+            limit: getHistoryDto.limit,
+            page: getHistoryDto.page,
+        };
+
+        return paginate<MatchingEntity>(historyQuery, options);
     }
 
     async like(
