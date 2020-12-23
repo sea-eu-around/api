@@ -118,7 +118,6 @@ export class ProfileService {
             .leftJoinAndSelect('profile.interests', 'interests')
             .leftJoinAndSelect('profile.languages', 'languages')
             .leftJoinAndSelect('profile.givenLikes', 'givenLikes')
-            .leftJoinAndSelect('profile.receivedLikes', 'revceivedLikes')
             .leftJoinAndSelect('profile.avatar', 'avatar')
             .where('profile.id NOT IN (:...unwantedProfiles)', {
                 unwantedProfiles,
