@@ -79,12 +79,16 @@ export class ProfileService {
 
         profiles.map((profile) => {
             const os = this._profileUtils.offerScore(profile, offers);
-            // const chs = await this._commonHistoryScore(fromProfile, profile);
             const cis = this._profileUtils.commonInterestScore(
                 fromProfile,
                 profile,
             );
-            const score = /*3 * chs +*/ 7 * cis + 2 * os;
+            const chs = this._profileUtils.commonHistoryScore(
+                fromProfile,
+                profile,
+            );
+            // console.log('os : ' + os + '; chs : ' + chs + '; cis : ' + cis);
+            const score = 2 * os + 5 * cis + 3 * chs;
             profile.score = score;
         });
 
@@ -184,8 +188,6 @@ export class ProfileService {
                 currentPage: options.page,
             },
         };
-
-        // return paginate<ProfileEntity>(profiles, options);
     }
 
     async createOrUpdate(
