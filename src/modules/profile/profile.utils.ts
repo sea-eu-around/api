@@ -29,37 +29,26 @@ export class ProfileUtils {
         return unwantedProfiles;
     }
 
-    public async commonHistoryScore(
+    public commonHistoryScore(
         fromProfile: ProfileEntity,
         withProfile: ProfileEntity,
-    ): Promise<number> {
-        const myHistoryQuery = this._matchingServices.getFullHistory(
-            fromProfile.id,
-        );
-        const withHistoryQuery = this._matchingServices.getFullHistory(
-            withProfile.id,
-        );
-        const [myHistory, withHistory] = await Promise.all([
-            myHistoryQuery,
-            withHistoryQuery,
-        ]);
-
-        if (fromProfile.givenLikes) {
-            const test = fromProfile.givenLikes.map((like) => like.toProfileId);
-            // console.log(test);
-        }
-
+    ): number {
         let score = 0;
 
-        const mySet = new Set(myHistory);
+        const myHistory = fromProfile.givenLikes;
+        const withHistory = withProfile.givenLikes;
 
-        // console.log(myHistory);
+        if (myHistory && myHistory.length > 0) {
+            const mySet = new Set(myHistory);
 
-        withHistory.forEach((action) => {
-            if (mySet.has(action)) {
-                score += 1;
+            if (withHistory && withHistory.length > 0) {
+                withHistory.forEach((action) => {
+                    if (mySet.has(action)) {
+                        score += 1;
+                    }
+                });
             }
-        });
+        }
 
         return score;
     }
