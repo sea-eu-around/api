@@ -128,7 +128,7 @@ export class ProfileController {
             {
                 page,
                 limit,
-                route: 'http://localhost:3000/profiles',
+                // route: 'http://localhost:3000/profiles',
             },
         );
 
@@ -136,7 +136,7 @@ export class ProfileController {
             description: 'successefully-retrieved-profiles',
             data: profiles.items,
             meta: profiles.meta,
-            links: profiles.links,
+            // links: profiles.links,
         };
     }
 
