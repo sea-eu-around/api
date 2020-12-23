@@ -144,6 +144,7 @@ export class MatchingController {
             data: history.items.map((item) => ({
                 profile: item.toProfile,
                 status: item.status,
+                date: item.updatedAt,
             })),
             meta: history.meta,
             links: history.links,
