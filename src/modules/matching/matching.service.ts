@@ -268,4 +268,23 @@ export class MatchingService {
 
         return this._matchingRepository.save(block);
     }
+
+    async cancel(
+        fromProfileId: string,
+        matchingEntityId: string,
+    ): Promise<MatchingEntity> {
+        const action = await this._matchingRepository.findOne({
+            id: matchingEntityId,
+        });
+        if (
+            !(
+                action.fromProfileId === fromProfileId ||
+                action.toProfileId === fromProfileId
+            )
+        ) {
+            throw new BadRequestException("You're not part of this action");
+        }
+
+        return this._matchingRepository.remove(action);
+    }
 }
