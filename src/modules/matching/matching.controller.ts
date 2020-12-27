@@ -20,6 +20,7 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
+import { CancelMatchDto } from './dto/cancelMatchDto';
 import { GetHistoryDto } from './dto/getHistoryDto';
 import { ToProfileDto } from './dto/toProfileDto';
 import { MatchingService } from './matching.service';
@@ -145,9 +146,30 @@ export class MatchingController {
                 profile: item.toProfile,
                 status: item.status,
                 date: item.updatedAt,
+                id: item.id,
             })),
             meta: history.meta,
             links: history.links,
+        };
+    }
+    @Post('cancel')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(AuthGuard, RolesGuard)
+    @UseInterceptors(AuthUserInterceptor)
+    @ApiBearerAuth()
+    @ApiResponse({ type: MatchingDto, description: 'cancel-action' })
+    async cancel(
+        @Body() cancelMatchDto: CancelMatchDto,
+        @AuthUser() fromUser: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const action = await this._matchingService.cancel(
+            fromUser.id,
+            cancelMatchDto.matchingEntityId,
+        );
+
+        return {
+            description: 'action-canceled',
+            data: action,
         };
     }
 }
