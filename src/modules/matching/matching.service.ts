@@ -28,6 +28,37 @@ export class MatchingService {
         private readonly _profileRoomRepository: ProfileRoomRepository,
     ) {}
 
+    async getMatch(
+        fromProfileId: string,
+        toProfileId: string,
+    ): Promise<MatchingEntity> {
+        return this._matchingRepository
+            .createQueryBuilder('matching')
+            .leftJoinAndSelect('matching.room', 'room')
+            .where('matching.status = :status', {
+                status: MatchingStatusType.MATCH,
+            })
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where('matching.fromProfileId = :fromProfileId', {
+                        fromProfileId,
+                    }).andWhere('matching.toProfileId = :toProfileId', {
+                        toProfileId,
+                    });
+                }),
+            )
+            .orWhere(
+                new Brackets((qb) => {
+                    qb.where('matching.fromProfileId = :toProfileId', {
+                        toProfileId,
+                    }).andWhere('matching.toProfileId = :fromProfileId', {
+                        fromProfileId,
+                    });
+                }),
+            )
+            .getOne();
+    }
+
     async getMyMatches(profileId: string): Promise<ProfileEntity[]> {
         const matches = await this._matchingRepository
             .createQueryBuilder('matching')

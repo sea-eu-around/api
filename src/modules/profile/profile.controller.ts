@@ -27,6 +27,7 @@ import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
 import { AwsS3Service } from '../../shared/services/aws-s3.service';
+import { MatchingService } from '../matching/matching.service';
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
 import { AddLanguageToProfileDto } from './dto/AddLanguageToProfileDto';
 import { AddOfferToProfileDto } from './dto/AddOfferToProfileDto';
@@ -44,6 +45,7 @@ export class ProfileController {
     constructor(
         private _profileService: ProfileService,
         private _awsS3Service: AwsS3Service,
+        private _matchingService: MatchingService,
     ) {}
 
     @Get()
@@ -153,10 +155,18 @@ export class ProfileController {
         @Param('id') id: string,
     ): Promise<PayloadSuccessDto> {
         const profile = await this._profileService.findOneById(id || user.id);
+        const match = await this._matchingService.getMatch(user.id, profile.id);
+        let isMatched = false;
+        let roomId = '';
+
+        if (match && match.room) {
+            roomId = match.room.id;
+            isMatched = true;
+        }
 
         return {
             description: "Profile's interests",
-            data: profile,
+            data: { profile, isMatched, roomId },
         };
     }
 
