@@ -157,7 +157,7 @@ export class ProfileController {
         const profile = await this._profileService.findOneById(id || user.id);
         const match = await this._matchingService.getMatch(user.id, profile.id);
         let isMatched = false;
-        let roomId = '';
+        let roomId = null;
 
         if (match && match.room) {
             roomId = match.room.id;
