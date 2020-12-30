@@ -15,6 +15,7 @@ import { MatchingStatusType } from '../../common/constants/matching-status-type'
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { MatchingDto } from '../../dto/MatchingDto';
+import { ProfileDto } from '../../dto/ProfileDto';
 import { ProfileEntity } from '../../entities/profile.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
@@ -130,7 +131,7 @@ export class MatchingController {
     @ApiQuery({
         name: 'page',
     })
-    @ApiResponse({ type: MatchingDto, description: 'get-history' })
+    @ApiResponse({ type: ProfileDto, description: 'get-history' })
     async getHistory(
         @Query() getHistoryDto: GetHistoryDto,
         @AuthUser() fromUser: UserEntity,
@@ -143,7 +144,7 @@ export class MatchingController {
         return {
             description: 'history',
             data: history.items.map((item) => ({
-                profile: item.toProfile,
+                profile: item.toProfile.toDto(),
                 status: item.status,
                 date: item.updatedAt,
                 id: item.id,
