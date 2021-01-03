@@ -1,5 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import Expo, { ExpoPushMessage } from 'expo-server-sdk';
 import { random } from 'lodash';
+import {
+    IPaginationOptions,
+    paginate,
+    Pagination,
+} from 'nestjs-typeorm-paginate';
 import { Brackets } from 'typeorm/query-builder/Brackets';
 
 import { MatchingStatusType } from '../../common/constants/matching-status-type';
@@ -9,15 +15,49 @@ import { MatchingRepository } from '../../repositories/matching.repository';
 import { ProfileRoomRepository } from '../../repositories/profileRoom.repository';
 import { RoomRepository } from '../../repositories/room.repository';
 import { UserRepository } from '../user/user.repository';
+import { GetHistoryDto } from './dto/getHistoryDto';
 
 @Injectable()
 export class MatchingService {
+    private _expo: Expo = new Expo();
+
     constructor(
         private readonly _matchingRepository: MatchingRepository,
         private readonly _userRepository: UserRepository,
         private readonly _roomRepository: RoomRepository,
         private readonly _profileRoomRepository: ProfileRoomRepository,
     ) {}
+
+    async getMatch(
+        fromProfileId: string,
+        toProfileId: string,
+    ): Promise<MatchingEntity> {
+        return this._matchingRepository
+            .createQueryBuilder('matching')
+            .leftJoinAndSelect('matching.room', 'room')
+            .where('matching.status = :status', {
+                status: MatchingStatusType.MATCH,
+            })
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where('matching.fromProfileId = :fromProfileId', {
+                        fromProfileId,
+                    }).andWhere('matching.toProfileId = :toProfileId', {
+                        toProfileId,
+                    });
+                }),
+            )
+            .orWhere(
+                new Brackets((qb) => {
+                    qb.where('matching.fromProfileId = :toProfileId', {
+                        toProfileId,
+                    }).andWhere('matching.toProfileId = :fromProfileId', {
+                        fromProfileId,
+                    });
+                }),
+            )
+            .getOne();
+    }
 
     async getMyMatches(profileId: string): Promise<ProfileEntity[]> {
         const matches = await this._matchingRepository
@@ -50,7 +90,7 @@ export class MatchingService {
         return profiles;
     }
 
-    async getHistory(profileId: string): Promise<string[]> {
+    async getFullHistory(profileId: string): Promise<string[]> {
         const history = await this._matchingRepository
             .createQueryBuilder('matching')
             .leftJoinAndSelect('matching.fromProfile', 'fromProfile')
@@ -58,13 +98,46 @@ export class MatchingService {
             .where('matching.fromProfileId = :id', { id: profileId })
             .getMany();
 
-        const profileIds: string[] = [];
+        return history.map((match) => match.toProfileId);
+    }
 
-        history.forEach((match) => {
-            profileIds.push(match.toProfileId);
-        });
+    async getHistory(
+        profileId: string,
+        getHistoryDto: GetHistoryDto,
+    ): Promise<Pagination<MatchingEntity>> {
+        const historyQuery = this._matchingRepository
+            .createQueryBuilder('matching')
+            .leftJoinAndSelect('matching.toProfile', 'toProfile')
+            .leftJoinAndSelect('toProfile.avatar', 'avatar')
+            .where('matching.fromProfileId = :id', { id: profileId })
+            .andWhere('matching.status IN (:...status)', {
+                status: getHistoryDto.status,
+            });
 
-        return profileIds;
+        if (getHistoryDto.search && getHistoryDto.search.length > 0) {
+            const fullName = getHistoryDto.search.split(' ');
+            historyQuery.andWhere(
+                new Brackets((qb) => {
+                    for (const word of fullName) {
+                        qb.andWhere('toProfile.firstName ilike :search', {
+                            search: `%${word}%`,
+                        });
+                        qb.orWhere('toProfile.lastName ilike :search', {
+                            search: `%${word}%`,
+                        });
+                    }
+                }),
+            );
+        }
+
+        historyQuery.orderBy('matching.updatedAt', 'DESC');
+
+        const options: IPaginationOptions = {
+            limit: getHistoryDto.limit,
+            page: getHistoryDto.page,
+        };
+
+        return paginate<MatchingEntity>(historyQuery, options);
     }
 
     async like(
@@ -100,6 +173,14 @@ export class MatchingService {
                         [fromProfileId, toProfileId],
                     );
                     await this._roomRepository.save(room);
+
+                    const notification: ExpoPushMessage = {
+                        to: toUser.expoPushToken || toUser.email,
+                        sound: 'default',
+                        body: 'You have a new match!',
+                    };
+
+                    await this._expo.sendPushNotificationsAsync([notification]);
 
                     return this._matchingRepository.save(mirrorEntity);
                 }
@@ -217,5 +298,24 @@ export class MatchingService {
         block.status = MatchingStatusType.BLOCK;
 
         return this._matchingRepository.save(block);
+    }
+
+    async cancel(
+        fromProfileId: string,
+        matchingEntityId: string,
+    ): Promise<MatchingEntity> {
+        const action = await this._matchingRepository.findOne({
+            id: matchingEntityId,
+        });
+        if (
+            !(
+                action.fromProfileId === fromProfileId ||
+                action.toProfileId === fromProfileId
+            )
+        ) {
+            throw new BadRequestException("You're not part of this action");
+        }
+
+        return this._matchingRepository.remove(action);
     }
 }

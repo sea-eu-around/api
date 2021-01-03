@@ -50,6 +50,7 @@ export class RoomService {
             .leftJoin('room.lastMessage', 'lastMessage')
             .leftJoin('room.profiles', 'profiles')
             .leftJoin('profiles.profile', 'profile')
+            .leftJoinAndSelect('profile.avatar', 'avatar')
             .where('room.id IN (:...roomIds)', { roomIds: [null, ...roomIds] })
             .orderBy('room.updatedAt', 'DESC');
 
@@ -80,6 +81,7 @@ export class RoomService {
             .leftJoin('room.lastMessage', 'lastMessage')
             .leftJoin('room.profiles', 'profiles')
             .leftJoin('profiles.profile', 'profile')
+            .leftJoinAndSelect('profile.avatar', 'avatar')
             .where('room.id = :roomId', { roomId })
             .getOne();
     }

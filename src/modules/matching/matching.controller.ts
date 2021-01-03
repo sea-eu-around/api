@@ -5,19 +5,24 @@ import {
     HttpCode,
     HttpStatus,
     Post,
+    Query,
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+import { MatchingStatusType } from '../../common/constants/matching-status-type';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { MatchingDto } from '../../dto/MatchingDto';
+import { ProfileDto } from '../../dto/ProfileDto';
 import { ProfileEntity } from '../../entities/profile.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
+import { CancelMatchDto } from './dto/cancelMatchDto';
+import { GetHistoryDto } from './dto/getHistoryDto';
 import { ToProfileDto } from './dto/toProfileDto';
 import { MatchingService } from './matching.service';
 
@@ -101,6 +106,71 @@ export class MatchingController {
         return {
             description: 'user-blocked',
             data: match,
+        };
+    }
+
+    @Get('history')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(AuthGuard, RolesGuard)
+    @UseInterceptors(AuthUserInterceptor)
+    @ApiBearerAuth()
+    @ApiQuery({
+        name: 'status',
+        enum: MatchingStatusType,
+        isArray: true,
+        explode: false,
+        required: true,
+    })
+    @ApiQuery({
+        name: 'search',
+        required: false,
+    })
+    @ApiQuery({
+        name: 'limit',
+    })
+    @ApiQuery({
+        name: 'page',
+    })
+    @ApiResponse({ type: ProfileDto, description: 'get-history' })
+    async getHistory(
+        @Query() getHistoryDto: GetHistoryDto,
+        @AuthUser() fromUser: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const history = await this._matchingService.getHistory(
+            fromUser.id,
+            getHistoryDto,
+        );
+
+        return {
+            description: 'history',
+            data: history.items.map((item) => ({
+                profile: item.toProfile.toDto(),
+                status: item.status,
+                date: item.updatedAt,
+                id: item.id,
+            })),
+            meta: history.meta,
+            links: history.links,
+        };
+    }
+    @Post('cancel')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(AuthGuard, RolesGuard)
+    @UseInterceptors(AuthUserInterceptor)
+    @ApiBearerAuth()
+    @ApiResponse({ type: MatchingDto, description: 'cancel-action' })
+    async cancel(
+        @Body() cancelMatchDto: CancelMatchDto,
+        @AuthUser() fromUser: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const action = await this._matchingService.cancel(
+            fromUser.id,
+            cancelMatchDto.matchingEntityId,
+        );
+
+        return {
+            description: 'action-canceled',
+            data: action,
         };
     }
 }
