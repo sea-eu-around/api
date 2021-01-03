@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Delete,
     HttpCode,
     HttpStatus,
     Post,
@@ -23,7 +24,7 @@ import { NotificationService } from './notification.service';
 export class NotificationController {
     constructor(private readonly _notificationService: NotificationService) {}
 
-    @Post('register')
+    @Post('token')
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiResponse({
         status: HttpStatus.NO_CONTENT,
@@ -32,17 +33,33 @@ export class NotificationController {
     @UseGuards(AuthGuard, RolesGuard)
     @UseInterceptors(AuthUserInterceptor)
     @ApiBearerAuth()
-    async registerToken(
+    async addToken(
         @Body() registerTokenDto: RegisterTokenDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        await this._notificationService.registerToken(
-            registerTokenDto.token,
-            user,
-        );
+        await this._notificationService.addToken(registerTokenDto.token, user);
 
         return {
             description: 'successfully-registered-token',
+        };
+    }
+
+    @Delete('token')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiResponse({
+        status: HttpStatus.NO_CONTENT,
+        description: 'successfully-deleted-token',
+    })
+    @UseGuards(AuthGuard, RolesGuard)
+    @UseInterceptors(AuthUserInterceptor)
+    @ApiBearerAuth()
+    async removeToken(
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        await this._notificationService.removeToken(user);
+
+        return {
+            description: 'successfully-removed-token',
         };
     }
 }
