@@ -1,10 +1,7 @@
 /* eslint-disable complexity */
-import { Injectable } from '@nestjs/common';
-import {
-    IPaginationOptions,
-    paginate,
-    Pagination,
-} from 'nestjs-typeorm-paginate';
+import { Injectable, Logger } from '@nestjs/common';
+import { IPaginationOptions } from 'nestjs-typeorm-paginate';
+import { SelectQueryBuilder } from 'typeorm';
 
 import { DegreeType } from '../../common/constants/degree-type';
 import { GenderType } from '../../common/constants/gender-type';
@@ -29,6 +26,7 @@ import { InterestRepository } from '../../repositories/interest.repository';
 import { LanguageRepository } from '../../repositories/language.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
 import { ProfileOfferRepository } from '../../repositories/profileOffer.repository';
+import { ProfilePictureRepository } from '../../repositories/profilePicture.repository';
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
 import { StaffRoleRepository } from '../../repositories/staffRole.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
@@ -41,9 +39,12 @@ import { AddOfferToProfileDto } from './dto/AddOfferToProfileDto';
 import { AddStaffRolesToProfileDto } from './dto/AddStaffRolesToProfileDto';
 import { ProfileCreationDto } from './dto/ProfileCreationDto';
 import { UpdateAvatarDto } from './dto/UpdateAvatarDto';
+import { ProfileUtils } from './profile.utils';
 
 @Injectable()
 export class ProfileService {
+    private readonly _logger: Logger = new Logger(ProfileService.name);
+
     constructor(
         private readonly _studentProfileRepository: StudentProfileRepository,
         private readonly _staffProfileRepository: StaffProfileRepository,
@@ -55,6 +56,8 @@ export class ProfileService {
         private readonly _userRepository: UserRepository,
         private readonly _matchingServices: MatchingService,
         private readonly _staffRoleRepository: StaffRoleRepository,
+        private readonly _profilePictureRepository: ProfilePictureRepository,
+        private readonly _profileUtils: ProfileUtils,
     ) {}
 
     async findOneById(id: string): Promise<ProfileEntity> {
@@ -67,23 +70,31 @@ export class ProfileService {
         return profile;
     }
 
-    private async _getUnwantedProfileIds(profileId: string): Promise<string[]> {
-        const matchesQuery = this._matchingServices.getMyMatches(profileId);
-        const historyQuery = this._matchingServices.getHistory(profileId);
-        const unwantedProfiles = [profileId];
-        const [matches, history] = await Promise.all([
-            matchesQuery,
-            historyQuery,
-        ]);
+    public async sortProfiles(
+        fromProfile: ProfileEntity,
+        profilesQuery: SelectQueryBuilder<ProfileEntity>,
+        offers: string[],
+    ): Promise<ProfileEntity[]> {
+        const profiles = await profilesQuery.take(80).getMany();
 
-        matches.forEach((match) => {
-            unwantedProfiles.push(match.id);
-        });
-        history.forEach((match) => {
-            unwantedProfiles.push(match);
+        profiles.map((profile) => {
+            const os = this._profileUtils.offerScore(profile, offers);
+            const cis = this._profileUtils.commonInterestScore(
+                fromProfile,
+                profile,
+            );
+            const chs = this._profileUtils.commonHistoryScore(
+                fromProfile,
+                profile,
+            );
+            // console.log('os : ' + os + '; chs : ' + chs + '; cis : ' + cis);
+            const score = 2 * os + 5 * cis + 3 * chs;
+            profile.score = score;
         });
 
-        return unwantedProfiles;
+        return profiles.sort(
+            (profile1, profile2) => profile2.score - profile1.score,
+        );
     }
 
     async getProfiles(
@@ -93,16 +104,21 @@ export class ProfileService {
         degrees: DegreeType[],
         genders: GenderType[],
         types: ProfileType[],
+        offers: string[],
         options: IPaginationOptions,
-    ): Promise<Pagination<ProfileEntity>> {
-        const unwantedProfiles = await this._getUnwantedProfileIds(profileId);
+    ): Promise<any> {
+        const unwantedProfiles = await this._profileUtils.getUnwantedProfileIds(
+            profileId,
+        );
+        const myProfile = await this._profileRepository.findOne(profileId);
 
         let profiles = this._profileRepository
             .createQueryBuilder('profile')
             .leftJoinAndSelect('profile.profileOffers', 'profileOffers')
-            .leftJoinAndSelect('profileOffers.offer', 'offer')
             .leftJoinAndSelect('profile.interests', 'interests')
             .leftJoinAndSelect('profile.languages', 'languages')
+            .leftJoinAndSelect('profile.givenLikes', 'givenLikes')
+            .leftJoinAndSelect('profile.avatar', 'avatar')
             .where('profile.id NOT IN (:...unwantedProfiles)', {
                 unwantedProfiles,
             });
@@ -111,6 +127,14 @@ export class ProfileService {
             profiles = profiles.andWhere('profile.gender IN (:...genders)', {
                 genders,
             });
+        }
+
+        if (offers && offers.length > 0) {
+            profiles = this._profileUtils.filterOffers(
+                myProfile,
+                profiles,
+                offers,
+            );
         }
 
         if (universities && universities.length > 0) {
@@ -143,7 +167,26 @@ export class ProfileService {
             });
         }
 
-        return paginate<ProfileEntity>(profiles, options);
+        const sortedProfiles = await this.sortProfiles(
+            myProfile,
+            profiles,
+            offers,
+        );
+
+        const lowIndex = (options.page - 1) * options.limit;
+        const highIndex = lowIndex + options.limit;
+        const currentPage = sortedProfiles.slice(lowIndex, highIndex);
+
+        return {
+            items: currentPage,
+            meta: {
+                totalItems: sortedProfiles.length,
+                itemCount: currentPage.length,
+                itemsPerPage: options.limit,
+                totalPages: sortedProfiles.length % options.limit,
+                currentPage: options.page,
+            },
+        };
     }
 
     async createOrUpdate(
@@ -171,6 +214,7 @@ export class ProfileService {
 
             Object.assign(profile, profileCreationDto);
 
+            delete profile.avatar;
             delete profile.languages;
             delete profile.profileOffers;
             delete profile.educationFields;
@@ -183,6 +227,7 @@ export class ProfileService {
 
             Object.assign(profile, profileCreationDto);
 
+            delete profile.avatar;
             delete profile.languages;
             delete profile.profileOffers;
             delete profile.educationFields;
@@ -190,6 +235,15 @@ export class ProfileService {
             profile.user = user;
 
             savedProfile = await this._staffProfileRepository.save(profile);
+        }
+
+        if (profileCreationDto.avatar) {
+            savedProfile.avatar = (
+                await this.updateAvatar(
+                    { fileName: profileCreationDto.avatar },
+                    savedProfile.id,
+                )
+            ).avatar;
         }
 
         if (profileCreationDto.languages) {
@@ -243,16 +297,20 @@ export class ProfileService {
         profileId?: string,
         user?: UserEntity,
     ): Promise<ProfileEntity> {
-        const profile =
-            user.profile ||
-            (await this._profileRepository.findOne(
-                { id: user.id || profileId },
-                { loadEagerRelations: false },
-            ));
+        let profile = await this._profileRepository.findOne(
+            { id: profileId || user.id },
+            { loadEagerRelations: false },
+        );
 
-        profile.avatar = updateAvatarDto.fileName;
+        profile.avatar = this._profilePictureRepository.create({
+            creatorId: { id: profileId || user.id },
+            path: updateAvatarDto.fileName,
+            id: updateAvatarDto.fileName.split('.')[0],
+        });
 
-        return this._profileRepository.save(profile);
+        profile = await this._profileRepository.save(profile);
+
+        return profile;
     }
 
     async addInterests(

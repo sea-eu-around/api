@@ -10,7 +10,9 @@ export class MessageEntity extends AbstractEntity<MessageDto> {
     @Column()
     text: string;
 
-    @ManyToOne(() => RoomEntity, (room) => room.messages)
+    @ManyToOne(() => RoomEntity, (room) => room.messages, {
+        onDelete: 'CASCADE',
+    })
     room: RoomEntity;
 
     @Column()

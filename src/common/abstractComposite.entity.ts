@@ -1,6 +1,6 @@
 'use strict';
 
-import { CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { CreateDateColumn, DeleteDateColumn, UpdateDateColumn } from 'typeorm';
 
 import { UtilsService } from '../providers/utils.service';
 import { AbstractCompositeDto } from './dto/AbstractCompositeDto';
@@ -19,6 +19,12 @@ export abstract class AbstractCompositeEntity<
         name: 'updated_at',
     })
     updatedAt: Date;
+
+    @DeleteDateColumn({
+        type: 'timestamp without time zone',
+        name: 'deleted_at',
+    })
+    deletedAt: Date;
 
     abstract dtoClass: new (
         entity: AbstractCompositeEntity,

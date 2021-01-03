@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
+import { PromiseResult } from 'aws-sdk/lib/request';
 import * as mime from 'mime-types';
 
 import { FileType } from '../../common/constants/file-type';
@@ -41,10 +42,21 @@ export class AwsS3Service {
             ACL: 'public-read',
         };
         const s3Url = await this._s3.getSignedUrlPromise('putObject', params);
+
         return {
             fileName,
             s3Url,
         };
+    }
+
+    deleteFile(
+        filename: string,
+    ): Promise<PromiseResult<AWS.S3.DeleteObjectOutput, AWS.AWSError>> {
+        const params = {
+            Bucket: this.configService.awsS3Config.bucketName,
+            Key: filename,
+        };
+        return this._s3.deleteObject(params).promise();
     }
 
     get bucketUrl(): string {

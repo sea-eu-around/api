@@ -51,6 +51,9 @@ export class ProfileDto extends AbstractCompositeDto {
     @ApiPropertyOptional()
     avatar?: string;
 
+    @ApiPropertyOptional()
+    score?: number;
+
     constructor(profile: ProfileEntity) {
         super();
         this.id = profile.id;
@@ -61,7 +64,6 @@ export class ProfileDto extends AbstractCompositeDto {
         this.birthdate = profile.birthdate;
         this.gender = profile.gender;
         this.nationality = profile.nationality;
-        this.avatar = profile.avatar;
         this.educationFields = UtilsService.isDtos(profile.educationFields)
             ? profile.educationFields.toDtos()
             : profile.educationFields;
@@ -73,6 +75,12 @@ export class ProfileDto extends AbstractCompositeDto {
             : profile.interests;
         this.profileOffers = UtilsService.isDtos(profile.profileOffers)
             ? profile.profileOffers.toDtos()
-            : profile.profileOffers;
+            : null;
+        this.avatar = UtilsService.isDto(profile.avatar)
+            ? UtilsService.isImageFilename(profile.avatar.path)
+                ? `https://aas-bucket.s3.eu-west-3.amazonaws.com/${profile.avatar.path}`
+                : profile.avatar.path
+            : null;
+        this.score = profile.score;
     }
 }

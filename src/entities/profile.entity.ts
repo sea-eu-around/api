@@ -16,13 +16,17 @@ import { NationalityType } from '../common/constants/nationality-type';
 import { ProfileType } from '../common/constants/profile-type';
 import { PartnerUniversity } from '../common/constants/sea';
 import { ProfileDto } from '../dto/ProfileDto';
+import { PolymorphicChildren } from '../polymorphic/decorators';
 import { EducationFieldEntity } from './educationField.entity';
 import { InterestEntity } from './interest.entity';
 import { LanguageEntity } from './language.entity';
 import { MatchingEntity } from './matching.entity';
+import { MediaEntity } from './media.entity';
 import { MessageEntity } from './message.entity';
 import { ProfileOfferEntity } from './profileOffer.entity';
+import { ProfilePictureEntity } from './profilePicture.entity';
 import { ProfileRoomEntity } from './profileRoom.entity';
+import { ReportEntity } from './report.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('profile')
@@ -35,7 +39,6 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     type: ProfileType;
 
     @OneToOne(() => UserEntity, (user) => user.profile, {
-        cascade: true,
         primary: true,
         onDelete: 'CASCADE',
     })
@@ -51,9 +54,9 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     @Column({ nullable: false, type: 'enum', enum: PartnerUniversity })
     university: PartnerUniversity;
 
-    @ManyToMany(() => InterestEntity, (interests) => interests.profile, {
+    @ManyToMany(() => InterestEntity, (interests) => interests.profiles, {
         eager: true,
-        onDelete: 'CASCADE',
+        cascade: true,
     })
     @JoinTable()
     interests: InterestEntity[];
@@ -61,15 +64,23 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     @Column({ nullable: false, type: 'timestamp without time zone' })
     birthdate: Date;
 
-    @Column({ nullable: true })
-    avatar?: string;
+    @OneToOne(() => ProfilePictureEntity, {
+        eager: true,
+        nullable: true,
+        cascade: true,
+    })
+    @JoinColumn()
+    avatar?: ProfilePictureEntity;
+
+    @Column({ default: true })
+    isActive: boolean;
 
     @OneToMany(
         () => EducationFieldEntity,
         (educationField) => educationField.profile,
         {
             eager: true,
-            onDelete: 'CASCADE',
+            cascade: true,
         },
     )
     educationFields: EducationFieldEntity[];
@@ -86,38 +97,50 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
     @OneToMany(() => LanguageEntity, (language) => language.profile, {
         cascade: true,
         eager: true,
-        onDelete: 'CASCADE',
     })
     languages: LanguageEntity[];
 
     @OneToMany(() => MatchingEntity, (matching) => matching.fromProfile, {
         cascade: true,
-        onDelete: 'CASCADE',
     })
     givenLikes: MatchingEntity[];
 
     @OneToMany(() => MatchingEntity, (matching) => matching.fromProfile, {
         cascade: true,
-        onDelete: 'CASCADE',
     })
     receivedLikes: MatchingEntity[];
 
     @OneToMany(
         () => ProfileOfferEntity,
         (profileOffer) => profileOffer.profile,
-        { eager: true, onDelete: 'CASCADE' },
+        { eager: true, cascade: true },
     )
     profileOffers: ProfileOfferEntity[];
 
     @OneToMany(() => MessageEntity, (message) => message.sender, {
-        onDelete: 'CASCADE',
+        cascade: true,
     })
     messages: MessageEntity[];
 
     @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.profile, {
-        onDelete: 'CASCADE',
+        cascade: true,
     })
     rooms: ProfileRoomEntity[];
+
+    score?: number;
+
+    @OneToMany(() => ReportEntity, (report) => report.profile, {
+        cascade: true,
+    })
+    reports: ReportEntity[];
+
+    @OneToMany(() => MediaEntity, (media) => media.creator, { cascade: true })
+    medias: MediaEntity[];
+
+    @PolymorphicChildren(() => ReportEntity, {
+        eager: false,
+    })
+    receivedReports: ReportEntity[];
 
     dtoClass = ProfileDto;
 }
