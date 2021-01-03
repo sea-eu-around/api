@@ -7,8 +7,14 @@ import { UserRepository } from '../user/user.repository';
 export class NotificationService {
     constructor(private readonly _userRepository: UserRepository) {}
 
-    async registerToken(token: string, user: UserEntity): Promise<UserEntity> {
+    async addToken(token: string, user: UserEntity): Promise<UserEntity> {
         user.expoPushToken = token;
+
+        return this._userRepository.save(user);
+    }
+
+    async removeToken(user: UserEntity): Promise<UserEntity> {
+        user.expoPushToken = null;
 
         return this._userRepository.save(user);
     }
