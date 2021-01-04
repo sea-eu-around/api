@@ -1,15 +1,24 @@
 import {
     Controller,
+    Delete,
     Get,
     HttpCode,
     HttpStatus,
+    Param,
+    Patch,
+    Post,
     Query,
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiParam,
+    ApiQuery,
+    ApiResponse,
+    ApiTags,
+} from '@nestjs/swagger';
 
-import { GroupType } from '../../common/constants/group-type';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { GroupDto } from '../../dto/GroupDto';
@@ -17,7 +26,8 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
-import { GetGroupsQueryDto } from './dto/GetGroupsQueryDto';
+import { GetManyGroupsQueryDto } from './dto/GetManyGroupsQueryDto';
+import { GetOneGroupParamsDto } from './dto/GetOneParamsDto';
 import { GroupService } from './group.service';
 
 @Controller('groups')
@@ -31,12 +41,6 @@ export class GroupController {
     @HttpCode(HttpStatus.OK)
     @ApiBearerAuth()
     @ApiQuery({
-        name: 'type',
-        enum: GroupType,
-        isArray: false,
-        required: false,
-    })
-    @ApiQuery({
         name: 'page',
     })
     @ApiQuery({
@@ -48,7 +52,7 @@ export class GroupController {
         description: 'successefully-retrieved-groups',
     })
     async getMany(
-        @Query() query: GetGroupsQueryDto,
+        @Query() query: GetManyGroupsQueryDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const limit = query.limit > 100 ? 100 : query.limit;
@@ -60,10 +64,138 @@ export class GroupController {
         });
 
         return {
-            description: 'successefully-retrieved-rooms',
+            description: 'successefully-retrieved-groups',
             data: rooms.items,
             meta: rooms.meta,
             links: rooms.links,
+        };
+    }
+
+    @Get('/:id')
+    @HttpCode(HttpStatus.OK)
+    @ApiBearerAuth()
+    @ApiParam({
+        name: 'id',
+        type: 'string',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'successefully-retrieved-group',
+        type: GroupDto,
+    })
+    async getOne(
+        @Param() params: GetOneGroupParamsDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const group = await this._groupService.getOne(params.id, user.id);
+
+        return {
+            description: 'successefully-retrieved-group',
+            data: group,
+        };
+    }
+
+    @Post()
+    @HttpCode(HttpStatus.CREATED)
+    @ApiBearerAuth()
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'successefully-created-group',
+        type: GroupDto,
+    })
+    create(@AuthUser() user: UserEntity): PayloadSuccessDto {
+        const createdGroup = this._groupService.createOrUpdate();
+
+        return {
+            description: 'successefully-created-group',
+            data: createdGroup,
+        };
+    }
+
+    @Patch('/:id')
+    @HttpCode(HttpStatus.OK)
+    @ApiBearerAuth()
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'successefully-updated-group',
+        type: GroupDto,
+    })
+    update(@AuthUser() user: UserEntity): PayloadSuccessDto {
+        const updatedGroup = this._groupService.createOrUpdate();
+
+        return {
+            description: 'successefully-updated-group',
+            data: updatedGroup,
+        };
+    }
+
+    @Delete('/:id')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiBearerAuth()
+    @ApiResponse({
+        status: HttpStatus.NO_CONTENT,
+        description: 'successefully-deleted-group',
+        type: GroupDto,
+    })
+    delete(@AuthUser() user: UserEntity): PayloadSuccessDto {
+        return {
+            description: 'successefully-deleted-group',
+        };
+    }
+
+    @Get('/:id/members')
+    @HttpCode(HttpStatus.OK)
+    @ApiBearerAuth()
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'successefully-retrieved-group-members',
+        type: GroupDto,
+    })
+    getManyMembers(@AuthUser() user: UserEntity): PayloadSuccessDto {
+        return {
+            description: 'successefully-retrieved-group-members',
+        };
+    }
+
+    @Post('/:id/members')
+    @HttpCode(HttpStatus.CREATED)
+    @ApiBearerAuth()
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'successefully-added-group-member',
+        type: GroupDto,
+    })
+    addMember(@AuthUser() user: UserEntity): PayloadSuccessDto {
+        return {
+            description: 'successefully-added-group-member',
+        };
+    }
+
+    @Patch('/:id/members/:id')
+    @HttpCode(HttpStatus.OK)
+    @ApiBearerAuth()
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'successefully-updated-group-member',
+        type: GroupDto,
+    })
+    updateMember(@AuthUser() user: UserEntity): PayloadSuccessDto {
+        return {
+            description: 'successefully-updated-group-member',
+        };
+    }
+
+    @Delete('/:id/members/:id')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiBearerAuth()
+    @ApiResponse({
+        status: HttpStatus.NO_CONTENT,
+        description: 'successefully-deleted-group-member',
+        type: GroupDto,
+    })
+    deleteMember(@AuthUser() user: UserEntity): PayloadSuccessDto {
+        return {
+            description: 'successefully-delete-group-member',
         };
     }
 }
