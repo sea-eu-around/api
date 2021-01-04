@@ -39,4 +39,24 @@ export class GroupService {
 
         return paginate<GroupEntity>(groups, options);
     }
+
+    async getOne(id: string, profileId: string): Promise<GroupEntity> {
+        /*const isProfileInRoom = await this._groupMemberRepository.isProfileInRoom(
+            profileId,
+            roomId,
+        );
+
+        if (!isProfileInRoom) {
+            throw new ForbiddenException();
+        }*/
+
+        return this._groupRepository
+            .createQueryBuilder('group')
+            .where('group.id = :id', { id })
+            .getOne();
+    }
+
+    createOrUpdate(): void {
+        throw new Error('Method not implemented.');
+    }
 }

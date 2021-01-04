@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import { IsInt } from 'class-validator';
 
-export class GetGroupsQueryDto {
+export class GetManyGroupsQueryDto {
     @IsInt()
     @Transform(parseInt)
     page: number;
