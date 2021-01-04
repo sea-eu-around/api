@@ -18,6 +18,7 @@ import { PartnerUniversity } from '../common/constants/sea';
 import { ProfileDto } from '../dto/ProfileDto';
 import { PolymorphicChildren } from '../polymorphic/decorators';
 import { EducationFieldEntity } from './educationField.entity';
+import { GroupMemberEntity } from './groupMember.entity';
 import { InterestEntity } from './interest.entity';
 import { LanguageEntity } from './language.entity';
 import { MatchingEntity } from './matching.entity';
@@ -126,6 +127,11 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
         cascade: true,
     })
     rooms: ProfileRoomEntity[];
+
+    @OneToMany(() => GroupMemberEntity, (groupMember) => groupMember.profile, {
+        cascade: true,
+    })
+    groups: GroupMemberEntity[];
 
     score?: number;
 
