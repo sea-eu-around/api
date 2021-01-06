@@ -5,12 +5,12 @@ import { GroupMemberRoleType } from '../../../common/constants/group-member-role
 import { GroupMemberStatusType } from '../../../common/constants/group-member-status-type';
 
 export class UpdateGroupMemberPayloadDto {
-    @ApiPropertyOptional()
+    @ApiPropertyOptional({ enum: GroupMemberStatusType })
     @IsOptional()
     @IsEnum(GroupMemberStatusType)
     status: GroupMemberStatusType;
 
-    @ApiPropertyOptional()
+    @ApiPropertyOptional({ enum: GroupMemberRoleType })
     @IsOptional()
     @IsEnum(GroupMemberRoleType)
     role: GroupMemberRoleType;

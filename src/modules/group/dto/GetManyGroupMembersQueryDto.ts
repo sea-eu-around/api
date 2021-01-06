@@ -1,5 +1,7 @@
 import { Transform } from 'class-transformer';
-import { IsInt } from 'class-validator';
+import { IsArray, IsEnum, IsInt, IsOptional } from 'class-validator';
+
+import { GroupMemberStatusType } from '../../../common/constants/group-member-status-type';
 
 export class GetManyGroupMembersQueryDto {
     @IsInt()
@@ -9,4 +11,10 @@ export class GetManyGroupMembersQueryDto {
     @IsInt()
     @Transform(parseInt)
     limit: number;
+
+    @IsOptional()
+    @IsArray()
+    @IsEnum(GroupMemberStatusType, { each: true })
+    @Transform((value: string) => value.split(','))
+    statuses?: GroupMemberStatusType[];
 }

@@ -20,6 +20,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 
+import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { GroupDto } from '../../dto/GroupDto';
@@ -192,6 +193,14 @@ export class GroupController {
     @ApiQuery({
         name: 'limit',
     })
+    @ApiQuery({
+        name: 'statuses',
+        type: 'enum',
+        enum: GroupMemberStatusType,
+        required: false,
+        isArray: true,
+        explode: false,
+    })
     @ApiBearerAuth()
     @ApiResponse({
         status: HttpStatus.OK,
@@ -215,6 +224,8 @@ export class GroupController {
                 page: getManyGroupMembersQueryDto.page,
                 route: `http://localhost:3000/groups/${getManyGroupMembersParamsDto.groupId}/members`,
             },
+            user,
+            getManyGroupMembersQueryDto.statuses,
         );
 
         return {
