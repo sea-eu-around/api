@@ -10,6 +10,7 @@ import { Between } from 'typeorm';
 import { GroupMemberRoleType } from '../../common/constants/group-member-role-type';
 import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
 import { GroupEntity } from '../../entities/group.entity';
+import { GroupMemberEntity } from '../../entities/groupMember.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { GroupRepository } from '../../repositories/group.repository';
 import { GroupMemberRepository } from '../../repositories/groupMember.repository';
@@ -156,5 +157,17 @@ export class GroupService {
             },
             'GroupsDeletionCron',
         );
+    }
+
+    async getManyMembers(
+        groupId: string,
+        options: IPaginationOptions,
+    ): Promise<Pagination<GroupMemberEntity>> {
+        const groupMembers = this._groupMemberRepository
+            .createQueryBuilder('groupMember')
+            .where('groupMember.groupId = :groupId', { groupId })
+            .orderBy('groupMember.createdAt', 'DESC');
+
+        return paginate<GroupMemberEntity>(groupMembers, options);
     }
 }
