@@ -1,13 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import {
     IPaginationOptions,
     paginate,
     Pagination,
 } from 'nestjs-typeorm-paginate';
 
+import { GroupRoleType } from '../../common/constants/group-role-type';
 import { GroupEntity } from '../../entities/group.entity';
+import { UserEntity } from '../../entities/user.entity';
 import { GroupRepository } from '../../repositories/group.repository';
 import { GroupMemberRepository } from '../../repositories/groupMember.repository';
+import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
+import { UpdateGroupPayloadDto } from './dto/UpdateGroupPayloadDto';
 
 @Injectable()
 export class GroupService {
@@ -56,7 +60,36 @@ export class GroupService {
             .getOne();
     }
 
-    createOrUpdate(): void {
-        throw new Error('Method not implemented.');
+    async create(
+        createGroupPayloadDto: CreateGroupPayloadDto,
+        user: UserEntity,
+    ): Promise<GroupEntity> {
+        const preMember = this._groupMemberRepository.create({
+            profileId: user.id,
+            role: GroupRoleType.ADMIN,
+        });
+
+        const preGroup = this._groupRepository.create({
+            ...createGroupPayloadDto,
+            creatorId: user.id,
+            members: [preMember],
+        });
+
+        return this._groupRepository.save(preGroup);
+    }
+
+    async update(
+        id: string,
+        updateGroupPayloadDto: UpdateGroupPayloadDto,
+        user: UserEntity,
+    ): Promise<GroupEntity> {
+        if (!(await this._groupMemberRepository.isMemberAdmin(user.id, id))) {
+            throw new UnauthorizedException();
+        }
+
+        return this._groupRepository.save({
+            id,
+            ...updateGroupPayloadDto,
+        });
     }
 }

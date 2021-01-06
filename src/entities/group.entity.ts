@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { GroupDto } from '../dto/GroupDto';
@@ -13,8 +13,7 @@ export class GroupEntity extends AbstractEntity<GroupDto> {
     @Column()
     creatorId!: string;
 
-    @OneToOne(() => ProfileEntity, { onDelete: 'CASCADE' })
-    @JoinColumn()
+    @ManyToOne(() => ProfileEntity, { onDelete: 'CASCADE' })
     creator: ProfileEntity;
 
     @OneToMany(() => GroupMemberEntity, (groupMember) => groupMember.group, {

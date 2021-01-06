@@ -1,4 +1,5 @@
 import {
+    Body,
     Controller,
     Delete,
     Get,
@@ -26,8 +27,11 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
+import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
 import { GetManyGroupsQueryDto } from './dto/GetManyGroupsQueryDto';
 import { GetOneGroupParamsDto } from './dto/GetOneParamsDto';
+import { UpdateGroupParamsDto } from './dto/UpdateGroupParamsDto';
+import { UpdateGroupPayloadDto } from './dto/UpdateGroupPayloadDto';
 import { GroupService } from './group.service';
 
 @Controller('groups')
@@ -103,29 +107,47 @@ export class GroupController {
         description: 'successefully-created-group',
         type: GroupDto,
     })
-    create(@AuthUser() user: UserEntity): PayloadSuccessDto {
-        const createdGroup = this._groupService.createOrUpdate();
+    async create(
+        @Body() createGroupPayloadDto: CreateGroupPayloadDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const group = await this._groupService.create(
+            createGroupPayloadDto,
+            user,
+        );
 
         return {
             description: 'successefully-created-group',
-            data: createdGroup,
+            data: group,
         };
     }
 
     @Patch('/:id')
     @HttpCode(HttpStatus.OK)
+    @ApiParam({
+        name: 'id',
+        type: 'string',
+    })
     @ApiBearerAuth()
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'successefully-updated-group',
         type: GroupDto,
     })
-    update(@AuthUser() user: UserEntity): PayloadSuccessDto {
-        const updatedGroup = this._groupService.createOrUpdate();
+    async update(
+        @Param() updateGroupParamsDto: UpdateGroupParamsDto,
+        @Body() updateGroupPayloadDto: UpdateGroupPayloadDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const group = await this._groupService.update(
+            updateGroupParamsDto.id,
+            updateGroupPayloadDto,
+            user,
+        );
 
         return {
             description: 'successefully-updated-group',
-            data: updatedGroup,
+            data: group,
         };
     }
 
