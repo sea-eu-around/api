@@ -29,6 +29,8 @@ import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
 import { DeleteGroupParamsDto } from './dto/DeleteGroupParamsDto';
+import { GetManyGroupMembersParamsDto } from './dto/GetManyGroupMembersParamsDto';
+import { GetManyGroupMembersQueryDto } from './dto/GetManyGroupMembersQueryDto';
 import { GetManyGroupsQueryDto } from './dto/GetManyGroupsQueryDto';
 import { GetOneGroupParamsDto } from './dto/GetOneParamsDto';
 import { UpdateGroupParamsDto } from './dto/UpdateGroupParamsDto';
@@ -62,7 +64,7 @@ export class GroupController {
     ): Promise<PayloadSuccessDto> {
         const limit = query.limit > 100 ? 100 : query.limit;
 
-        const rooms = await this._groupService.getMany(user.id, {
+        const rooms = await this._groupService.getMany({
             limit,
             page: query.page,
             route: 'http://localhost:3000/groups',
@@ -175,17 +177,48 @@ export class GroupController {
         };
     }
 
-    @Get('/:id/members')
+    @Get('/:groupId/members')
     @HttpCode(HttpStatus.OK)
+    @ApiParam({
+        name: 'groupId',
+        type: 'string',
+    })
+    @ApiQuery({
+        name: 'page',
+    })
+    @ApiQuery({
+        name: 'limit',
+    })
     @ApiBearerAuth()
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'successefully-retrieved-group-members',
         type: GroupDto,
     })
-    getManyMembers(@AuthUser() user: UserEntity): PayloadSuccessDto {
+    async getManyMembers(
+        @Param() getManyGroupMembersParamsDto: GetManyGroupMembersParamsDto,
+        @Query() getManyGroupMembersQueryDto: GetManyGroupMembersQueryDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const limit =
+            getManyGroupMembersQueryDto.limit > 100
+                ? 100
+                : getManyGroupMembersQueryDto.limit;
+
+        const members = await this._groupService.getManyMembers(
+            getManyGroupMembersParamsDto.groupId,
+            {
+                limit,
+                page: getManyGroupMembersQueryDto.page,
+                route: `http://localhost:3000/groups/${getManyGroupMembersParamsDto.groupId}/members`,
+            },
+        );
+
         return {
             description: 'successefully-retrieved-group-members',
+            data: members.items,
+            meta: members.meta,
+            links: members.links,
         };
     }
 
