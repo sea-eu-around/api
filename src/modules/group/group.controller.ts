@@ -27,6 +27,7 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
+import { CreateGroupMemberParamsDto } from './dto/CreateGroupMemberParamsDto';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
 import { DeleteGroupParamsDto } from './dto/DeleteGroupParamsDto';
 import { GetManyGroupMembersParamsDto } from './dto/GetManyGroupMembersParamsDto';
@@ -222,17 +223,30 @@ export class GroupController {
         };
     }
 
-    @Post('/:id/members')
+    @Post('/:groupId/members')
     @HttpCode(HttpStatus.CREATED)
+    @ApiParam({
+        name: 'groupId',
+        type: 'string',
+    })
     @ApiBearerAuth()
     @ApiResponse({
         status: HttpStatus.CREATED,
-        description: 'successefully-added-group-member',
+        description: 'successefully-created-group-member',
         type: GroupDto,
     })
-    addMember(@AuthUser() user: UserEntity): PayloadSuccessDto {
+    async createGroupMember(
+        @Param() createGroupMemberParamsDto: CreateGroupMemberParamsDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const groupMember = await this._groupService.createGroupMember(
+            createGroupMemberParamsDto.groupId,
+            user.id,
+        );
+
         return {
-            description: 'successefully-added-group-member',
+            description: 'successefully-created-group-member',
+            data: groupMember,
         };
     }
 

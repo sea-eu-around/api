@@ -1,4 +1,9 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+    Injectable,
+    Logger,
+    NotFoundException,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import {
     IPaginationOptions,
@@ -169,5 +174,25 @@ export class GroupService {
             .orderBy('groupMember.createdAt', 'DESC');
 
         return paginate<GroupMemberEntity>(groupMembers, options);
+    }
+
+    async createGroupMember(
+        groupId: string,
+        profileId: string,
+    ): Promise<GroupMemberEntity> {
+        const group = await this._groupRepository.findOne({ id: groupId });
+
+        if (!group) {
+            throw new NotFoundException();
+        }
+
+        const preGroupMember = this._groupMemberRepository.create();
+        preGroupMember.groupId = groupId;
+        preGroupMember.profileId = profileId;
+        preGroupMember.status = group.requiresApproval
+            ? GroupMemberStatusType.PENDING
+            : GroupMemberStatusType.APPROVED;
+
+        return this._groupMemberRepository.save(preGroupMember);
     }
 }
