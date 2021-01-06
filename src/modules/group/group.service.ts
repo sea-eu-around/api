@@ -28,22 +28,21 @@ export class GroupService {
     ) {}
 
     async getMany(
-        profileId: string,
         options: IPaginationOptions,
     ): Promise<Pagination<GroupEntity>> {
         // TODO: make subquery
-        const groupIds = (
+        /*const groupIds = (
             await this._groupMemberRepository.find({
                 select: ['groupId'],
                 where: { profileId },
             })
-        ).map((groupMember) => groupMember.groupId);
+        ).map((groupMember) => groupMember.groupId);*/
 
         const groups = this._groupRepository
             .createQueryBuilder('group')
-            .where('group.id IN (:...groupIds)', {
+            /*.where('group.id IN (:...groupIds)', {
                 groupIds: [null, ...groupIds],
-            })
+            })*/
             .orderBy('group.updatedAt', 'DESC');
 
         return paginate<GroupEntity>(groups, options);
