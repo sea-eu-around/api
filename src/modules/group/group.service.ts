@@ -250,6 +250,9 @@ export class GroupService {
             throw new UnauthorizedException();
         }
 
-        await this._groupMemberRepository.delete({ groupId, profileId });
+        await this._groupMemberRepository.delete({
+            groupId,
+            profileId: profileId || user.id,
+        });
     }
 }
