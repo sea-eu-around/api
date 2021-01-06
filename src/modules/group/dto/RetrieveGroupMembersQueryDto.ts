@@ -6,15 +6,15 @@ import { GroupMemberStatusType } from '../../../common/constants/group-member-st
 export class GetManyGroupMembersQueryDto {
     @IsInt()
     @Transform(parseInt)
-    page: number;
+    readonly page!: number;
 
     @IsInt()
     @Transform(parseInt)
-    limit: number;
+    readonly limit!: number;
 
     @IsOptional()
     @IsArray()
     @IsEnum(GroupMemberStatusType, { each: true })
     @Transform((value: string) => value.split(','))
-    statuses?: GroupMemberStatusType[];
+    readonly statuses?: GroupMemberStatusType[];
 }

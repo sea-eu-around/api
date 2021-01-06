@@ -3,10 +3,10 @@ import { IsOptional, IsUUID } from 'class-validator';
 
 export class DeleteGroupMemberParamsDto {
     @IsUUID()
-    groupId: string;
+    readonly groupId!: string;
 
     @IsOptional()
     @IsUUID()
     @Transform((value) => (value === ',' ? null : value))
-    profileId: string;
+    readonly profileId?: string;
 }

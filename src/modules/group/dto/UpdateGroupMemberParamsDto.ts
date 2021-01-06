@@ -2,8 +2,8 @@ import { IsUUID } from 'class-validator';
 
 export class UpdateGroupMemberParamsDto {
     @IsUUID()
-    groupId: string;
+    readonly groupId!: string;
 
     @IsUUID()
-    profileId: string;
+    readonly profileId!: string;
 }

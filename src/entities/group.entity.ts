@@ -27,5 +27,8 @@ export class GroupEntity extends AbstractEntity<GroupDto> {
     @Column({ default: true })
     requiresApproval: boolean;
 
+    @Column({ nullable: true })
+    description?: string;
+
     dtoClass = GroupDto;
 }

@@ -8,10 +8,10 @@ export class UpdateGroupMemberPayloadDto {
     @ApiPropertyOptional({ enum: GroupMemberStatusType })
     @IsOptional()
     @IsEnum(GroupMemberStatusType)
-    status: GroupMemberStatusType;
+    readonly status?: GroupMemberStatusType;
 
     @ApiPropertyOptional({ enum: GroupMemberRoleType })
     @IsOptional()
     @IsEnum(GroupMemberRoleType)
-    role: GroupMemberRoleType;
+    readonly role?: GroupMemberRoleType;
 }

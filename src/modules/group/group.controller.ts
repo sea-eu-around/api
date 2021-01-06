@@ -32,10 +32,10 @@ import { CreateGroupMemberParamsDto } from './dto/CreateGroupMemberParamsDto';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
 import { DeleteGroupMemberParamsDto } from './dto/DeleteGroupMemberParamsDto';
 import { DeleteGroupParamsDto } from './dto/DeleteGroupParamsDto';
-import { GetManyGroupMembersParamsDto } from './dto/GetManyGroupMembersParamsDto';
-import { GetManyGroupMembersQueryDto } from './dto/GetManyGroupMembersQueryDto';
-import { GetManyGroupsQueryDto } from './dto/GetManyGroupsQueryDto';
-import { GetOneGroupParamsDto } from './dto/GetOneParamsDto';
+import { RetrieveGroupMembersParamsDto } from './dto/RetrieveGroupMembersParamsDto';
+import { GetManyGroupMembersQueryDto } from './dto/RetrieveGroupMembersQueryDto';
+import { RetrieveGroupParamsDto } from './dto/RetrieveGroupParamsDto';
+import { RetrieveGroupsQueryDto } from './dto/RetrieveGroupsQueryDto';
 import { UpdateGroupMemberParamsDto } from './dto/UpdateGroupMemberParamsDto';
 import { UpdateGroupMemberPayloadDto } from './dto/UpdateGroupMemberPayloadDto';
 import { UpdateGroupParamsDto } from './dto/UpdateGroupParamsDto';
@@ -63,13 +63,13 @@ export class GroupController {
         status: HttpStatus.OK,
         description: 'successefully-retrieved-groups',
     })
-    async getMany(
-        @Query() query: GetManyGroupsQueryDto,
+    async retrieve(
+        @Query() query: RetrieveGroupsQueryDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const limit = query.limit > 100 ? 100 : query.limit;
 
-        const rooms = await this._groupService.getMany({
+        const rooms = await this._groupService.retrieve({
             limit,
             page: query.page,
             route: 'http://localhost:3000/groups',
@@ -95,11 +95,11 @@ export class GroupController {
         description: 'successefully-retrieved-group',
         type: GroupDto,
     })
-    async getOne(
-        @Param() params: GetOneGroupParamsDto,
+    async retrieveOne(
+        @Param() params: RetrieveGroupParamsDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        const group = await this._groupService.getOne(params.id, user.id);
+        const group = await this._groupService.retrieveOne(params.id, user.id);
 
         return {
             description: 'successefully-retrieved-group',
@@ -208,25 +208,25 @@ export class GroupController {
         description: 'successefully-retrieved-group-members',
         type: GroupDto,
     })
-    async getManyMembers(
-        @Param() getManyGroupMembersParamsDto: GetManyGroupMembersParamsDto,
-        @Query() getManyGroupMembersQueryDto: GetManyGroupMembersQueryDto,
+    async retrieveGroupMembers(
+        @Param() retrieveGroupMembersParamsDto: RetrieveGroupMembersParamsDto,
+        @Query() retrieveGroupMembersQueryDto: GetManyGroupMembersQueryDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const limit =
-            getManyGroupMembersQueryDto.limit > 100
+            retrieveGroupMembersQueryDto.limit > 100
                 ? 100
-                : getManyGroupMembersQueryDto.limit;
+                : retrieveGroupMembersQueryDto.limit;
 
-        const members = await this._groupService.getManyMembers(
-            getManyGroupMembersParamsDto.groupId,
+        const members = await this._groupService.retrieveMembers(
+            retrieveGroupMembersParamsDto.groupId,
             {
                 limit,
-                page: getManyGroupMembersQueryDto.page,
-                route: `http://localhost:3000/groups/${getManyGroupMembersParamsDto.groupId}/members`,
+                page: retrieveGroupMembersQueryDto.page,
+                route: `http://localhost:3000/groups/${retrieveGroupMembersParamsDto.groupId}/members`,
             },
             user,
-            getManyGroupMembersQueryDto.statuses,
+            retrieveGroupMembersQueryDto.statuses,
         );
 
         return {
