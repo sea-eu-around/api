@@ -168,11 +168,25 @@ export class GroupService {
     async getManyMembers(
         groupId: string,
         options: IPaginationOptions,
+        user: UserEntity,
+        statuses?: GroupMemberStatusType[],
     ): Promise<Pagination<GroupMemberEntity>> {
-        const groupMembers = this._groupMemberRepository
+        let groupMembers = this._groupMemberRepository
             .createQueryBuilder('groupMember')
             .where('groupMember.groupId = :groupId', { groupId })
+            .andWhere('groupMember.profileId != :profileId', {
+                profileId: user.id,
+            })
             .orderBy('groupMember.createdAt', 'DESC');
+
+        if (statuses) {
+            groupMembers = groupMembers.andWhere(
+                'groupMember.status IN (:...statuses)',
+                {
+                    statuses: [null, ...statuses],
+                },
+            );
+        }
 
         return paginate<GroupMemberEntity>(groupMembers, options);
     }
