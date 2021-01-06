@@ -222,7 +222,6 @@ export class GroupService {
         updateGroupMemberPayloadDto: UpdateGroupMemberPayloadDto;
         user: UserEntity;
     }): Promise<GroupMemberEntity> {
-        await this._groupMemberRepository.isAdmin(user.id, groupId);
         if (!(await this._groupMemberRepository.isAdmin(user.id, groupId))) {
             throw new UnauthorizedException();
         }
@@ -232,5 +231,25 @@ export class GroupService {
             groupId,
             ...updateGroupMemberPayloadDto,
         });
+    }
+
+    async deleteGroupMember({
+        groupId,
+        user,
+        profileId,
+    }: {
+        groupId: string;
+        user: UserEntity;
+        profileId?: string;
+    }): Promise<void> {
+        if (
+            profileId &&
+            profileId !== user.id &&
+            !(await this._groupMemberRepository.isAdmin(user.id, groupId))
+        ) {
+            throw new UnauthorizedException();
+        }
+
+        await this._groupMemberRepository.delete({ groupId, profileId });
     }
 }

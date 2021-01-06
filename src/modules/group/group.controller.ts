@@ -30,6 +30,7 @@ import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
 import { CreateGroupMemberParamsDto } from './dto/CreateGroupMemberParamsDto';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
+import { DeleteGroupMemberParamsDto } from './dto/DeleteGroupMemberParamsDto';
 import { DeleteGroupParamsDto } from './dto/DeleteGroupParamsDto';
 import { GetManyGroupMembersParamsDto } from './dto/GetManyGroupMembersParamsDto';
 import { GetManyGroupMembersQueryDto } from './dto/GetManyGroupMembersQueryDto';
@@ -296,15 +297,32 @@ export class GroupController {
         };
     }
 
-    @Delete('/:id/members/:id')
+    @Delete('/:groupId/members/:profileId?')
     @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiParam({
+        name: 'groupId',
+        type: 'string',
+    })
+    @ApiParam({
+        name: 'profileId',
+        type: 'string',
+        required: false,
+    })
     @ApiBearerAuth()
     @ApiResponse({
         status: HttpStatus.NO_CONTENT,
         description: 'successefully-deleted-group-member',
         type: GroupDto,
     })
-    deleteMember(@AuthUser() user: UserEntity): PayloadSuccessDto {
+    async deleteMember(
+        @Param() deleteGroupMemberParamsDto: DeleteGroupMemberParamsDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        await this._groupService.deleteGroupMember({
+            ...deleteGroupMemberParamsDto,
+            user,
+        });
+
         return {
             description: 'successefully-delete-group-member',
         };
