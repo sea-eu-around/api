@@ -34,6 +34,8 @@ import { GetManyGroupMembersParamsDto } from './dto/GetManyGroupMembersParamsDto
 import { GetManyGroupMembersQueryDto } from './dto/GetManyGroupMembersQueryDto';
 import { GetManyGroupsQueryDto } from './dto/GetManyGroupsQueryDto';
 import { GetOneGroupParamsDto } from './dto/GetOneParamsDto';
+import { UpdateGroupMemberParamsDto } from './dto/UpdateGroupMemberParamsDto';
+import { UpdateGroupMemberPayloadDto } from './dto/UpdateGroupMemberPayloadDto';
 import { UpdateGroupParamsDto } from './dto/UpdateGroupParamsDto';
 import { UpdateGroupPayloadDto } from './dto/UpdateGroupPayloadDto';
 import { GroupService } from './group.service';
@@ -250,17 +252,36 @@ export class GroupController {
         };
     }
 
-    @Patch('/:id/members/:id')
+    @Patch('/:groupId/members/:profileId')
     @HttpCode(HttpStatus.OK)
+    @ApiParam({
+        name: 'groupId',
+        type: 'string',
+    })
+    @ApiParam({
+        name: 'profileId',
+        type: 'string',
+    })
     @ApiBearerAuth()
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'successefully-updated-group-member',
         type: GroupDto,
     })
-    updateMember(@AuthUser() user: UserEntity): PayloadSuccessDto {
+    async updateMember(
+        @Param() updateGroupMemberParamsDto: UpdateGroupMemberParamsDto,
+        @Body() updateGroupMemberPayloadDto: UpdateGroupMemberPayloadDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const groupMember = await this._groupService.updateGroupMember({
+            ...updateGroupMemberParamsDto,
+            updateGroupMemberPayloadDto,
+            user,
+        });
+
         return {
             description: 'successefully-updated-group-member',
+            data: groupMember,
         };
     }
 

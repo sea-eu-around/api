@@ -21,6 +21,7 @@ import { GroupRepository } from '../../repositories/group.repository';
 import { GroupMemberRepository } from '../../repositories/groupMember.repository';
 import { ConfigService } from '../../shared/services/config.service';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
+import { UpdateGroupMemberPayloadDto } from './dto/UpdateGroupMemberPayloadDto';
 import { UpdateGroupPayloadDto } from './dto/UpdateGroupPayloadDto';
 
 @Injectable()
@@ -94,7 +95,7 @@ export class GroupService {
         updateGroupPayloadDto: UpdateGroupPayloadDto,
         user: UserEntity,
     ): Promise<GroupEntity> {
-        if (!(await this._groupMemberRepository.isMemberAdmin(user.id, id))) {
+        if (!(await this._groupMemberRepository.isAdmin(user.id, id))) {
             throw new UnauthorizedException();
         }
 
@@ -105,7 +106,7 @@ export class GroupService {
     }
 
     async delete(id: string, user: UserEntity): Promise<void> {
-        if (!(await this._groupMemberRepository.isMemberAdmin(user.id, id))) {
+        if (!(await this._groupMemberRepository.isAdmin(user.id, id))) {
             throw new UnauthorizedException();
         }
 
@@ -194,5 +195,28 @@ export class GroupService {
             : GroupMemberStatusType.APPROVED;
 
         return this._groupMemberRepository.save(preGroupMember);
+    }
+
+    async updateGroupMember({
+        groupId,
+        profileId,
+        updateGroupMemberPayloadDto,
+        user,
+    }: {
+        groupId: string;
+        profileId: string;
+        updateGroupMemberPayloadDto: UpdateGroupMemberPayloadDto;
+        user: UserEntity;
+    }): Promise<GroupMemberEntity> {
+        await this._groupMemberRepository.isAdmin(user.id, groupId);
+        if (!(await this._groupMemberRepository.isAdmin(user.id, groupId))) {
+            throw new UnauthorizedException();
+        }
+
+        return this._groupMemberRepository.save({
+            profileId,
+            groupId,
+            ...updateGroupMemberPayloadDto,
+        });
     }
 }
