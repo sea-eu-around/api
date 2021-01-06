@@ -18,6 +18,9 @@ export class GroupDto extends AbstractDto {
     @ApiPropertyOptional()
     members: GroupMemberDto[];
 
+    @ApiPropertyOptional()
+    description?: string;
+
     constructor(group: GroupEntity) {
         super(group);
         this.name = group.name;
@@ -26,5 +29,6 @@ export class GroupDto extends AbstractDto {
         this.members = UtilsService.isDtos(group.members)
             ? group.members.toDtos()
             : null;
+        this.description = group.description;
     }
 }

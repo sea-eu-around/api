@@ -34,7 +34,7 @@ export class GroupService {
         private readonly _configService: ConfigService,
     ) {}
 
-    async getMany(
+    async retrieve(
         options: IPaginationOptions,
     ): Promise<Pagination<GroupEntity>> {
         // TODO: make subquery
@@ -55,7 +55,7 @@ export class GroupService {
         return paginate<GroupEntity>(groups, options);
     }
 
-    async getOne(id: string, profileId: string): Promise<GroupEntity> {
+    async retrieveOne(id: string, profileId: string): Promise<GroupEntity> {
         /*const isProfileInRoom = await this._groupMemberRepository.isProfileInRoom(
             profileId,
             roomId,
@@ -165,7 +165,7 @@ export class GroupService {
         );
     }
 
-    async getManyMembers(
+    async retrieveMembers(
         groupId: string,
         options: IPaginationOptions,
         user: UserEntity,

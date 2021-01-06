@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class CreateGroupPayloadDto {
     @ApiProperty()
@@ -13,4 +13,9 @@ export class CreateGroupPayloadDto {
     @ApiProperty()
     @IsBoolean()
     readonly requireApproval!: boolean;
+
+    @ApiPropertyOptional()
+    @IsString()
+    @IsOptional()
+    readonly description?: string;
 }

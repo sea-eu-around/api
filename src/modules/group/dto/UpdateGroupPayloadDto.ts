@@ -5,15 +5,20 @@ export class UpdateGroupPayloadDto {
     @ApiPropertyOptional()
     @IsString()
     @IsOptional()
-    readonly name!: string;
+    readonly name?: string;
 
     @ApiProperty()
     @IsBoolean()
     @IsOptional()
-    readonly visible!: boolean;
+    readonly visible?: boolean;
 
     @ApiPropertyOptional()
     @IsBoolean()
     @IsOptional()
-    readonly requireApproval!: boolean;
+    readonly requireApproval?: boolean;
+
+    @ApiPropertyOptional()
+    @IsString()
+    @IsOptional()
+    readonly description?: string;
 }

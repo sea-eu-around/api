@@ -1,12 +1,12 @@
 import { Transform } from 'class-transformer';
 import { IsInt } from 'class-validator';
 
-export class GetManyGroupsQueryDto {
+export class RetrieveGroupsQueryDto {
     @IsInt()
     @Transform(parseInt)
-    page: number;
+    readonly page!: number;
 
     @IsInt()
     @Transform(parseInt)
-    limit: number;
+    readonly limit!: number;
 }
