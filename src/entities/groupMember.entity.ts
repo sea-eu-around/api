@@ -1,7 +1,8 @@
 import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm';
 
 import { AbstractCompositeEntity } from '../common/abstractComposite.entity';
-import { GroupRoleType } from '../common/constants/group-role-type';
+import { GroupMemberRoleType } from '../common/constants/group-member-role-type';
+import { GroupMemberStatusType } from '../common/constants/group-member-status-type';
 import { GroupMemberDto } from '../dto/GroupMemberDto';
 import { GroupEntity } from './group.entity';
 import { ProfileEntity } from './profile.entity';
@@ -28,8 +29,19 @@ export class GroupMemberEntity extends AbstractCompositeEntity<GroupMemberDto> {
     })
     group: GroupEntity;
 
-    @Column({ type: 'enum', enum: GroupRoleType, default: GroupRoleType.BASIC })
-    role: GroupRoleType;
+    @Column({
+        type: 'enum',
+        enum: GroupMemberRoleType,
+        default: GroupMemberRoleType.BASIC,
+    })
+    role: GroupMemberRoleType;
+
+    @Column({
+        type: 'enum',
+        enum: GroupMemberStatusType,
+        default: GroupMemberStatusType.PENDING,
+    })
+    status: GroupMemberStatusType;
 
     dtoClass = GroupMemberDto;
 }

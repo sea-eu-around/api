@@ -1,6 +1,6 @@
 'use strict';
 
-export enum GroupRoleType {
+export enum GroupMemberRoleType {
     ADMIN = 'admin',
     BASIC = 'basic',
 }
