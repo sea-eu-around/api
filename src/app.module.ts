@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { contextMiddleware } from './middlewares';
 import { AuthModule } from './modules/auth/auth.module';
 import { CommonModule } from './modules/common/common.module';
+import { GroupModule } from './modules/group/group.module';
 import { InterestModule } from './modules/interest/interest.module';
 import { MatchingModule } from './modules/matching/matching.module';
 import { MessageModule } from './modules/message/message.module';
@@ -45,6 +46,7 @@ import { SharedModule } from './shared/shared.module';
         ScheduleModule.forRoot(),
         NotificationModule,
         ReportModule,
+        GroupModule,
     ],
 })
 export class AppModule implements NestModule {
