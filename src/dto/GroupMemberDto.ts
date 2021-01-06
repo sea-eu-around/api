@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 import { GroupMemberRoleType } from '../common/constants/group-member-role-type';
+import { GroupMemberStatusType } from '../common/constants/group-member-status-type';
 import { AbstractCompositeDto } from '../common/dto/AbstractCompositeDto';
 import { GroupMemberEntity } from '../entities/groupMember.entity';
 import { UtilsService } from '../providers/utils.service';
@@ -23,6 +24,9 @@ export class GroupMemberDto extends AbstractCompositeDto {
     @ApiPropertyOptional()
     role: GroupMemberRoleType;
 
+    @ApiPropertyOptional()
+    status: GroupMemberStatusType;
+
     constructor(groupMember: GroupMemberEntity) {
         super();
         this.group = UtilsService.isDto(groupMember.group)
@@ -34,5 +38,6 @@ export class GroupMemberDto extends AbstractCompositeDto {
         this.profileId = groupMember.profileId;
         this.groupId = groupMember.groupId;
         this.role = groupMember.role;
+        this.status = groupMember.status;
     }
 }
