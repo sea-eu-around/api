@@ -209,8 +209,6 @@ export class MessageGateway
             throw new WsException('Unauthorized');
         }
 
-        client.disconnect(true);
-
         delete this._onlineProfiles[user.id];
         this._logger.log(this._onlineProfiles);
     }
