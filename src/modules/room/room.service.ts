@@ -91,6 +91,7 @@ export class RoomService {
         roomId: string,
         options: IPaginationOptions,
         beforeDate?: string,
+        afterDate?: string,
     ): Promise<Pagination<MessageEntity>> {
         if (
             !(await this._profileRoomRepository.isProfileInRoom(
@@ -110,6 +111,12 @@ export class RoomService {
         if (beforeDate) {
             messages = messages.andWhere('messages.updatedAt < :beforeDate', {
                 beforeDate,
+            });
+        }
+
+        if (afterDate) {
+            messages = messages.andWhere('messages.updatedAt > :afterDate', {
+                afterDate,
             });
         }
 
