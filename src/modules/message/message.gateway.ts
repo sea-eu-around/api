@@ -194,6 +194,7 @@ export class MessageGateway
     }
 
     async handleDisconnect(@ConnectedSocket() client: Socket): Promise<void> {
+        this._logger.log(`Client disconnected: ${client.id}`);
         const { iat, exp, id: userId } = this._jwtService.verify(
             (<any>client.handshake.query).authorization,
         );
@@ -210,11 +211,10 @@ export class MessageGateway
 
         delete this._onlineProfiles[user.id];
         this._logger.log(this._onlineProfiles);
-
-        return this._logger.log(`Client disconnected: ${client.id}`);
     }
 
     async handleConnection(@ConnectedSocket() client: Socket): Promise<void> {
+        this._logger.log(`Client connected: ${client.id}`);
         const { iat, exp, id: userId } = this._jwtService.verify(
             (<any>client.handshake.query).authorization,
         );
@@ -234,8 +234,6 @@ export class MessageGateway
             roomId: client.id,
         };
         this._logger.log(this._onlineProfiles);
-
-        return this._logger.log(`Client connected: ${client.id}`);
     }
 
     private _getWhereToEmitEvent(
