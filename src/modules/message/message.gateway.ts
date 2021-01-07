@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { Logger, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -15,6 +14,7 @@ import {
 import Expo, { ExpoPushMessage } from 'expo-server-sdk';
 import { Socket } from 'socket.io';
 import { Server } from 'ws';
+
 import { WsAuthUser } from '../../decorators/ws-auth-user.decorator';
 import { UserEntity } from '../../entities/user.entity';
 import { WsJwtAuthGuard } from '../../guards/wsJwtAuth.guard';
@@ -48,18 +48,27 @@ export class MessageGateway
         private readonly _messageRepository: MessageRepository,
         private readonly _userRepository: UserRepository,
         private readonly _profileRepository: ProfileRepository,
-    ){
+    ) {
         this._logger = new Logger('MessageGateway');
         this._onlineProfiles = new Set();
     }
 
     @SubscribeMessage('sendMessage')
-    async sendMessage(@WsAuthUser() user: UserEntity, @MessageBody() data: SendMessageDto, @ConnectedSocket() client: Socket): Promise<any> {
-        const room = await this._roomRepository.findOne({where: {id: data.roomId}, relations: ['profiles']})
-        const roomProfileIds = room.profiles.map(x => x.profileId);   
+    async sendMessage(
+        @WsAuthUser() user: UserEntity,
+        @MessageBody() data: SendMessageDto,
+    ): Promise<any> {
+        const room = await this._roomRepository.findOne({
+            where: { id: data.roomId },
+            relations: ['profiles'],
+        });
+        const roomProfileIds = room.profiles.map((x) => x.profileId);
 
         // Create the message
-        let message = this._messageRepository.create({...data, senderId: user.id})
+        let message = this._messageRepository.create({
+            ...data,
+            senderId: user.id,
+        });
         message = await this._messageRepository.save(message);
 
         // Update the last message of the room
@@ -67,83 +76,127 @@ export class MessageGateway
         await this._roomRepository.save(room);
 
         // Get the ids of the rooms to which the event must be sent
-        let roomIds = this._getWhereToEmitEvent(data.roomId, roomProfileIds);
+        const roomIds = this._getWhereToEmitEvent(data.roomId, roomProfileIds);
 
-        this._emitToRooms(roomIds, 'receiveMessage', message.toDto())
+        this._emitToRooms(roomIds, 'receiveMessage', message.toDto());
 
         // Get ids of offline profiles and ids of online profiles but in an other room (conversation)
-        const offlineOrInOtherRoomProfileIds = roomProfileIds.filter(profileId => (profileId in this._onlineProfiles && this._onlineProfiles[profileId].roomId !== data.roomId && this._onlineProfiles[profileId].roomId !== this._onlineProfiles[profileId].socketId) || !(profileId in this._onlineProfiles));
+        const offlineOrInOtherRoomProfileIds = roomProfileIds.filter(
+            (profileId) =>
+                (profileId in this._onlineProfiles &&
+                    this._onlineProfiles[profileId].roomId !== data.roomId &&
+                    this._onlineProfiles[profileId].roomId !==
+                        this._onlineProfiles[profileId].socketId) ||
+                !(profileId in this._onlineProfiles),
+        );
 
-        const offlineOrInOtherRoomUsersIds = await this._userRepository.findByIds(offlineOrInOtherRoomProfileIds);
+        const offlineOrInOtherRoomUsers = await this._userRepository.findByIds(
+            offlineOrInOtherRoomProfileIds,
+        );
         const sender = await this._profileRepository.findOne(user.id);
 
         const notifications: ExpoPushMessage[] = [];
 
-        for(const user of offlineOrInOtherRoomUsersIds){
+        for (const offlineOrInOtherRoomUser of offlineOrInOtherRoomUsers) {
             notifications.push({
-                to: user.expoPushToken || user.email,
+                data,
+                to:
+                    offlineOrInOtherRoomUser.expoPushToken ||
+                    offlineOrInOtherRoomUser.email,
                 sound: 'default',
                 title: `${sender.firstName} ${sender.lastName}`,
                 body: data.text,
-                data
             });
         }
-
-        console.log(notifications);
 
         await this._expo.sendPushNotificationsAsync(notifications);
     }
 
     @SubscribeMessage('joinRoom')
-    async joinRoom(@WsAuthUser() user: UserEntity, @MessageBody() data: JoinRoomDto, @ConnectedSocket() client: Socket): Promise<void> {
-        const isProfileInRoom = await this._profileRoomRepository.isProfileInRoom(user.id, data.roomId)
+    async joinRoom(
+        @WsAuthUser() user: UserEntity,
+        @MessageBody() data: JoinRoomDto,
+        @ConnectedSocket() client: Socket,
+    ): Promise<void> {
+        const isProfileInRoom = await this._profileRoomRepository.isProfileInRoom(
+            user.id,
+            data.roomId,
+        );
 
         if (data.roomId !== user.id && !isProfileInRoom) {
             throw new WsException('Forbidden');
         }
 
-        client.join(data.roomId);
+        await client.join(data.roomId);
 
-        this._onlineProfiles[user.id] = {socketId: client.id, roomId: data.roomId};;
+        this._onlineProfiles[user.id] = {
+            socketId: client.id,
+            roomId: data.roomId,
+        };
         this._logger.log(this._onlineProfiles);
 
         client.emit('joinedRoom', data.roomId);
     }
 
     @SubscribeMessage('leaveRoom')
-    public leaveRoom(@WsAuthUser() user: UserEntity, @MessageBody() data: JoinRoomDto, @ConnectedSocket() client: Socket): void {
-        client.leave(data.roomId);
+    async leaveRoom(
+        @WsAuthUser() user: UserEntity,
+        @MessageBody() data: JoinRoomDto,
+        @ConnectedSocket() client: Socket,
+    ): Promise<void> {
+        await client.leave(data.roomId);
 
-        this._onlineProfiles[user.id] = {socketId: client.id, roomId: client.id};;
+        this._onlineProfiles[user.id] = {
+            socketId: client.id,
+            roomId: client.id,
+        };
         this._logger.log(this._onlineProfiles);
 
         client.emit('leftRoom', data.roomId);
     }
 
     @SubscribeMessage('isWriting')
-    isWriting(@WsAuthUser() user: UserEntity, @MessageBody() data: IsWritingDto): void {
-        this.server.to(data.roomId).emit('isWriting', {profileId: user.id, ...data})
+    isWriting(
+        @WsAuthUser() user: UserEntity,
+        @MessageBody() data: IsWritingDto,
+    ): void {
+        this.server
+            .to(data.roomId)
+            .emit('isWriting', { profileId: user.id, ...data });
     }
 
     @SubscribeMessage('readMessage')
-    async readMessage(@WsAuthUser() user: UserEntity, @MessageBody() data: ReadMessageDto): Promise<void> {
-        const profileRoom = await this._profileRoomRepository.findOne({profileId: user.id, roomId: data.roomId});
+    async readMessage(
+        @WsAuthUser() user: UserEntity,
+        @MessageBody() data: ReadMessageDto,
+    ): Promise<void> {
+        const profileRoom = await this._profileRoomRepository.findOne({
+            profileId: user.id,
+            roomId: data.roomId,
+        });
         profileRoom.lastMessageSeenDate = data.date;
         profileRoom.lastMessageSeenId = data.messageId;
         await this._profileRoomRepository.save(profileRoom);
 
-        const profileIds = await this._profileRoomRepository.getRoomProfileIds(data.roomId);
+        const profileIds = await this._profileRoomRepository.getRoomProfileIds(
+            data.roomId,
+        );
         const roomIds = this._getWhereToEmitEvent(data.roomId, profileIds);
 
-        this._emitToRooms(roomIds, 'readMessage', {profileId: user.id, ...data});
+        this._emitToRooms(roomIds, 'readMessage', {
+            profileId: user.id,
+            ...data,
+        });
     }
 
-    afterInit(server: Server): void {
+    afterInit(): void {
         return this._logger.log('Init');
     }
 
     async handleDisconnect(@ConnectedSocket() client: Socket): Promise<void> {
-        const { iat, exp, id: userId } = this._jwtService.verify(client.handshake.query['authorization']) 
+        const { iat, exp, id: userId } = this._jwtService.verify(
+            (<any>client.handshake.query).authorization,
+        );
 
         const timeDiff = exp - iat;
         if (timeDiff <= 0) {
@@ -162,7 +215,9 @@ export class MessageGateway
     }
 
     async handleConnection(@ConnectedSocket() client: Socket): Promise<void> {
-        const { iat, exp, id: userId } = this._jwtService.verify(client.handshake.query['authorization']) 
+        const { iat, exp, id: userId } = this._jwtService.verify(
+            (<any>client.handshake.query).authorization,
+        );
 
         const timeDiff = exp - iat;
         if (timeDiff <= 0) {
@@ -174,19 +229,25 @@ export class MessageGateway
             throw new WsException('Unauthorized');
         }
 
-        this._onlineProfiles[user.id] = {socketId: client.id, roomId: client.id};
+        this._onlineProfiles[user.id] = {
+            socketId: client.id,
+            roomId: client.id,
+        };
         this._logger.log(this._onlineProfiles);
 
         return this._logger.log(`Client connected: ${client.id}`);
     }
 
-    private _getWhereToEmitEvent(roomId: string, roomProfileIds: string[]): Set<string>{
-        let roomIds: Set<string> = new Set();
-        for(const profileId of roomProfileIds){
-            if(profileId in this._onlineProfiles){
-                if(this._onlineProfiles[profileId].roomId === roomId){
+    private _getWhereToEmitEvent(
+        roomId: string,
+        roomProfileIds: string[],
+    ): Set<string> {
+        const roomIds = new Set<string>();
+        for (const profileId of roomProfileIds) {
+            if (profileId in this._onlineProfiles) {
+                if (this._onlineProfiles[profileId].roomId === roomId) {
                     roomIds.add(roomId);
-                }else{
+                } else {
                     roomIds.add(this._onlineProfiles[profileId].socketId);
                 }
             }
@@ -195,9 +256,9 @@ export class MessageGateway
         return roomIds;
     }
 
-    private _emitToRooms(roomIds: Set<string>, eventName: string, data: any){
-        let event = this.server
-        for(const roomId of roomIds){
+    private _emitToRooms(roomIds: Set<string>, eventName: string, data: any) {
+        let event = this.server;
+        for (const roomId of roomIds) {
             event = event.to(roomId);
         }
         event.emit(eventName, data);
