@@ -7,10 +7,7 @@ import { DegreeType } from '../../common/constants/degree-type';
 import { GenderType } from '../../common/constants/gender-type';
 import { LanguageType } from '../../common/constants/language-type';
 import { ProfileType } from '../../common/constants/profile-type';
-import {
-    PARTNER_UNIVERSITIES,
-    PartnerUniversity,
-} from '../../common/constants/sea';
+import { PartnerUniversity } from '../../common/constants/sea';
 import { EducationFieldEntity } from '../../entities/educationField.entity';
 import { InterestEntity } from '../../entities/interest.entity';
 import { LanguageEntity } from '../../entities/language.entity';
@@ -21,6 +18,7 @@ import { StaffRoleEntity } from '../../entities/staffRole.entity';
 import { StudentProfileEntity } from '../../entities/studentProfile.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { ProfileNotFoundException } from '../../exceptions/profile-not-found.exception';
+import { UtilsService } from '../../providers/utils.service';
 import { EducationFieldRepository } from '../../repositories/educationField.repository';
 import { InterestRepository } from '../../repositories/interest.repository';
 import { LanguageRepository } from '../../repositories/language.repository';
@@ -210,7 +208,9 @@ export class ProfileService {
 
         if (type === ProfileType.STUDENT) {
             profile = profile || this._studentProfileRepository.create();
-            profile.university = ProfileService._findUnivFromEmail(user.email);
+            profile.university =
+                UtilsService.extractUnivFromEmail({ email: user.email }) ||
+                PartnerUniversity.BREST;
 
             Object.assign(profile, profileCreationDto);
 
@@ -223,7 +223,9 @@ export class ProfileService {
             savedProfile = await this._studentProfileRepository.save(profile);
         } else {
             profile = profile || this._staffProfileRepository.create();
-            profile.university = ProfileService._findUnivFromEmail(user.email);
+            profile.university =
+                UtilsService.extractUnivFromEmail({ email: user.email }) ||
+                PartnerUniversity.BREST;
 
             Object.assign(profile, profileCreationDto);
 
@@ -401,19 +403,5 @@ export class ProfileService {
         );
 
         return this._staffRoleRepository.save(staffRoles);
-    }
-
-    private static _findUnivFromEmail(email: string) {
-        const domain = email.split('@')[1];
-
-        const university = PARTNER_UNIVERSITIES.find(
-            (x) => x.domain === domain,
-        );
-
-        if (!university) {
-            return PartnerUniversity.BREST;
-        }
-
-        return <PartnerUniversity>university.key;
     }
 }
