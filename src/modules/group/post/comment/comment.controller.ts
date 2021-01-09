@@ -5,8 +5,10 @@ import {
     HttpCode,
     HttpStatus,
     NotImplementedException,
+    Param,
     Patch,
     Post,
+    Query,
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
@@ -19,11 +21,15 @@ import {
 } from '@nestjs/swagger';
 
 import { PayloadSuccessDto } from '../../../../common/dto/PayloadSuccessDto';
+import { AuthUser } from '../../../../decorators/auth-user.decorator';
 import { CommentDto } from '../../../../dto/CommentDto';
+import { UserEntity } from '../../../../entities/user.entity';
 import { AuthGuard } from '../../../../guards/auth.guard';
 import { RolesGuard } from '../../../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../../../interceptors/auth-user-interceptor.service';
 import { CommentService } from './comment.service';
+import { RetrieveCommentsParamsDto } from './dto/RetrieveCommentsParamsDto';
+import { RetrieveCommentsQueryDto } from './dto/RetrieveCommentsQueryDto';
 
 @Controller('/groups/:groupId/posts/:postId/comments')
 @ApiTags('Comments')
@@ -54,8 +60,25 @@ export class CommentController {
         status: HttpStatus.OK,
         description: 'successefully-retrieved-comments',
     })
-    retrieve(): PayloadSuccessDto {
-        throw new NotImplementedException();
+    async retrieve(
+        @Param() retrieveCommentsParamsDto: RetrieveCommentsParamsDto,
+        @Query() retrieveCommentsQueryDto: RetrieveCommentsQueryDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const comments = await this._commentService.retrieve({
+            profileId: user.id,
+            ...retrieveCommentsParamsDto,
+            options: {
+                ...retrieveCommentsQueryDto,
+            },
+        });
+
+        return {
+            description: 'successefully-retrieved-comments',
+            data: comments.items,
+            meta: comments.meta,
+            links: comments.links,
+        };
     }
 
     @Get('/:id')
