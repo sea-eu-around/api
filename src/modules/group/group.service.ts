@@ -17,8 +17,8 @@ import { GroupMemberStatusType } from '../../common/constants/group-member-statu
 import { GroupEntity } from '../../entities/group.entity';
 import { GroupMemberEntity } from '../../entities/groupMember.entity';
 import { UserEntity } from '../../entities/user.entity';
+import { GroupMemberRepository } from '../../repositories/group-member.repository';
 import { GroupRepository } from '../../repositories/group.repository';
-import { GroupMemberRepository } from '../../repositories/groupMember.repository';
 import { ConfigService } from '../../shared/services/config.service';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
 import { UpdateGroupMemberPayloadDto } from './dto/UpdateGroupMemberPayloadDto';
