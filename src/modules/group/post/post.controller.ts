@@ -71,7 +71,7 @@ export class PostController {
                 : retrieveGroupPostQueryDto.limit;
         const page = retrieveGroupPostQueryDto.page;
 
-        const posts = await this._postService.get(
+        const posts = await this._postService.retrieve(
             user.id,
             retrieveGroupPostParamDto.groupId,
             { page, limit },
