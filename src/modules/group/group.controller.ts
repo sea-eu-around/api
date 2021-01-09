@@ -30,6 +30,8 @@ import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
 import { CreateGroupMemberParamsDto } from './dto/CreateGroupMemberParamsDto';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
+import { CreateGroupPostParamDto } from './dto/CreateGroupPostParamDto';
+import { CreateGroupPostPayloadDto } from './dto/CreateGroupPostPayloadDto';
 import { DeleteGroupMemberParamsDto } from './dto/DeleteGroupMemberParamsDto';
 import { DeleteGroupParamsDto } from './dto/DeleteGroupParamsDto';
 import { RetrieveGroupMembersParamsDto } from './dto/RetrieveGroupMembersParamsDto';
@@ -327,4 +329,45 @@ export class GroupController {
             description: 'successefully-delete-group-member',
         };
     }
+
+    @Post(':groupId/post')
+    @HttpCode(HttpStatus.CREATED)
+    @ApiParam({
+        name: 'groupId',
+        type: 'string',
+    })
+    @ApiBearerAuth()
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'successefully-created-group-post',
+        type: GroupDto,
+    })
+    async createGroupPost(
+        @Param() createGroupPostParamDto: CreateGroupPostParamDto,
+        @Body() createGroupPostPayloadDto: CreateGroupPostPayloadDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const post = await this._groupService.createGroupPost({
+            createGroupPostPayloadDto,
+            profileId: user.id,
+            ...createGroupPostParamDto,
+        });
+
+        return {
+            description: 'successefully-created-group-member',
+            data: post,
+        };
+    }
+
+    /*
+    @Get(':groupId/post')
+
+    @Get(':groupId/post/:postId')
+
+    @Delete(':groupId/post/:postId')
+
+    @Patch(':groupId/post/:postId')
+
+    @Patch(':groupId/post/approve')
+    */
 }

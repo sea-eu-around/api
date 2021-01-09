@@ -3,16 +3,16 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PostStatusType } from '../common/constants/post-status-type';
 import { PostType } from '../common/constants/post-type';
 import { AbstractDto } from '../common/dto/AbstractDto';
-import { GroupEntity } from '../entities/group.entity';
 import { PostEntity } from '../entities/post.entity';
-import { ProfileEntity } from '../entities/profile.entity';
+import { GroupDto } from './GroupDto';
+import { ProfileDto } from './ProfileDto';
 
 export class PostDto extends AbstractDto {
     @ApiPropertyOptional()
     id: string;
 
     @ApiPropertyOptional()
-    type?: PostType;
+    type: PostType;
 
     @ApiPropertyOptional()
     status: PostStatusType;
@@ -21,10 +21,10 @@ export class PostDto extends AbstractDto {
     text: string;
 
     @ApiPropertyOptional()
-    creator: ProfileEntity;
+    creator: ProfileDto;
 
     @ApiPropertyOptional()
-    inGroup: GroupEntity;
+    group: GroupDto;
 
     constructor(post: PostEntity) {
         super(post);
@@ -32,7 +32,5 @@ export class PostDto extends AbstractDto {
         this.type = post.type;
         this.status = post.status;
         this.text = post.text;
-        this.creator = post.creator;
-        this.inGroup = post.inGroup;
     }
 }

@@ -14,13 +14,17 @@ import { Between } from 'typeorm';
 
 import { GroupMemberRoleType } from '../../common/constants/group-member-role-type';
 import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
+import { PostStatusType } from '../../common/constants/post-status-type';
 import { GroupEntity } from '../../entities/group.entity';
 import { GroupMemberEntity } from '../../entities/groupMember.entity';
+import { PostEntity } from '../../entities/post.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { GroupRepository } from '../../repositories/group.repository';
 import { GroupMemberRepository } from '../../repositories/groupMember.repository';
+import { PostRepository } from '../../repositories/post.repository';
 import { ConfigService } from '../../shared/services/config.service';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
+import { CreateGroupPostPayloadDto } from './dto/CreateGroupPostPayloadDto';
 import { UpdateGroupMemberPayloadDto } from './dto/UpdateGroupMemberPayloadDto';
 import { UpdateGroupPayloadDto } from './dto/UpdateGroupPayloadDto';
 
@@ -30,6 +34,7 @@ export class GroupService {
 
     constructor(
         private readonly _groupRepository: GroupRepository,
+        private readonly _postRepository: PostRepository,
         private readonly _groupMemberRepository: GroupMemberRepository,
         private readonly _configService: ConfigService,
     ) {}
@@ -95,7 +100,12 @@ export class GroupService {
         updateGroupPayloadDto: UpdateGroupPayloadDto,
         user: UserEntity,
     ): Promise<GroupEntity> {
-        if (!(await this._groupMemberRepository.isAdmin(user.id, id))) {
+        if (
+            !(await this._groupMemberRepository.admin({
+                profileId: user.id,
+                groupId: id,
+            }))
+        ) {
             throw new UnauthorizedException();
         }
 
@@ -106,7 +116,12 @@ export class GroupService {
     }
 
     async delete(id: string, user: UserEntity): Promise<void> {
-        if (!(await this._groupMemberRepository.isAdmin(user.id, id))) {
+        if (
+            !(await this._groupMemberRepository.admin({
+                profileId: user.id,
+                groupId: id,
+            }))
+        ) {
             throw new UnauthorizedException();
         }
 
@@ -222,7 +237,12 @@ export class GroupService {
         updateGroupMemberPayloadDto: UpdateGroupMemberPayloadDto;
         user: UserEntity;
     }): Promise<GroupMemberEntity> {
-        if (!(await this._groupMemberRepository.isAdmin(user.id, groupId))) {
+        if (
+            !(await this._groupMemberRepository.admin({
+                groupId,
+                profileId: user.id,
+            }))
+        ) {
             throw new UnauthorizedException();
         }
 
@@ -245,7 +265,10 @@ export class GroupService {
         if (
             profileId &&
             profileId !== user.id &&
-            !(await this._groupMemberRepository.isAdmin(user.id, groupId))
+            !(await this._groupMemberRepository.admin({
+                groupId,
+                profileId: user.id,
+            }))
         ) {
             throw new UnauthorizedException();
         }
@@ -254,5 +277,42 @@ export class GroupService {
             groupId,
             profileId: profileId || user.id,
         });
+    }
+
+    async createGroupPost({
+        profileId,
+        groupId,
+        createGroupPostPayloadDto,
+    }: {
+        profileId: string;
+        groupId: string;
+        createGroupPostPayloadDto: CreateGroupPostPayloadDto;
+    }): Promise<PostEntity> {
+        const group = await this._groupRepository.findOne(groupId);
+
+        if (!group) {
+            throw new NotFoundException();
+        }
+
+        const member = await this._groupMemberRepository.member({
+            profileId,
+            groupId,
+        });
+
+        if (!member) {
+            throw new NotFoundException();
+        }
+
+        const post = this._postRepository.create({
+            groupId,
+            creatorId: profileId,
+            ...createGroupPostPayloadDto,
+            status:
+                member.role === GroupMemberRoleType.ADMIN
+                    ? PostStatusType.APPROVED
+                    : PostStatusType.PENDING,
+        });
+
+        return this._postRepository.save(post);
     }
 }
