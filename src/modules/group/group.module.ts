@@ -3,17 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { GroupRepository } from '../../repositories/group.repository';
 import { GroupMemberRepository } from '../../repositories/groupMember.repository';
-import { PostRepository } from '../../repositories/post.repository';
 import { GroupController } from './group.controller';
 import { GroupService } from './group.service';
+import { PostModule } from './post/post.module';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([
-            GroupRepository,
-            GroupMemberRepository,
-            PostRepository,
-        ]),
+        TypeOrmModule.forFeature([GroupRepository, GroupMemberRepository]),
+        PostModule,
     ],
     providers: [GroupService],
     controllers: [GroupController],
