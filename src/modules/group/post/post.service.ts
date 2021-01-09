@@ -10,7 +10,7 @@ import { PostEntity } from '../../../entities/post.entity';
 import { GroupRepository } from '../../../repositories/group.repository';
 import { GroupMemberRepository } from '../../../repositories/groupMember.repository';
 import { PostRepository } from '../../../repositories/post.repository';
-import { CreateGroupPostPayloadDto } from '../dto/CreateGroupPostPayloadDto';
+import { CreatePostPayloadDto } from './dto/CreatePostPayloadDto';
 
 @Injectable()
 export class PostService {
@@ -22,11 +22,11 @@ export class PostService {
     async create({
         profileId,
         groupId,
-        createGroupPostPayloadDto,
+        createPostPayloadDto,
     }: {
         profileId: string;
         groupId: string;
-        createGroupPostPayloadDto: CreateGroupPostPayloadDto;
+        createPostPayloadDto: CreatePostPayloadDto;
     }): Promise<PostEntity> {
         const group = await this._groupRepository.findOne(groupId);
 
@@ -46,7 +46,7 @@ export class PostService {
         const post = this._postRepository.create({
             groupId,
             creatorId: profileId,
-            ...createGroupPostPayloadDto,
+            ...createPostPayloadDto,
             status:
                 member.role === GroupMemberRoleType.ADMIN
                     ? PostStatusType.APPROVED
