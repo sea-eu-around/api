@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToOne, TableInheritance } from 'typeorm';
+import { Column, Entity, ManyToOne, TableInheritance } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { PostStatusType } from '../common/constants/post-status-type';
@@ -22,8 +22,12 @@ export abstract class PostEntity extends AbstractEntity<PostDto> {
     @ManyToOne(() => ProfileEntity, { onDelete: 'CASCADE' })
     creator: ProfileEntity;
 
-    @OneToOne(() => GroupEntity)
-    inGroup: GroupEntity;
+    @ManyToOne(() => GroupEntity, { onDelete: 'CASCADE' })
+    group: GroupEntity;
+
+    groupId: string;
+
+    creatorId: string;
 
     dtoClass = PostDto;
 }
