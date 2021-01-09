@@ -1,10 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 
 import { PostType } from '../../../../common/constants/post-type';
 
 export class CreatePostPayloadDto {
-    @ApiProperty()
+    @ApiProperty({ enum: PostType })
+    @IsEnum(PostType)
     readonly type: PostType;
 
     @ApiProperty()

@@ -11,10 +11,12 @@ import {
 
 import { GroupMemberRoleType } from '../../../common/constants/group-member-role-type';
 import { PostStatusType } from '../../../common/constants/post-status-type';
+import { PostType } from '../../../common/constants/post-type';
 import { PostEntity } from '../../../entities/post.entity';
 import { GroupRepository } from '../../../repositories/group.repository';
 import { GroupMemberRepository } from '../../../repositories/groupMember.repository';
 import { PostRepository } from '../../../repositories/post.repository';
+import { SimplePostRepository } from '../../../repositories/simple-post.repository';
 import { CreatePostPayloadDto } from './dto/CreatePostPayloadDto';
 
 @Injectable()
@@ -23,6 +25,7 @@ export class PostService {
         private readonly _groupRepository: GroupRepository,
         private readonly _postRepository: PostRepository,
         private readonly _groupMemberRepository: GroupMemberRepository,
+        private readonly _simplePostRepository: SimplePostRepository,
     ) {}
     async get(
         profileId: string,
@@ -78,17 +81,22 @@ export class PostService {
             throw new UnauthorizedException();
         }
 
-        const post = this._postRepository.create({
-            groupId,
-            creatorId: profileId,
-            type: createPostPayloadDto.type,
-            text: createPostPayloadDto.text,
-            status:
-                member.role === GroupMemberRoleType.ADMIN
-                    ? PostStatusType.APPROVED
-                    : PostStatusType.PENDING,
-        });
+        let post: PostEntity;
 
-        return this._postRepository.save(post);
+        if (createPostPayloadDto.type === PostType.SIMPLE) {
+            const prePost = this._simplePostRepository.create({
+                groupId,
+                creatorId: profileId,
+                text: createPostPayloadDto.text,
+                status:
+                    member.role === GroupMemberRoleType.ADMIN
+                        ? PostStatusType.APPROVED
+                        : PostStatusType.PENDING,
+            });
+
+            post = await this._simplePostRepository.save(prePost);
+        }
+
+        return post;
     }
 }
