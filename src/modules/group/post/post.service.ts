@@ -27,7 +27,7 @@ export class PostService {
         private readonly _groupMemberRepository: GroupMemberRepository,
         private readonly _simplePostRepository: SimplePostRepository,
     ) {}
-    async get(
+    async retrieve(
         profileId: string,
         groupId: string,
         options: IPaginationOptions,
@@ -45,12 +45,6 @@ export class PostService {
 
         if (!member) {
             throw new UnauthorizedException();
-        }
-
-        const isEmpty = await this._postRepository.isEmpty({ groupId });
-
-        if (isEmpty) {
-            throw new NotFoundException();
         }
 
         const query = this._postRepository
