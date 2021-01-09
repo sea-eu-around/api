@@ -17,8 +17,8 @@ import { UserEntity } from '../../../entities/user.entity';
 import { AuthGuard } from '../../../guards/auth.guard';
 import { RolesGuard } from '../../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../../interceptors/auth-user-interceptor.service';
-import { CreateGroupPostParamDto } from '../dto/CreateGroupPostParamDto';
-import { CreateGroupPostPayloadDto } from '../dto/CreateGroupPostPayloadDto';
+import { CreatePostParamDto } from './dto/CreatePostParamDto';
+import { CreatePostPayloadDto } from './dto/CreatePostPayloadDto';
 import { PostService } from './post.service';
 
 @Controller('/groups/:groupId/posts')
@@ -41,8 +41,8 @@ export class PostController {
         type: GroupDto,
     })
     async createGroupPost(
-        @Param() createGroupPostParamDto: CreateGroupPostParamDto,
-        @Body() createGroupPostPayloadDto: CreateGroupPostPayloadDto,
+        @Param() createGroupPostParamDto: CreatePostParamDto,
+        @Body() createGroupPostPayloadDto: CreatePostPayloadDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const post = await this._postService.create({
