@@ -5,10 +5,10 @@ import {
     Pagination,
 } from 'nestjs-typeorm-paginate';
 
-import { CommentEntity } from '../../../entities/comment.entity';
-import { CommentRepository } from '../../../repositories/comment.repository';
-import { GroupMemberRepository } from '../../../repositories/group-member.repository';
-import { PostRepository } from '../../../repositories/post.repository';
+import { CommentEntity } from '../../../../entities/comment.entity';
+import { CommentRepository } from '../../../../repositories/comment.repository';
+import { GroupMemberRepository } from '../../../../repositories/group-member.repository';
+import { PostRepository } from '../../../../repositories/post.repository';
 
 @Injectable()
 export class CommentService {

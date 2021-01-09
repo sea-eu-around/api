@@ -18,11 +18,11 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 
-import { PayloadSuccessDto } from '../../../common/dto/PayloadSuccessDto';
-import { CommentDto } from '../../../dto/CommentDto';
-import { AuthGuard } from '../../../guards/auth.guard';
-import { RolesGuard } from '../../../guards/roles.guard';
-import { AuthUserInterceptor } from '../../../interceptors/auth-user-interceptor.service';
+import { PayloadSuccessDto } from '../../../../common/dto/PayloadSuccessDto';
+import { CommentDto } from '../../../../dto/CommentDto';
+import { AuthGuard } from '../../../../guards/auth.guard';
+import { RolesGuard } from '../../../../guards/roles.guard';
+import { AuthUserInterceptor } from '../../../../interceptors/auth-user-interceptor.service';
 import { CommentService } from './comment.service';
 
 @Controller('/groups/:groupId/posts/:postId/comments')

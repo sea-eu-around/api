@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { CommentRepository } from '../../../repositories/comment.repository';
-import { GroupMemberRepository } from '../../../repositories/group-member.repository';
-import { PostRepository } from '../../../repositories/post.repository';
+import { CommentRepository } from '../../../../repositories/comment.repository';
+import { GroupMemberRepository } from '../../../../repositories/group-member.repository';
+import { PostRepository } from '../../../../repositories/post.repository';
 import { CommentController } from './comment.controller';
 import { CommentService } from './comment.service';
 
