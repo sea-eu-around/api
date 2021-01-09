@@ -9,6 +9,7 @@ import {
     Param,
     Patch,
     Post,
+    Query,
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
@@ -30,6 +31,8 @@ import { RolesGuard } from '../../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../../interceptors/auth-user-interceptor.service';
 import { CreatePostParamsDto } from './dto/CreatePostParamsDto';
 import { CreatePostPayloadDto } from './dto/CreatePostPayloadDto';
+import { RetrieveGroupPostParamsDto } from './dto/RetrieveGroupPostParamsDto';
+import { RetrieveGroupPostQueryDto } from './dto/RetrieveGroupPostQueryDto';
 import { PostService } from './post.service';
 
 @Controller('/groups/:groupId/posts')
@@ -57,8 +60,28 @@ export class PostController {
         status: HttpStatus.OK,
         description: 'successefully-retrieved-posts',
     })
-    retrieve(): PayloadSuccessDto {
-        throw new NotImplementedException();
+    async retrieve(
+        @Param() retrieveGroupPostParamDto: RetrieveGroupPostParamsDto,
+        @Query() retrieveGroupPostQueryDto: RetrieveGroupPostQueryDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const limit =
+            retrieveGroupPostQueryDto.limit > 100
+                ? 100
+                : retrieveGroupPostQueryDto.limit;
+        const page = retrieveGroupPostQueryDto.page;
+
+        const posts = await this._postService.get(
+            user.id,
+            retrieveGroupPostParamDto.groupId,
+            { page, limit },
+        );
+
+        return {
+            description: 'succesfully retrieved posts',
+            data: posts.items,
+            meta: posts.meta,
+        };
     }
 
     @Get('/:id')
@@ -98,11 +121,11 @@ export class PostController {
         @Body() createPostPayloadDto: CreatePostPayloadDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        const post = await this._postService.create({
+        const post = await this._postService.create(
+            user.id,
+            createPostParamsDto.groupId,
             createPostPayloadDto,
-            profileId: user.id,
-            ...createPostParamsDto,
-        });
+        );
 
         return {
             description: 'successefully-created-post',

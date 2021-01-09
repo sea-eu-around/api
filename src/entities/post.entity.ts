@@ -25,8 +25,10 @@ export abstract class PostEntity extends AbstractEntity<PostDto> {
     @ManyToOne(() => GroupEntity, { onDelete: 'CASCADE' })
     group: GroupEntity;
 
+    @Column()
     groupId: string;
 
+    @Column()
     creatorId: string;
 
     dtoClass = PostDto;
