@@ -45,4 +45,27 @@ export class CommentService {
 
         return paginate<CommentEntity>(comments, options);
     }
+
+    async retrieveOne({
+        id,
+        postId,
+        groupId,
+        profileId,
+    }: {
+        id: string;
+        postId: string;
+        groupId: string;
+        profileId: string;
+    }): Promise<CommentEntity> {
+        const member = await this._groupMemberRepository.member({
+            groupId,
+            profileId,
+        });
+
+        if (!member) {
+            throw new UnauthorizedException();
+        }
+
+        return this._commentRepository.findOne({ where: { id, postId } });
+    }
 }
