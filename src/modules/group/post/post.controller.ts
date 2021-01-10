@@ -72,11 +72,11 @@ export class PostController {
             retrievePostQueryDto.limit > 100 ? 100 : retrievePostQueryDto.limit;
         const page = retrievePostQueryDto.page;
 
-        const posts = await this._postService.retrieve(
-            user.id,
-            retrievePostParamDto.groupId,
-            { page, limit },
-        );
+        const posts = await this._postService.retrieve({
+            profileId: user.id,
+            groupId: retrievePostParamDto.groupId,
+            options: { page, limit },
+        });
 
         return {
             description: 'succesfully retrieved posts',
@@ -133,11 +133,11 @@ export class PostController {
         @Body() createPostPayloadDto: CreatePostPayloadDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        const post = await this._postService.create(
-            user.id,
-            createPostParamsDto.groupId,
-            createPostPayloadDto,
-        );
+        const post = await this._postService.create({
+            profileId: user.id,
+            groupId: createPostParamsDto.groupId,
+            payload: createPostPayloadDto,
+        });
 
         return {
             description: 'successefully-created-post',

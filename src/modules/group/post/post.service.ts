@@ -1,8 +1,4 @@
-import {
-    Injectable,
-    NotFoundException,
-    UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import {
     IPaginationOptions,
     paginate,
@@ -30,17 +26,15 @@ export class PostService {
         private readonly _groupMemberRepository: GroupMemberRepository,
         private readonly _simplePostRepository: SimplePostRepository,
     ) {}
-    async retrieve(
-        profileId: string,
-        groupId: string,
-        options: IPaginationOptions,
-    ): Promise<Pagination<PostEntity>> {
-        const group = await this._groupRepository.findOne(groupId);
-
-        if (!group) {
-            throw new NotFoundException();
-        }
-
+    async retrieve({
+        profileId,
+        groupId,
+        options,
+    }: {
+        profileId: string;
+        groupId: string;
+        options: IPaginationOptions;
+    }): Promise<Pagination<PostEntity>> {
         const member = await this._groupMemberRepository.member({
             profileId,
             groupId,
@@ -67,12 +61,6 @@ export class PostService {
         groupId: string;
         id: string;
     }): Promise<PostEntity> {
-        const group = await this._groupRepository.findOne(groupId);
-
-        if (!group) {
-            throw new NotFoundException();
-        }
-
         const member = await this._groupMemberRepository.member({
             profileId,
             groupId,
@@ -85,17 +73,15 @@ export class PostService {
         return this._postRepository.findOne({ id });
     }
 
-    async create(
-        profileId: string,
-        groupId: string,
-        createPostPayloadDto: CreatePostPayloadDto,
-    ): Promise<PostEntity> {
-        const group = await this._groupRepository.findOne(groupId);
-
-        if (!group) {
-            throw new NotFoundException();
-        }
-
+    async create({
+        profileId,
+        groupId,
+        payload,
+    }: {
+        profileId: string;
+        groupId: string;
+        payload: CreatePostPayloadDto;
+    }): Promise<PostEntity> {
         const member = await this._groupMemberRepository.member({
             profileId,
             groupId,
@@ -107,11 +93,11 @@ export class PostService {
 
         let post: PostEntity;
 
-        if (createPostPayloadDto.type === PostType.SIMPLE) {
+        if (payload.type === PostType.SIMPLE) {
             const prePost = this._simplePostRepository.create({
                 groupId,
                 creatorId: profileId,
-                text: createPostPayloadDto.text,
+                text: payload.text,
                 status:
                     member.role === GroupMemberRoleType.ADMIN
                         ? PostStatusType.APPROVED
@@ -133,12 +119,6 @@ export class PostService {
         params: UpdatePostParamDto;
         payload: UpdatePostPayloadDto;
     }): Promise<PostEntity> {
-        const group = await this._groupRepository.findOne(params.groupId);
-
-        if (!group) {
-            throw new NotFoundException();
-        }
-
         const member = await this._groupMemberRepository.member({
             profileId,
             groupId: params.groupId,
@@ -151,10 +131,6 @@ export class PostService {
         let post = await this._postRepository.findOne({
             id: params.id,
         });
-
-        if (!post) {
-            throw new NotFoundException();
-        }
 
         if (!(post.creatorId === profileId)) {
             throw new UnauthorizedException();
@@ -177,23 +153,14 @@ export class PostService {
         profileId: string;
         params: DeletePostParamDto;
     }): Promise<void> {
-        const group = await this._groupRepository.findOne(params.groupId);
         const post = await this._postRepository.findOne({
             id: params.id,
         });
-
-        if (!group) {
-            throw new NotFoundException();
-        }
 
         const member = await this._groupMemberRepository.member({
             profileId,
             groupId: params.groupId,
         });
-
-        if (!member) {
-            throw new UnauthorizedException();
-        }
 
         if (
             !(
