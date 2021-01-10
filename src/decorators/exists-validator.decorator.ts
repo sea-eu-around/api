@@ -36,29 +36,6 @@ export function Exists<Entity>(
     column: keyof Entity,
     validationOptions?: ValidationOptions,
 ): PropertyDecorator {
-    /*const injectExistsConstraint = Inject(ExistsConstraint);
-    return (target, propertyKey: string) => {
-        let value: string;
-
-        const getter = () => value;
-
-        const setter = async (newVal: string) => {
-            injectExistsConstraint(target, 'validator');
-            const validator: ExistsConstraint = this.validator;
-
-            if (await validator.validate<Entity>(value, entity, column)) {
-                value = newVal;
-            } else {
-                throw new NotFoundException();
-            }
-        };
-
-        Object.defineProperty(target, propertyKey, {
-            get: getter,
-            set: setter,
-        });
-    };*/
-
     return (object: any, propertyName: string) => {
         registerDecorator({
             propertyName,
