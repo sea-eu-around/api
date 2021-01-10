@@ -55,6 +55,33 @@ export class PostService {
         return paginate<PostEntity>(query, options);
     }
 
+    async retrieveOne({
+        profileId,
+        groupId,
+        id,
+    }: {
+        profileId: string;
+        groupId: string;
+        id: string;
+    }): Promise<PostEntity> {
+        const group = await this._groupRepository.findOne(groupId);
+
+        if (!group) {
+            throw new NotFoundException();
+        }
+
+        const member = await this._groupMemberRepository.member({
+            profileId,
+            groupId,
+        });
+
+        if (!member) {
+            throw new UnauthorizedException();
+        }
+
+        return this._postRepository.findOne({ id });
+    }
+
     async create(
         profileId: string,
         groupId: string,
