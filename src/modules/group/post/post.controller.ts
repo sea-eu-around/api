@@ -34,6 +34,8 @@ import { CreatePostPayloadDto } from './dto/CreatePostPayloadDto';
 import { RetrievePostIdParamDto } from './dto/RetrievePostIdParamDto';
 import { RetrievePostParamsDto } from './dto/RetrievePostParamsDto';
 import { RetrievePostQueryDto } from './dto/RetrievePostQueryDto';
+import { UpdatePostParamDto } from './dto/UpdatePostParamDto';
+import { UpdatePostPayloadDto } from './dto/UpdatePostPayloadDto';
 import { PostService } from './post.service';
 
 @Controller('/groups/:groupId/posts')
@@ -159,8 +161,21 @@ export class PostController {
         description: 'successefully-updated-group',
         type: PostDto,
     })
-    update(): PayloadSuccessDto {
-        throw new NotImplementedException();
+    update(
+        @Param() updatePostParamDto: UpdatePostParamDto,
+        @Body() updatePostPayloadDto: UpdatePostPayloadDto,
+        @AuthUser() user: UserEntity,
+    ): PayloadSuccessDto {
+        const post = this._postService.update({
+            profileId: user.id,
+            params: updatePostParamDto,
+            payload: updatePostPayloadDto,
+        });
+
+        return {
+            description: 'successefully-updated-group',
+            data: post,
+        };
     }
 
     @Delete('/:id')

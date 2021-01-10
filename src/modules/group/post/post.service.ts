@@ -18,6 +18,8 @@ import { GroupMemberRepository } from '../../../repositories/groupMember.reposit
 import { PostRepository } from '../../../repositories/post.repository';
 import { SimplePostRepository } from '../../../repositories/simple-post.repository';
 import { CreatePostPayloadDto } from './dto/CreatePostPayloadDto';
+import { UpdatePostParamDto } from './dto/UpdatePostParamDto';
+import { UpdatePostPayloadDto } from './dto/UpdatePostPayloadDto';
 
 @Injectable()
 export class PostService {
@@ -116,6 +118,52 @@ export class PostService {
             });
 
             post = await this._simplePostRepository.save(prePost);
+        }
+
+        return post;
+    }
+
+    async update({
+        profileId,
+        params,
+        payload,
+    }: {
+        profileId: string;
+        params: UpdatePostParamDto;
+        payload: UpdatePostPayloadDto;
+    }): Promise<PostEntity> {
+        const group = await this._groupRepository.findOne(params.groupId);
+
+        if (!group) {
+            throw new NotFoundException();
+        }
+
+        const member = await this._groupMemberRepository.member({
+            profileId,
+            groupId: params.groupId,
+        });
+
+        if (!member) {
+            throw new UnauthorizedException();
+        }
+
+        let post = await this._postRepository.findOne({
+            id: params.id,
+        });
+
+        if (!post) {
+            throw new NotFoundException();
+        }
+
+        if (!(post.creatorId === profileId)) {
+            throw new UnauthorizedException();
+        }
+
+        if (payload.type === PostType.SIMPLE) {
+            post = await this._simplePostRepository.save({
+                ...params,
+                ...payload,
+            });
         }
 
         return post;
