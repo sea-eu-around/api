@@ -1,6 +1,6 @@
 import { IsUUID } from 'class-validator';
 
-export class CreatePostParamsDto {
+export class CreatePostParamDto {
     @IsUUID()
     readonly groupId!: string;
 }

@@ -18,6 +18,7 @@ import { GroupMemberRepository } from '../../../repositories/groupMember.reposit
 import { PostRepository } from '../../../repositories/post.repository';
 import { SimplePostRepository } from '../../../repositories/simple-post.repository';
 import { CreatePostPayloadDto } from './dto/CreatePostPayloadDto';
+import { DeletePostParamDto } from './dto/DeletePostParamDto';
 import { UpdatePostParamDto } from './dto/UpdatePostParamDto';
 import { UpdatePostPayloadDto } from './dto/UpdatePostPayloadDto';
 
@@ -167,5 +168,42 @@ export class PostService {
         }
 
         return post;
+    }
+
+    async delete({
+        profileId,
+        params,
+    }: {
+        profileId: string;
+        params: DeletePostParamDto;
+    }): Promise<void> {
+        const group = await this._groupRepository.findOne(params.groupId);
+        const post = await this._postRepository.findOne({
+            id: params.id,
+        });
+
+        if (!group) {
+            throw new NotFoundException();
+        }
+
+        const member = await this._groupMemberRepository.member({
+            profileId,
+            groupId: params.groupId,
+        });
+
+        if (!member) {
+            throw new UnauthorizedException();
+        }
+
+        if (
+            !(
+                member.role === GroupMemberRoleType.ADMIN ||
+                post.creatorId === profileId
+            )
+        ) {
+            throw new UnauthorizedException();
+        }
+
+        await this._postRepository.delete({ id: params.id });
     }
 }
