@@ -5,7 +5,6 @@ import {
     Get,
     HttpCode,
     HttpStatus,
-    NotImplementedException,
     Param,
     Patch,
     Post,
@@ -29,8 +28,9 @@ import { UserEntity } from '../../../entities/user.entity';
 import { AuthGuard } from '../../../guards/auth.guard';
 import { RolesGuard } from '../../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../../interceptors/auth-user-interceptor.service';
-import { CreatePostParamsDto } from './dto/CreatePostParamsDto';
+import { CreatePostParamDto } from './dto/CreatePostParamDto';
 import { CreatePostPayloadDto } from './dto/CreatePostPayloadDto';
+import { DeletePostParamDto } from './dto/DeletePostParamDto';
 import { RetrievePostIdParamDto } from './dto/RetrievePostIdParamDto';
 import { RetrievePostParamsDto } from './dto/RetrievePostParamsDto';
 import { RetrievePostQueryDto } from './dto/RetrievePostQueryDto';
@@ -129,7 +129,7 @@ export class PostController {
         type: GroupDto,
     })
     async create(
-        @Param() createPostParamsDto: CreatePostParamsDto,
+        @Param() createPostParamsDto: CreatePostParamDto,
         @Body() createPostPayloadDto: CreatePostPayloadDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
@@ -158,7 +158,7 @@ export class PostController {
     @ApiBearerAuth()
     @ApiResponse({
         status: HttpStatus.OK,
-        description: 'successefully-updated-group',
+        description: 'successefully-updated-post',
         type: PostDto,
     })
     update(
@@ -173,7 +173,7 @@ export class PostController {
         });
 
         return {
-            description: 'successefully-updated-group',
+            description: 'successefully-updated-post',
             data: post,
         };
     }
@@ -193,7 +193,18 @@ export class PostController {
         status: HttpStatus.NO_CONTENT,
         description: 'successefully-deleted-post',
     })
-    delete(): PayloadSuccessDto {
-        throw new NotImplementedException();
+    async delete(
+        @Param() deletePostParamDto: DeletePostParamDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        await this._postService.delete({
+            profileId: user.id,
+            params: deletePostParamDto,
+        });
+
+        return {
+            description: 'successefully-deleted-post',
+            data: null,
+        };
     }
 }
