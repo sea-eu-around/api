@@ -31,8 +31,9 @@ import { RolesGuard } from '../../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../../interceptors/auth-user-interceptor.service';
 import { CreatePostParamsDto } from './dto/CreatePostParamsDto';
 import { CreatePostPayloadDto } from './dto/CreatePostPayloadDto';
-import { RetrieveGroupPostParamsDto } from './dto/RetrieveGroupPostParamsDto';
-import { RetrieveGroupPostQueryDto } from './dto/RetrieveGroupPostQueryDto';
+import { RetrievePostIdParamDto } from './dto/RetrievePostIdParamDto';
+import { RetrievePostParamsDto } from './dto/RetrievePostParamsDto';
+import { RetrievePostQueryDto } from './dto/RetrievePostQueryDto';
 import { PostService } from './post.service';
 
 @Controller('/groups/:groupId/posts')
@@ -61,19 +62,17 @@ export class PostController {
         description: 'successefully-retrieved-posts',
     })
     async retrieve(
-        @Param() retrieveGroupPostParamDto: RetrieveGroupPostParamsDto,
-        @Query() retrieveGroupPostQueryDto: RetrieveGroupPostQueryDto,
+        @Param() retrievePostParamDto: RetrievePostParamsDto,
+        @Query() retrievePostQueryDto: RetrievePostQueryDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const limit =
-            retrieveGroupPostQueryDto.limit > 100
-                ? 100
-                : retrieveGroupPostQueryDto.limit;
-        const page = retrieveGroupPostQueryDto.page;
+            retrievePostQueryDto.limit > 100 ? 100 : retrievePostQueryDto.limit;
+        const page = retrievePostQueryDto.page;
 
         const posts = await this._postService.retrieve(
             user.id,
-            retrieveGroupPostParamDto.groupId,
+            retrievePostParamDto.groupId,
             { page, limit },
         );
 
@@ -100,8 +99,19 @@ export class PostController {
         description: 'successefully-retrieved-post',
         type: PostDto,
     })
-    retrieveOne(): PayloadSuccessDto {
-        throw new NotImplementedException();
+    async retrieveOne(
+        @Param() retrievePostIdParamDto: RetrievePostIdParamDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const post = await this._postService.retrieveOne({
+            profileId: user.id,
+            ...retrievePostIdParamDto,
+        });
+
+        return {
+            description: 'successefully-retrieved-post',
+            data: post,
+        };
     }
 
     @Post()
