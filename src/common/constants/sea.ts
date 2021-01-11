@@ -27,42 +27,51 @@ export enum PartnerUniversityDomain {
     SPLIT = 'unist.hr',
 }
 
+const partnerUniversityDomains = {
+    CADIZ: /^uca\.es$/,
+    BREST: /^univ-brest\.fr$/,
+    GDANSK: /^ug\.edu\.pl$/,
+    MALTA: /^um\.edu\.mt$/,
+    KIEL: /((.+\.)|^)uni-kiel\.de$/,
+    SPLIT: /^(((uni|ef|ff|grad|kbf-|kif|mef|pf|prav|pmf)st)|(ktf-split)|(fesb)|(efst.live))(\.hr)$/,
+};
+
 export interface IUniversity {
     key: string;
-    domain: string;
+    domains: any;
     country: CountryCode;
 }
 
 // List of partner universities
-export const PARTNER_UNIVERSITIES = [
+export const PARTNER_UNIVERSITIES: IUniversity[] = [
     {
         key: PartnerUniversity.CADIZ,
-        domain: PartnerUniversityDomain.CADIZ,
+        domains: partnerUniversityDomains.CADIZ,
         country: CountryCode.SPAIN,
     },
     {
         key: PartnerUniversity.BREST,
-        domain: PartnerUniversityDomain.BREST,
+        domains: partnerUniversityDomains.BREST,
         country: CountryCode.FRANCE,
     },
     {
         key: PartnerUniversity.GDANSK,
-        domain: PartnerUniversityDomain.GDANSK,
+        domains: partnerUniversityDomains.GDANSK,
         country: CountryCode.POLAND,
     },
     {
         key: PartnerUniversity.MALTA,
-        domain: PartnerUniversityDomain.MALTA,
+        domains: partnerUniversityDomains.MALTA,
         country: CountryCode.MALTA,
     },
     {
         key: PartnerUniversity.KIEL,
-        domain: PartnerUniversityDomain.KIEL,
+        domains: partnerUniversityDomains.KIEL,
         country: CountryCode.GERMANY,
     },
     {
         key: PartnerUniversity.SPLIT,
-        domain: PartnerUniversityDomain.SPLIT,
+        domains: partnerUniversityDomains.SPLIT,
         country: CountryCode.CROATIA,
     },
-] as IUniversity[];
+];

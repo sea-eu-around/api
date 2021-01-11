@@ -13,4 +13,8 @@ export class GetRoomsMessagesQueryDto {
     @IsOptional()
     @IsDateString()
     beforeDate: string;
+
+    @IsOptional()
+    @IsDateString()
+    afterDate: string;
 }

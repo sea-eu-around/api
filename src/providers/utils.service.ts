@@ -1,8 +1,13 @@
 import * as bcrypt from 'bcrypt';
+import { isEmail } from 'class-validator';
 import * as _ from 'lodash';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { AbstractCompositeEntity } from '../common/abstractComposite.entity';
+import {
+    PARTNER_UNIVERSITIES,
+    PartnerUniversity,
+} from '../common/constants/sea';
 
 export class UtilsService {
     /**
@@ -91,5 +96,26 @@ export class UtilsService {
             /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\.(png|jpg|jpeg)$/,
         );
         return regex.exec(filename) != null;
+    }
+
+    static extractUnivFromEmail({
+        email,
+    }: {
+        email: string;
+    }): PartnerUniversity {
+        if (!isEmail(email)) {
+            throw new Error('email must be an email.');
+        }
+
+        const domain = email.split('@')[1];
+        const university = PARTNER_UNIVERSITIES.find((currentUniversity) =>
+            currentUniversity.domains.exec(domain),
+        );
+
+        if (!university) {
+            return null;
+        }
+
+        return <PartnerUniversity>university.key;
     }
 }
