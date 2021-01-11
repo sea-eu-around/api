@@ -27,18 +27,18 @@ export enum PartnerUniversityDomain {
     SPLIT = 'unist.hr',
 }
 
-const partnerUniversityDomainRegexes = {
-    CADIZ: [/uca\.es/],
-    BREST: [/univ-brest\.fr/],
-    GDANSK: [/ug\.edu\.pl/],
-    MALTA: [/um\.edu\.mt/],
-    KIEL: [/((.+\.)|^)uni-kiel\.de/],
-    SPLIT: [/unist\.hr/],
+const partnerUniversityDomains = {
+    CADIZ: /uca\.es/,
+    BREST: /univ-brest\.fr/,
+    GDANSK: /ug\.edu\.pl/,
+    MALTA: /um\.edu\.mt/,
+    KIEL: /((.+\.)|^)uni-kiel\.de/,
+    SPLIT: /(((uni|ef|fe|ff|grad|kbf-|kif|mef|pf|prav|pmf)st)|(ktf-split))(\.hr)/,
 };
 
 export interface IUniversity {
     key: string;
-    domainRegexes: any;
+    domains: any;
     country: CountryCode;
 }
 
@@ -46,32 +46,32 @@ export interface IUniversity {
 export const PARTNER_UNIVERSITIES: IUniversity[] = [
     {
         key: PartnerUniversity.CADIZ,
-        domainRegexes: partnerUniversityDomainRegexes.CADIZ,
+        domains: partnerUniversityDomains.CADIZ,
         country: CountryCode.SPAIN,
     },
     {
         key: PartnerUniversity.BREST,
-        domainRegexes: partnerUniversityDomainRegexes.BREST,
+        domains: partnerUniversityDomains.BREST,
         country: CountryCode.FRANCE,
     },
     {
         key: PartnerUniversity.GDANSK,
-        domainRegexes: partnerUniversityDomainRegexes.GDANSK,
+        domains: partnerUniversityDomains.GDANSK,
         country: CountryCode.POLAND,
     },
     {
         key: PartnerUniversity.MALTA,
-        domainRegexes: partnerUniversityDomainRegexes.MALTA,
+        domains: partnerUniversityDomains.MALTA,
         country: CountryCode.MALTA,
     },
     {
         key: PartnerUniversity.KIEL,
-        domainRegexes: partnerUniversityDomainRegexes.KIEL,
+        domains: partnerUniversityDomains.KIEL,
         country: CountryCode.GERMANY,
     },
     {
         key: PartnerUniversity.SPLIT,
-        domainRegexes: partnerUniversityDomainRegexes.SPLIT,
+        domains: partnerUniversityDomains.SPLIT,
         country: CountryCode.CROATIA,
     },
 ];

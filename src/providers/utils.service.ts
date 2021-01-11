@@ -108,12 +108,8 @@ export class UtilsService {
         }
 
         const domain = email.split('@')[1];
-
-        const university = PARTNER_UNIVERSITIES.find(
-            (currentUniversity) =>
-                currentUniversity.domainRegexes.filter(
-                    (regex) => regex.exec(domain) !== null,
-                ).length > 0,
+        const university = PARTNER_UNIVERSITIES.find((currentUniversity) =>
+            currentUniversity.domains.exec(domain),
         );
 
         if (!university) {
