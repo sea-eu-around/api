@@ -28,12 +28,12 @@ export enum PartnerUniversityDomain {
 }
 
 const partnerUniversityDomains = {
-    CADIZ: /uca\.es/,
-    BREST: /univ-brest\.fr/,
-    GDANSK: /ug\.edu\.pl/,
-    MALTA: /um\.edu\.mt/,
-    KIEL: /((.+\.)|^)uni-kiel\.de/,
-    SPLIT: /(((uni|ef|fe|ff|grad|kbf-|kif|mef|pf|prav|pmf)st)|(ktf-split))(\.hr)/,
+    CADIZ: /^uca\.es$/,
+    BREST: /^univ-brest\.fr$/,
+    GDANSK: /^ug\.edu\.pl$/,
+    MALTA: /^um\.edu\.mt$/,
+    KIEL: /((.+\.)|^)uni-kiel\.de$/,
+    SPLIT: /^(((uni|ef|ff|grad|kbf-|kif|mef|pf|prav|pmf)st)|(ktf-split)|(fesb)|(efst.live))(\.hr)$/,
 };
 
 export interface IUniversity {
