@@ -42,7 +42,7 @@ jobs:
         on:
           branch: master
       after_deploy:
-        - "curl --location --request POST 'https://portainer.lad-dev.team/api/webhooks/6a4dccc7-37ba-41c4-8f12-e17f2f2eaaa0'"
+        - "curl --location --request POST 'https://portainer.lad-dev.team/api/webhooks/59dd63d6-9bbc-4e00-8304-97d402b8a74c'"
 
 notifications:
   slack: adoptastudentgroupe:v2JQDHOZYPj2K0x01gjWMxuv
