@@ -166,7 +166,7 @@ export class ProfileController {
 
         return {
             description: "Profile's interests",
-            data: { profile, isMatched, roomId },
+            data: { isMatched, roomId, profile: profile.toDto() },
         };
     }
 
