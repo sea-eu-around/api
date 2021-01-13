@@ -181,7 +181,7 @@ export class ProfileService {
                 totalItems: sortedProfiles.length,
                 itemCount: currentPage.length,
                 itemsPerPage: options.limit,
-                totalPages: sortedProfiles.length % options.limit,
+                totalPages: Math.ceil(sortedProfiles.length / options.limit),
                 currentPage: options.page,
             },
         };
