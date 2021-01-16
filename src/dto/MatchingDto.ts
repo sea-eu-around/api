@@ -28,6 +28,6 @@ export class MatchingDto extends AbstractDto {
             ? matching.toProfile.toDto()
             : null;
         this.status = matching.status;
-        this.roomId = matching.room.id;
+        this.roomId = matching.room?.id;
     }
 }

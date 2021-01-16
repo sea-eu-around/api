@@ -173,7 +173,7 @@ export class MatchingService {
                     room.profiles = this._profileRoomRepository.createForProfileIds(
                         [fromProfileId, toProfileId],
                     );
-                    await this._roomRepository.save(room);
+                    mirrorEntity.room = room;
 
                     const notification: ExpoPushMessage = {
                         to: toUser.expoPushToken || toUser.email,
@@ -227,11 +227,12 @@ export class MatchingService {
                 room.profiles = this._profileRoomRepository.createForProfileIds(
                     [fromProfileId, toProfileId],
                 );
-                await this._roomRepository.save(room);
+                savedMatch.room = await this._roomRepository.save(room);
 
                 return savedMatch;
             }
         }
+
         const like = this._matchingRepository.create();
         like.fromProfileId = fromProfileId;
         like.toProfileId = toProfileId;
@@ -323,8 +324,6 @@ export class MatchingService {
         ) {
             throw new BadRequestException("You're not part of this action");
         }
-
-        await this._roomRepository.remove(action.room);
 
         return this._matchingRepository.remove(action);
     }

@@ -36,6 +36,7 @@ export class MatchingEntity extends AbstractEntity<MatchingDto> {
     @OneToOne(() => RoomEntity, (room) => room.matching, {
         onDelete: 'CASCADE',
         eager: true,
+        cascade: true,
     })
     room?: RoomEntity;
 
