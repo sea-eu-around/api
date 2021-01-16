@@ -21,7 +21,10 @@ export class RoomEntity extends AbstractEntity<RoomDto> {
         cascade: true,
         onDelete: 'CASCADE',
     })
+    @JoinColumn()
     matching: MatchingEntity;
+
+    matchingId: string;
 
     @OneToMany(() => ProfileRoomEntity, (profileRoom) => profileRoom.room, {
         cascade: true,

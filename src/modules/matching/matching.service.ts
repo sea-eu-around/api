@@ -8,6 +8,7 @@ import {
 } from 'nestjs-typeorm-paginate';
 import { Brackets } from 'typeorm/query-builder/Brackets';
 
+import { LanguageType } from '../../common/constants/language-type';
 import { MatchingStatusType } from '../../common/constants/matching-status-type';
 import { MatchingEntity } from '../../entities/matching.entity';
 import { ProfileEntity } from '../../entities/profile.entity';
@@ -177,7 +178,13 @@ export class MatchingService {
                     const notification: ExpoPushMessage = {
                         to: toUser.expoPushToken || toUser.email,
                         sound: 'default',
-                        body: 'You have a new match!',
+                        body:
+                            toUser.locale === LanguageType.FR
+                                ? 'Vous avez un nouveau match !'
+                                : 'You have a new match!',
+                        data: {
+                            roomId: room.id,
+                        },
                     };
 
                     await this._expo.sendPushNotificationsAsync([notification]);
@@ -305,7 +312,8 @@ export class MatchingService {
         matchingEntityId: string,
     ): Promise<MatchingEntity> {
         const action = await this._matchingRepository.findOne({
-            id: matchingEntityId,
+            where: { id: matchingEntityId },
+            relations: ['room'],
         });
         if (
             !(
@@ -315,6 +323,8 @@ export class MatchingService {
         ) {
             throw new BadRequestException("You're not part of this action");
         }
+
+        await this._roomRepository.remove(action.room);
 
         return this._matchingRepository.remove(action);
     }
