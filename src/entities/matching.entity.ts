@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToOne } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { MatchingStatusType } from '../common/constants/matching-status-type';
@@ -33,12 +33,13 @@ export class MatchingEntity extends AbstractEntity<MatchingDto> {
     })
     status: MatchingStatusType;
 
-    @OneToOne(() => RoomEntity, (room) => room.matching)
-    @JoinColumn()
+    @OneToOne(() => RoomEntity, (room) => room.matching, {
+        onDelete: 'CASCADE',
+        eager: true,
+    })
     room?: RoomEntity;
 
-    @Column({ nullable: true })
-    roomId?: string;
+    roomId: string;
 
     @PolymorphicChildren(() => ReportEntity, {
         eager: false,

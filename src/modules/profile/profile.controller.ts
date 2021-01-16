@@ -158,15 +158,17 @@ export class ProfileController {
         const match = await this._matchingService.getMatch(user.id, profile.id);
         let isMatched = false;
         let roomId = null;
+        let matchingId = null;
 
         if (match && match.room) {
             roomId = match.room.id;
             isMatched = true;
+            matchingId = match.id;
         }
 
         return {
             description: "Profile's interests",
-            data: { isMatched, roomId, profile: profile.toDto() },
+            data: { isMatched, roomId, matchingId, profile: profile.toDto() },
         };
     }
 
