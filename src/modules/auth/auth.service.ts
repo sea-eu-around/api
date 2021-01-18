@@ -8,6 +8,7 @@ import { LanguageType } from '../../common/constants/language-type';
 import { UserDto } from '../../dto/UserDto';
 import { UserEntity } from '../../entities/user.entity';
 import { EmailOrPasswordIncorrectException } from '../../exceptions/email-or-password-incorrect.exception';
+import { UserBeingDeletedException } from '../../exceptions/user-being-deleted.exception';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception';
 import { UserNotVerifiedException } from '../../exceptions/user-not-verified.exception';
 import { ContextService } from '../../providers/context.service';
@@ -65,6 +66,7 @@ export class AuthService {
                 .leftJoinAndSelect('user.profile', 'profile')
                 .leftJoinAndSelect('profile.rooms', 'rooms')
                 .leftJoinAndSelect('profile.medias', 'medias')
+                .leftJoinAndSelect('profile.avatar', 'avatar')
                 .leftJoinAndSelect('profile.educationFields', 'educationFields')
                 .leftJoinAndSelect('profile.profileOffers', 'profileOffers')
                 .leftJoinAndSelect('rooms.room', 'room')
@@ -81,6 +83,9 @@ export class AuthService {
                 throw new EmailOrPasswordIncorrectException();
             }
 
+            if (!userLoginDto.recover) {
+                throw new UserBeingDeletedException();
+            }
             user = await this._userRepository.recover(softDeletedUser);
 
             if (softDeletedUser.profile) {
