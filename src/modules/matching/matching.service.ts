@@ -8,6 +8,7 @@ import {
 } from 'nestjs-typeorm-paginate';
 import { Brackets } from 'typeorm/query-builder/Brackets';
 
+import { LanguageType } from '../../common/constants/language-type';
 import { MatchingStatusType } from '../../common/constants/matching-status-type';
 import { MatchingEntity } from '../../entities/matching.entity';
 import { ProfileEntity } from '../../entities/profile.entity';
@@ -172,12 +173,18 @@ export class MatchingService {
                     room.profiles = this._profileRoomRepository.createForProfileIds(
                         [fromProfileId, toProfileId],
                     );
-                    await this._roomRepository.save(room);
+                    mirrorEntity.room = room;
 
                     const notification: ExpoPushMessage = {
                         to: toUser.expoPushToken || toUser.email,
                         sound: 'default',
-                        body: 'You have a new match!',
+                        body:
+                            toUser.locale === LanguageType.FR
+                                ? 'Vous avez un nouveau match !'
+                                : 'You have a new match!',
+                        data: {
+                            roomId: room.id,
+                        },
                     };
 
                     await this._expo.sendPushNotificationsAsync([notification]);
@@ -220,11 +227,12 @@ export class MatchingService {
                 room.profiles = this._profileRoomRepository.createForProfileIds(
                     [fromProfileId, toProfileId],
                 );
-                await this._roomRepository.save(room);
+                savedMatch.room = await this._roomRepository.save(room);
 
                 return savedMatch;
             }
         }
+
         const like = this._matchingRepository.create();
         like.fromProfileId = fromProfileId;
         like.toProfileId = toProfileId;
@@ -305,7 +313,8 @@ export class MatchingService {
         matchingEntityId: string,
     ): Promise<MatchingEntity> {
         const action = await this._matchingRepository.findOne({
-            id: matchingEntityId,
+            where: { id: matchingEntityId },
+            relations: ['room'],
         });
         if (
             !(
