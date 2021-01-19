@@ -13,10 +13,12 @@ export class ProfileUtils {
     public async getUnwantedProfileIds(profileId: string): Promise<string[]> {
         const matchesQuery = this._matchingServices.getMyMatches(profileId);
         const historyQuery = this._matchingServices.getFullHistory(profileId);
+        const dislikeQuery = this._matchingServices.whoDislikedMe(profileId);
         const unwantedProfiles = [profileId];
-        const [matches, history] = await Promise.all([
+        const [matches, history, dislikes] = await Promise.all([
             matchesQuery,
             historyQuery,
+            dislikeQuery,
         ]);
 
         matches.forEach((match) => {
@@ -24,6 +26,9 @@ export class ProfileUtils {
         });
         history.forEach((match) => {
             unwantedProfiles.push(match);
+        });
+        dislikes.forEach((profile) => {
+            unwantedProfiles.push(profile);
         });
 
         return unwantedProfiles;
