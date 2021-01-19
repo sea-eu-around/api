@@ -60,6 +60,20 @@ export class MatchingService {
             .getOne();
     }
 
+    async whoDislikedMe(profileId: string): Promise<string[]> {
+        const profiles = await this._matchingRepository
+            .createQueryBuilder('matching')
+            .leftJoinAndSelect('matching.fromProfile', 'fromProfile')
+            .leftJoinAndSelect('matching.toProfile', 'toProfile')
+            .where('matching.toProfileId = :id', { id: profileId })
+            .andWhere('matching.status = :status', {
+                status: MatchingStatusType.DECLINE,
+            })
+            .getMany();
+
+        return profiles.map((match) => match.fromProfileId);
+    }
+
     async getMyMatches(profileId: string): Promise<ProfileEntity[]> {
         const matches = await this._matchingRepository
             .createQueryBuilder('matching')
