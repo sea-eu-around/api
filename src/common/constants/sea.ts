@@ -28,7 +28,7 @@ export enum PartnerUniversityDomain {
 }
 
 const partnerUniversityDomains = {
-    CADIZ: /^(alum\.|)uca\.es$/,
+    CADIZ: /^(alum\.|gm\.|)uca\.es$/,
     BREST: /^(etudiant\.|)univ-brest\.fr$/,
     GDANSK: /^(studms\.|phdstud\.|)ug\.edu\.pl$/,
     MALTA: /^um\.edu\.mt$/,
