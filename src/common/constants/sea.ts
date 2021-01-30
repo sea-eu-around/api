@@ -33,7 +33,7 @@ const partnerUniversityDomains = {
     GDANSK: /^(studms\.|phdstud\.|)ug\.edu\.pl$/,
     MALTA: /^um\.edu\.mt$/,
     KIEL: /((.+\.)|^)uni-kiel\.de$/,
-    SPLIT: /^(((uni|ef|ff|grad|kbf-|kif|mef|pf|prav|pmf)st)|(ktf-split)|(fesb)|(efst.live)|svkst)(\.hr)$/,
+    SPLIT: /^(((uni|ef|ff|grad|kbf-|kif|mef|pf|prav|pmf)st)|(ktf-split)|(fesb)|(efst\.live)|(svkst)|(umas))(\.hr)$/,
 };
 
 export interface IUniversity {
