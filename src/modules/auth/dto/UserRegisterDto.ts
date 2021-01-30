@@ -27,7 +27,7 @@ export class UserRegisterDto {
     @IsString()
     @Matches(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,}$/,
-        { message: 'Password is not enough strong' },
+        { message: 'Password is not strong enough' },
     )
     @ApiProperty({ minLength: 8 })
     readonly password: string;
