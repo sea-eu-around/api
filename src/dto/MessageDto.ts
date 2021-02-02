@@ -1,4 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { createDecipheriv } from 'crypto';
 
 import { AbstractDto } from '../common/dto/AbstractDto';
 import { MessageEntity } from '../entities/message.entity';
@@ -28,15 +29,28 @@ export class MessageDto extends AbstractDto {
     constructor(message: MessageEntity) {
         super(message);
         this.updatedAt = message.updatedAt;
-        this.text = message.text;
         this.sent = message.sent;
         this.senderId = message.senderId;
         this.roomId = message.roomId;
         this.room = UtilsService.isDto(message.room)
             ? message.room.toDto()
-            : message.room;
+            : null;
         this.sender = UtilsService.isDto(message.sender)
             ? message.sender.toDto()
-            : message.sender;
+            : null;
+
+        if (message.encrypted) {
+            const decipher = createDecipheriv(
+                'aes-256-ctr',
+                new Buffer(process.env.CRYPTO_KEY, 'base64'),
+                new Buffer(process.env.CRYPTO_IV, 'base64'),
+            );
+            this.text = Buffer.concat([
+                decipher.update(message.text, 'base64'),
+                decipher.final(),
+            ]).toString();
+        } else {
+            this.text = message.text;
+        }
     }
 }
