@@ -8,6 +8,7 @@ import {
     IsNotEmpty,
     IsString,
     Matches,
+    MinLength,
 } from 'class-validator';
 
 import { LanguageType } from '../../../common/constants/language-type';
@@ -26,9 +27,12 @@ export class UserRegisterDto {
 
     @IsString()
     @Matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,}$/,
-        { message: 'Password is not strong enough' },
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&^\\/-_+=()[\]|"'~<>:;§.])$/,
+        {
+            message: 'Password is not strong enough',
+        },
     )
+    @MinLength(8)
     @ApiProperty({ minLength: 8 })
     readonly password: string;
 
