@@ -27,7 +27,7 @@ export class UserRegisterDto {
 
     @IsString()
     @Matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&^\\/-_+=()[\]|"'~<>:;§.])$/,
+        /^(?=(.*[a-z]))(?=(.*[A-Z]))(?=(.*[0-9]))(?=(.*[#@$!%*?&^\\/-_+=()[\]|"'~<>:;§.])).{8,}$/,
         {
             message: 'Password is not strong enough',
         },
