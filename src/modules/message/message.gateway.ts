@@ -126,7 +126,7 @@ export class MessageGateway
             });
         }
 
-        // await this._expo.sendPushNotificationsAsync(notifications);
+        await this._expo.sendPushNotificationsAsync(notifications);
     }
 
     @SubscribeMessage('joinRoom')
