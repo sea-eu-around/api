@@ -78,4 +78,7 @@ export enum EducationFieldType {
     MILITARY_DEFENCE = 'military-defence',
     PROTECTION_OF_PERSONS_PROPERTY = 'protection-of-persons-property',
     TRANSPORT_SERVICES = 'transport-services',
+    CARE_ELDERY_DISABLED_ADULTS = 'care-elderly-disabled-adults',
+    CHILD_CARE_YOUTH_SERVICES = 'child-care-youth-services',
+    SOCIAL_WORK_COUNSELLING = 'social-work-counselling',
 }
