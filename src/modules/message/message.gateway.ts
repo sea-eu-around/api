@@ -11,6 +11,7 @@ import {
     WebSocketServer,
     WsException,
 } from '@nestjs/websockets';
+import { createCipheriv } from 'crypto';
 import Expo, { ExpoPushMessage } from 'expo-server-sdk';
 import { Socket } from 'socket.io';
 import { Server } from 'ws';
@@ -23,6 +24,7 @@ import { MessageRepository } from '../../repositories/message.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
 import { ProfileRoomRepository } from '../../repositories/profileRoom.repository';
 import { RoomRepository } from '../../repositories/room.repository';
+import { ConfigService } from '../../shared/services/config.service';
 import { UserRepository } from '../user/user.repository';
 import { UserService } from '../user/user.service';
 import { IsWritingDto } from './dto/IsWritingDto';
@@ -48,6 +50,7 @@ export class MessageGateway
         private readonly _messageRepository: MessageRepository,
         private readonly _userRepository: UserRepository,
         private readonly _profileRepository: ProfileRepository,
+        private readonly _configService: ConfigService,
     ) {
         this._logger = new Logger('MessageGateway');
         this._onlineProfiles = new Set();
@@ -64,9 +67,23 @@ export class MessageGateway
         });
         const roomProfileIds = room.profiles.map((x) => x.profileId);
 
+        const cipher = createCipheriv(
+            'aes-256-ctr',
+            new Buffer(this._configService.get('CRYPTO_KEY'), 'base64'),
+            new Buffer(this._configService.get('CRYPTO_IV'), 'base64'),
+        );
+
+        const encryptedText = Buffer.concat([
+            cipher.update(data.text),
+            cipher.final(),
+        ]);
+
         // Create the message
+
         let message = this._messageRepository.create({
             ...data,
+            text: encryptedText.toString('base64'),
+            encrypted: true,
             senderId: user.id,
         });
         message = await this._messageRepository.save(message);
@@ -109,7 +126,7 @@ export class MessageGateway
             });
         }
 
-        await this._expo.sendPushNotificationsAsync(notifications);
+        // await this._expo.sendPushNotificationsAsync(notifications);
     }
 
     @SubscribeMessage('joinRoom')
