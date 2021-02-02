@@ -29,5 +29,8 @@ export class MessageEntity extends AbstractEntity<MessageDto> {
     @Column({ default: true })
     sent: boolean;
 
+    @Column({ default: false })
+    encrypted: boolean;
+
     dtoClass = MessageDto;
 }
