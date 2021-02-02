@@ -5,7 +5,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
-import { Between, FindConditions, FindOneOptions } from 'typeorm';
+import { Between, FindConditions, FindOneOptions, In, Not } from 'typeorm';
 
 import { LanguageType } from '../../common/constants/language-type';
 import { UserEntity } from '../../entities/user.entity';
@@ -104,6 +104,7 @@ export class UserService {
     async verifyUser(
         userVerificationQueryDto: UserVerificationQueryDto,
     ): Promise<UserEntity> {
+        // eslint-disable-next-line unused-imports/no-unused-vars-ts
         const { userId, iat, exp } = <any>(
             jwt.verify(
                 userVerificationQueryDto.token,
@@ -250,5 +251,113 @@ export class UserService {
             },
             'UserCronDeletion',
         );
+    }
+
+    async resendVerificationLink({
+        loggedUser,
+        send,
+    }: {
+        loggedUser: UserEntity;
+        send: boolean;
+    }): Promise<void> {
+        let users: UserEntity[];
+
+        if (!send) {
+            users = await this._userRepository.find({
+                where: {
+                    isVerified: false,
+                    email: Not(
+                        In([
+                            'francisco.casanuevagarcia@alum.uca.es',
+                            'mamadoubobo.balde@etudiant.univ-brest.fr',
+                            'youna.lebolloch@etudiant.univ-brest.fr',
+                            'elsa.rivoalen@etudiant.univ-brest.fr',
+                            'ivana.pletkovic@unist.hr',
+                            'oceane.pirou@etudiant.univ-brest.fr',
+                            'e22003481@etudiant.univ-brest.fr',
+                            'anaelle.kergus@etudiant.univ-brest.fr',
+                            'cedric.sanchez@etudiant.univ-brest.fr',
+                            'maxime.rihet@univ-brest.fr',
+                            'stu220497@uni-kiel.de',
+                            'laura.martinezanton@etudiant.univ-brest.fr',
+                            'suzana@ffst.hr',
+                            'stu220394@mail.uni-kiel.de',
+                            'leolorenzo.lacarin@etudiant.univ-brest.fr',
+                            'iurem@svkst.hr',
+                            'juan.attard.16@um.edu.mt',
+                            'simon.leberre1@etudiant.univ-brest.fr',
+                            'justyna.sikorska@ug.edu.pl',
+                            'mer.perezmi@alum.uca.es',
+                            'arthur.deman@etudiant.univ-brest.fr',
+                            'gordana.dujmovic@unist.hr',
+                            'e22007451@etudiant.univ-brest.fr',
+                            'gcorluka@unist.hr',
+                            'clement.leroux4@etudiant.univ-brest.fr',
+                            'fbalzereit@uv.uni-kiel.de',
+                            'maxime.rihet@etudiant.univ-brest.fr',
+                            'sara.verleye@etudiant.univ-brest.fr',
+                            'krzysztof.bielawski@ug.edu.pl',
+                            'stu220497@mail.uni-kiel.de',
+                            'e22010284@etudiant.univ-brest.fr',
+                            'dmatas00@fesb.hr',
+                            'pb16226@ktf-split.hr',
+                            'rekjgs@ug.edu.pl',
+                            'siobane.ansquer@etudiant.univ-brest.fr',
+                            'mkrnic@ffst.hr',
+                            'irene.deandres@uca.es',
+                            'younes.ourhzal@etudiant.univ-brest.fr',
+                            'stu120108@mail.uni-kiel.de',
+                            'irene.rodriguezzaniou@alum.uca.es',
+                            'prorector_international@ug.edu.pl',
+                            'stu223131@mail.uni-kiel.de',
+                            'matthew.xuereb.16@um.edu.mt',
+                            'mathilde.pocher@etudiant.univ-brest.fr',
+                            'mahault.leroy@etudiant.univ-brest.fr',
+                            'jordan.huguenin@etudiant.univ-brest.fr',
+                            'melanie.eynard@univ-brest.fr',
+                            'mohammed.wakkach@etudiant.univ-brest.fr',
+                        ]),
+                    ),
+                },
+            });
+        } else {
+            users = [loggedUser];
+        }
+        for (const user of users) {
+            const jwtToken = jwt.sign(
+                {
+                    userId: user.id,
+                },
+                this._configService.get('JWT_SECRET_KEY'),
+                {
+                    expiresIn:
+                        this._configService.get('JWT_EXPIRATION_TIME') + 's',
+                },
+            );
+
+            const mailTemplate =
+                user.locale === LanguageType.FR
+                    ? 'newValidationToken-en'
+                    : 'newValidationToken-en';
+
+            await this._mailerService.sendMail({
+                to: user.email, // list of receivers
+                from: 'sea-eu.around@univ-brest.fr', // sender address
+                subject:
+                    user.locale === LanguageType.FR
+                        ? 'New verification link'
+                        : 'New verification link', // Subject line
+                template: mailTemplate,
+                context: {
+                    link: `${this._configService.get(
+                        'CLIENT_URL',
+                    )}/validate/${jwtToken}`,
+                },
+            });
+
+            this._logger.warn(`Email to ${user.email} sent 🚀`);
+
+            setTimeout(() => true, 100);
+        }
     }
 }
