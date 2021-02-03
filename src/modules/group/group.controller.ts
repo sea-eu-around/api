@@ -51,6 +51,10 @@ export class GroupController {
     @ApiQuery({
         name: 'limit',
     })
+    @ApiQuery({
+        name: 'id',
+        required: false,
+    })
     @ApiResponse({
         type: GroupDto,
         status: HttpStatus.OK,
@@ -62,11 +66,15 @@ export class GroupController {
     ): Promise<PayloadSuccessDto> {
         const limit = query.limit > 100 ? 100 : query.limit;
 
-        const rooms = await this._groupService.retrieve({
-            limit,
-            page: query.page,
-            route: 'http://localhost:3000/groups',
-        });
+        const rooms = await this._groupService.retrieve(
+            {
+                limit,
+                page: query.page,
+                route: 'http://localhost:3000/groups',
+            },
+            user.id,
+            query.id,
+        );
 
         return {
             description: 'successefully-retrieved-groups',
