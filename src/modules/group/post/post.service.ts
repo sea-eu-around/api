@@ -35,7 +35,7 @@ export class PostService {
         groupId: string;
         options: IPaginationOptions;
     }): Promise<Pagination<PostEntity>> {
-        const member = await this._groupMemberRepository.member({
+        const member = await this._groupMemberRepository.isMember({
             profileId,
             groupId,
         });
@@ -61,7 +61,7 @@ export class PostService {
         groupId: string;
         id: string;
     }): Promise<PostEntity> {
-        const member = await this._groupMemberRepository.member({
+        const member = await this._groupMemberRepository.isMember({
             profileId,
             groupId,
         });
@@ -82,7 +82,7 @@ export class PostService {
         groupId: string;
         payload: CreatePostPayloadDto;
     }): Promise<PostEntity> {
-        const member = await this._groupMemberRepository.member({
+        const member = await this._groupMemberRepository.isMember({
             profileId,
             groupId,
         });
@@ -119,7 +119,7 @@ export class PostService {
         params: UpdatePostParamDto;
         payload: UpdatePostPayloadDto;
     }): Promise<PostEntity> {
-        const member = await this._groupMemberRepository.member({
+        const member = await this._groupMemberRepository.isMember({
             profileId,
             groupId: params.groupId,
         });
@@ -157,7 +157,7 @@ export class PostService {
             id: params.id,
         });
 
-        const member = await this._groupMemberRepository.member({
+        const member = await this._groupMemberRepository.isMember({
             profileId,
             groupId: params.groupId,
         });
