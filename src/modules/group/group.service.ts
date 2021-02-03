@@ -29,20 +29,41 @@ export class GroupService {
 
     async retrieve(
         options: IPaginationOptions,
+        profileId: string,
+        id?: string,
     ): Promise<Pagination<GroupEntity>> {
         // TODO: make subquery
-        /*const groupIds = (
-            await this._groupMemberRepository.find({
-                select: ['groupId'],
-                where: { profileId },
-            })
-        ).map((groupMember) => groupMember.groupId);*/
 
-        const groups = this._groupRepository
-            .createQueryBuilder('group')
-            /*.where('group.id IN (:...groupIds)', {
-                groupIds: [null, ...groupIds],
-            })*/
+        const groups = this._groupRepository.createQueryBuilder('group');
+
+        if (id) {
+            if (id === profileId) {
+                const groupIds = (
+                    await this._groupMemberRepository.find({
+                        select: ['groupId'],
+                        where: { profileId },
+                    })
+                ).map((groupMember) => groupMember.groupId);
+                groups
+                    .andWhere('group.id IN (:...groupIds)', { groupIds })
+                    .andWhere('group.visible = :visible', { visible: false })
+                    .orderBy('group.updatedAt', 'DESC');
+
+                return paginate<GroupEntity>(groups, options);
+            }
+            {
+                const groupIds = (
+                    await this._groupMemberRepository.find({
+                        select: ['groupId'],
+                        where: { profileId: id },
+                    })
+                ).map((groupMember) => groupMember.groupId);
+                groups.andWhere('group.id IN (:...groupIds)', { groupIds });
+            }
+        }
+
+        groups
+            .andWhere('group.visible = :visible', { visible: true })
             .orderBy('group.updatedAt', 'DESC');
 
         return paginate<GroupEntity>(groups, options);
