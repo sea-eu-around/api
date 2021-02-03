@@ -11,8 +11,8 @@ import { GroupMemberRoleType } from '../../common/constants/group-member-role-ty
 import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
 import { GroupEntity } from '../../entities/group.entity';
 import { UserEntity } from '../../entities/user.entity';
+import { GroupMemberRepository } from '../../repositories/group-member.repository';
 import { GroupRepository } from '../../repositories/group.repository';
-import { GroupMemberRepository } from '../../repositories/groupMember.repository';
 import { ConfigService } from '../../shared/services/config.service';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
 import { UpdateGroupPayloadDto } from './dto/UpdateGroupPayloadDto';
@@ -48,7 +48,7 @@ export class GroupService {
         return paginate<GroupEntity>(groups, options);
     }
 
-    async retrieveOne(id: string, profileId: string): Promise<GroupEntity> {
+    async retrieveOne(id: string, _profileId: string): Promise<GroupEntity> {
         /*const isProfileInRoom = await this._groupMemberRepository.isProfileInRoom(
             profileId,
             roomId,
@@ -88,7 +88,12 @@ export class GroupService {
         updateGroupPayloadDto: UpdateGroupPayloadDto,
         user: UserEntity,
     ): Promise<GroupEntity> {
-        if (!(await this._groupMemberRepository.isAdmin(user.id, id))) {
+        if (
+            !(await this._groupMemberRepository.admin({
+                profileId: user.id,
+                groupId: id,
+            }))
+        ) {
             throw new UnauthorizedException();
         }
 
@@ -99,7 +104,12 @@ export class GroupService {
     }
 
     async delete(id: string, user: UserEntity): Promise<void> {
-        if (!(await this._groupMemberRepository.isAdmin(user.id, id))) {
+        if (
+            !(await this._groupMemberRepository.admin({
+                profileId: user.id,
+                groupId: id,
+            }))
+        ) {
             throw new UnauthorizedException();
         }
 
@@ -127,8 +137,7 @@ export class GroupService {
                 this._configService.get('USER_DELETION_MONTHS_OFFSET'),
                 10,
             ) || 6;
-        // from.setMonth(from.getMonth() - offset);
-        from.setHours(from.getHours() - 24);
+        from.setMonth(from.getMonth() - offset);
 
         const to = new Date(from.getTime());
         to.setHours(to.getHours() + 24);
