@@ -51,6 +51,10 @@ export class GroupController {
     @ApiQuery({
         name: 'limit',
     })
+    @ApiQuery({
+        name: 'profileId',
+        required: false,
+    })
     @ApiResponse({
         type: GroupDto,
         status: HttpStatus.OK,
@@ -63,9 +67,13 @@ export class GroupController {
         const limit = query.limit > 100 ? 100 : query.limit;
 
         const rooms = await this._groupService.retrieve({
-            limit,
-            page: query.page,
-            route: 'http://localhost:3000/groups',
+            user,
+            options: {
+                limit,
+                page: query.page,
+                route: 'http://localhost:3000/groups',
+            },
+            profileId: query.profileId,
         });
 
         return {
