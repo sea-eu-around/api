@@ -31,6 +31,8 @@ export class GroupMemberService {
     ): Promise<Pagination<GroupMemberEntity>> {
         let groupMembers = this._groupMemberRepository
             .createQueryBuilder('groupMember')
+            .leftJoinAndSelect('groupMember.profile', 'profile')
+            .leftJoinAndSelect('profile.avatar', 'avatar')
             .where('groupMember.groupId = :groupId', { groupId })
             .andWhere('groupMember.profileId != :profileId', {
                 profileId: user.id,
