@@ -73,6 +73,7 @@ export class ProfileService {
         profilesQuery: SelectQueryBuilder<ProfileEntity>,
         offers: string[],
     ): Promise<ProfileEntity[]> {
+        this._logger.log(profilesQuery.getQueryAndParameters());
         const profiles = await profilesQuery.take(80).getMany();
 
         profiles.map((profile) => {
@@ -115,7 +116,6 @@ export class ProfileService {
             .leftJoinAndSelect('profile.profileOffers', 'profileOffers')
             .leftJoinAndSelect('profile.interests', 'interests')
             .leftJoinAndSelect('profile.languages', 'languages')
-            .leftJoinAndSelect('profile.givenLikes', 'givenLikes')
             .leftJoinAndSelect('profile.avatar', 'avatar')
             .where('profile.id NOT IN (:...unwantedProfiles)', {
                 unwantedProfiles,
