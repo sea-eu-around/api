@@ -11,9 +11,11 @@ import { GroupMemberRoleType } from '../../common/constants/group-member-role-ty
 import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
 import { GroupEntity } from '../../entities/group.entity';
 import { UserEntity } from '../../entities/user.entity';
+import { GroupCoverRepository } from '../../repositories/group-cover.repository';
 import { GroupMemberRepository } from '../../repositories/group-member.repository';
 import { GroupRepository } from '../../repositories/group.repository';
 import { ConfigService } from '../../shared/services/config.service';
+import { CreateGroupCoverPayloadDto } from './dto/CreateGroupCoverPayloadDto';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
 import { UpdateGroupPayloadDto } from './dto/UpdateGroupPayloadDto';
 
@@ -25,6 +27,7 @@ export class GroupService {
         private readonly _groupRepository: GroupRepository,
         private readonly _groupMemberRepository: GroupMemberRepository,
         private readonly _configService: ConfigService,
+        private readonly _groupCoverRepository: GroupCoverRepository,
     ) {}
 
     async retrieve({
@@ -181,5 +184,39 @@ export class GroupService {
             },
             'GroupsDeletionCron',
         );
+    }
+
+    async updateCover({
+        createGroupCoverPayloadDto,
+        id,
+        user,
+    }: {
+        createGroupCoverPayloadDto: CreateGroupCoverPayloadDto;
+        id?: string;
+        user?: UserEntity;
+    }): Promise<GroupEntity> {
+        if (
+            !(await this._groupMemberRepository.admin({
+                groupId: id,
+                profileId: user.id,
+            }))
+        ) {
+            throw new UnauthorizedException();
+        }
+
+        const preGroupCover = this._groupCoverRepository.create({
+            groupId: id,
+            creatorId: { id: user.id },
+            path: createGroupCoverPayloadDto.fileName,
+            id: createGroupCoverPayloadDto.fileName.split('.')[0],
+        });
+
+        const groupCover = await this._groupCoverRepository.save(preGroupCover);
+
+        const group = await this._groupRepository.findOne(id);
+
+        group.cover = groupCover;
+
+        return this._groupRepository.save(group);
     }
 }
