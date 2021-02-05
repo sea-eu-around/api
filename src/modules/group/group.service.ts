@@ -39,7 +39,9 @@ export class GroupService {
         user: UserEntity;
         profileId?: string;
     }): Promise<Pagination<GroupEntity>> {
-        const groups = this._groupRepository.createQueryBuilder('group');
+        const groups = this._groupRepository
+            .createQueryBuilder('group')
+            .leftJoinAndSelect('group.cover', 'cover');
 
         if (profileId) {
             const groupIds = (
@@ -77,10 +79,7 @@ export class GroupService {
             throw new ForbiddenException();
         }*/
 
-        return this._groupRepository
-            .createQueryBuilder('group')
-            .where('group.id = :id', { id })
-            .getOne();
+        return this._groupRepository.findOne(id);
     }
 
     async create(
