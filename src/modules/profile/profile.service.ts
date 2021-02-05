@@ -73,7 +73,6 @@ export class ProfileService {
         profilesQuery: SelectQueryBuilder<ProfileEntity>,
         offers: string[],
     ): Promise<ProfileEntity[]> {
-        this._logger.log(profilesQuery.getQueryAndParameters());
         const profiles = await profilesQuery.take(80).getMany();
 
         profiles.map((profile) => {
