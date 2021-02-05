@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToOne } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, OneToOne } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { MatchingStatusType } from '../common/constants/matching-status-type';
@@ -21,9 +21,11 @@ export class MatchingEntity extends AbstractEntity<MatchingDto> {
     toProfile: ProfileEntity;
 
     @Column()
+    @Index()
     fromProfileId: string;
 
     @Column()
+    @Index()
     toProfileId: string;
 
     @Column({
