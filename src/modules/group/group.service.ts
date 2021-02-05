@@ -27,39 +27,34 @@ export class GroupService {
         private readonly _configService: ConfigService,
     ) {}
 
-    async retrieve(
-        options: IPaginationOptions,
-        profileId: string,
-        id?: string,
-    ): Promise<Pagination<GroupEntity>> {
-        // TODO: make subquery
-
+    async retrieve({
+        options,
+        user,
+        profileId,
+    }: {
+        options: IPaginationOptions;
+        user: UserEntity;
+        profileId?: string;
+    }): Promise<Pagination<GroupEntity>> {
         const groups = this._groupRepository.createQueryBuilder('group');
 
-        if (id) {
-            if (id === profileId) {
-                const groupIds = (
-                    await this._groupMemberRepository.find({
-                        select: ['groupId'],
-                        where: { profileId },
-                    })
-                ).map((groupMember) => groupMember.groupId);
-                groups
-                    .andWhere('group.id IN (:...groupIds)', { groupIds })
-                    .andWhere('group.visible = :visible', { visible: false })
-                    .orderBy('group.updatedAt', 'DESC');
+        if (profileId) {
+            const groupIds = (
+                await this._groupMemberRepository.find({
+                    select: ['groupId'],
+                    where: { profileId },
+                })
+            ).map((groupMember) => groupMember.groupId);
 
-                return paginate<GroupEntity>(groups, options);
+            groups
+                .andWhere('group.id IN (:...groupIds)', { groupIds })
+                .orderBy('group.updatedAt', 'DESC');
+
+            if (profileId !== user.id) {
+                groups.andWhere('group.visible = :visible', { visible: true });
             }
-            {
-                const groupIds = (
-                    await this._groupMemberRepository.find({
-                        select: ['groupId'],
-                        where: { profileId: id },
-                    })
-                ).map((groupMember) => groupMember.groupId);
-                groups.andWhere('group.id IN (:...groupIds)', { groupIds });
-            }
+
+            return paginate<GroupEntity>(groups, options);
         }
 
         groups
