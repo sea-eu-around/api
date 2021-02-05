@@ -27,6 +27,8 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
+import { CreateGroupCoverParamsDto } from './dto/CreateGroupCoverParamsDto';
+import { CreateGroupCoverPayloadDto } from './dto/CreateGroupCoverPayloadDto';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
 import { DeleteGroupParamsDto } from './dto/DeleteGroupParamsDto';
 import { RetrieveGroupParamsDto } from './dto/RetrieveGroupParamsDto';
@@ -180,6 +182,35 @@ export class GroupController {
 
         return {
             description: 'successefully-deleted-group',
+        };
+    }
+
+    @Post('/:id/cover')
+    @HttpCode(HttpStatus.CREATED)
+    @ApiBearerAuth()
+    @ApiParam({
+        name: 'id',
+        type: 'string',
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'successefully-created-cover',
+        type: GroupDto,
+    })
+    async createCover(
+        @Param() createGroupCoverParamsDto: CreateGroupCoverParamsDto,
+        @Body() createGroupCoverPayloadDto: CreateGroupCoverPayloadDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const group = await this._groupService.updateCover({
+            createGroupCoverPayloadDto,
+            user,
+            ...createGroupCoverParamsDto,
+        });
+
+        return {
+            description: 'successefully-created-group-cover',
+            data: group,
         };
     }
 }
