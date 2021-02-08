@@ -115,12 +115,12 @@ export class GroupService {
             throw new UnauthorizedException();
         }
 
-        const group = await this._groupRepository.findOne(id);
-
-        return this._groupRepository.save({
-            ...group,
+        await this._groupRepository.save({
+            id,
             ...updateGroupPayloadDto,
         });
+
+        return this._groupRepository.findOne(id);
     }
 
     async delete(id: string, user: UserEntity): Promise<void> {
