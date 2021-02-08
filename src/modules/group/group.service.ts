@@ -115,8 +115,10 @@ export class GroupService {
             throw new UnauthorizedException();
         }
 
+        const group = await this._groupRepository.findOne(id);
+
         return this._groupRepository.save({
-            id,
+            ...group,
             ...updateGroupPayloadDto,
         });
     }
