@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { IsInt } from 'class-validator';
 
-export class RetrieveGroupsQueryDto {
+export class RetrievePostQueryDto {
     @IsInt()
     @Transform(parseInt)
     readonly page!: number;
@@ -9,8 +9,4 @@ export class RetrieveGroupsQueryDto {
     @IsInt()
     @Transform(parseInt)
     readonly limit!: number;
-
-    @IsString()
-    @IsOptional()
-    readonly profileId?: string;
 }

@@ -1,5 +1,6 @@
 import {
     ClassSerializerInterceptor,
+    NotFoundException,
     UnprocessableEntityException,
     ValidationPipe,
 } from '@nestjs/common';
@@ -8,7 +9,7 @@ import {
     ExpressAdapter,
     NestExpressApplication,
 } from '@nestjs/platform-express';
-import { useContainer } from 'class-validator';
+import { useContainer, ValidationError } from 'class-validator';
 import * as compression from 'compression';
 import * as RateLimit from 'express-rate-limit';
 import * as helmet from 'helmet';
@@ -67,8 +68,16 @@ async function bootstrap() {
             whitelist: true,
             transform: true,
             dismissDefaultMessages: false,
-            errorHttpStatusCode: 422,
             exceptionFactory: (errors) => {
+                const existsError: ValidationError[] = [];
+                for (const error of errors) {
+                    if (Object.keys(error.constraints).includes('exists')) {
+                        existsError.push(error);
+                    }
+                }
+                if (existsError.length > 0) {
+                    throw new NotFoundException();
+                }
                 throw new UnprocessableEntityException(errors);
             },
             validationError: {

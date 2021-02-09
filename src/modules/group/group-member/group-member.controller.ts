@@ -9,6 +9,8 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
 } from '@nestjs/common';
 import {
     ApiBearerAuth,
@@ -23,6 +25,9 @@ import { PayloadSuccessDto } from '../../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../../decorators/auth-user.decorator';
 import { GroupDto } from '../../../dto/GroupDto';
 import { UserEntity } from '../../../entities/user.entity';
+import { AuthGuard } from '../../../guards/auth.guard';
+import { RolesGuard } from '../../../guards/roles.guard';
+import { AuthUserInterceptor } from '../../../interceptors/auth-user-interceptor.service';
 import { CreateGroupMemberParamsDto } from './dto/CreateGroupMemberParamsDto';
 import { DeleteGroupMemberParamsDto } from './dto/DeleteGroupMemberParamsDto';
 import { RetrieveGroupMembersParamsDto } from './dto/RetrieveGroupMembersParamsDto';
@@ -33,6 +38,8 @@ import { GroupMemberService } from './group-member.service';
 
 @Controller('/groups/:groupId/members')
 @ApiTags('GroupMembers')
+@UseGuards(AuthGuard, RolesGuard)
+@UseInterceptors(AuthUserInterceptor)
 export class GroupMemberController {
     constructor(private readonly _groupMemberService: GroupMemberService) {}
 

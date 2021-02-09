@@ -116,7 +116,7 @@ export class MessageGateway
 
         for (const offlineOrInOtherRoomUser of offlineOrInOtherRoomUsers) {
             notifications.push({
-                data,
+                data: message.toDto(),
                 to:
                     offlineOrInOtherRoomUser.expoPushToken ||
                     offlineOrInOtherRoomUser.email,
@@ -126,7 +126,7 @@ export class MessageGateway
             });
         }
 
-        // await this._expo.sendPushNotificationsAsync(notifications);
+        await this._expo.sendPushNotificationsAsync(notifications);
     }
 
     @SubscribeMessage('joinRoom')

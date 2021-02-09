@@ -31,6 +31,8 @@ export class GroupMemberService {
     ): Promise<Pagination<GroupMemberEntity>> {
         let groupMembers = this._groupMemberRepository
             .createQueryBuilder('groupMember')
+            .leftJoinAndSelect('groupMember.profile', 'profile')
+            .leftJoinAndSelect('profile.avatar', 'avatar')
             .where('groupMember.groupId = :groupId', { groupId })
             .andWhere('groupMember.profileId != :profileId', {
                 profileId: user.id,
@@ -80,7 +82,12 @@ export class GroupMemberService {
         updateGroupMemberPayloadDto: UpdateGroupMemberPayloadDto;
         user: UserEntity;
     }): Promise<GroupMemberEntity> {
-        if (!(await this._groupMemberRepository.isAdmin(user.id, groupId))) {
+        if (
+            !(await this._groupMemberRepository.isAdmin({
+                groupId,
+                profileId: user.id,
+            }))
+        ) {
             throw new UnauthorizedException();
         }
 
@@ -103,7 +110,10 @@ export class GroupMemberService {
         if (
             profileId &&
             profileId !== user.id &&
-            !(await this._groupMemberRepository.isAdmin(user.id, groupId))
+            !(await this._groupMemberRepository.isAdmin({
+                groupId,
+                profileId: user.id,
+            }))
         ) {
             throw new UnauthorizedException();
         }

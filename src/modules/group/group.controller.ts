@@ -27,6 +27,8 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
+import { CreateGroupCoverParamsDto } from './dto/CreateGroupCoverParamsDto';
+import { CreateGroupCoverPayloadDto } from './dto/CreateGroupCoverPayloadDto';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
 import { DeleteGroupParamsDto } from './dto/DeleteGroupParamsDto';
 import { RetrieveGroupParamsDto } from './dto/RetrieveGroupParamsDto';
@@ -51,6 +53,10 @@ export class GroupController {
     @ApiQuery({
         name: 'limit',
     })
+    @ApiQuery({
+        name: 'profileId',
+        required: false,
+    })
     @ApiResponse({
         type: GroupDto,
         status: HttpStatus.OK,
@@ -63,9 +69,13 @@ export class GroupController {
         const limit = query.limit > 100 ? 100 : query.limit;
 
         const rooms = await this._groupService.retrieve({
-            limit,
-            page: query.page,
-            route: 'http://localhost:3000/groups',
+            user,
+            options: {
+                limit,
+                page: query.page,
+                route: 'http://localhost:3000/groups',
+            },
+            profileId: query.profileId,
         });
 
         return {
@@ -172,6 +182,35 @@ export class GroupController {
 
         return {
             description: 'successefully-deleted-group',
+        };
+    }
+
+    @Post('/:id/cover')
+    @HttpCode(HttpStatus.CREATED)
+    @ApiBearerAuth()
+    @ApiParam({
+        name: 'id',
+        type: 'string',
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'successefully-created-cover',
+        type: GroupDto,
+    })
+    async createCover(
+        @Param() createGroupCoverParamsDto: CreateGroupCoverParamsDto,
+        @Body() createGroupCoverPayloadDto: CreateGroupCoverPayloadDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const group = await this._groupService.updateCover({
+            createGroupCoverPayloadDto,
+            user,
+            ...createGroupCoverParamsDto,
+        });
+
+        return {
+            description: 'successefully-created-group-cover',
+            data: group,
         };
     }
 }

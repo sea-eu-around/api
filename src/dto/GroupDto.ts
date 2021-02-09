@@ -21,6 +21,9 @@ export class GroupDto extends AbstractDto {
     @ApiPropertyOptional()
     description?: string;
 
+    @ApiPropertyOptional()
+    cover?: string;
+
     constructor(group: GroupEntity) {
         super(group);
         this.name = group.name;
@@ -30,5 +33,10 @@ export class GroupDto extends AbstractDto {
             ? group.members.toDtos()
             : null;
         this.description = group.description;
+        this.cover = UtilsService.isDto(group.cover)
+            ? UtilsService.isImageFilename(group.cover.path)
+                ? `https://aas-bucket.s3.eu-west-3.amazonaws.com/${group.cover.path}`
+                : group.cover.path
+            : null;
     }
 }
