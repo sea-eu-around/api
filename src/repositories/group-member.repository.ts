@@ -6,7 +6,7 @@ import { GroupMemberEntity } from '../entities/groupMember.entity';
 
 @EntityRepository(GroupMemberEntity)
 export class GroupMemberRepository extends Repository<GroupMemberEntity> {
-    async isAdmin({
+    async admin({
         profileId,
         groupId,
     }: {
@@ -20,7 +20,7 @@ export class GroupMemberRepository extends Repository<GroupMemberEntity> {
         });
     }
 
-    async isMember({
+    async member({
         profileId,
         groupId,
     }: {

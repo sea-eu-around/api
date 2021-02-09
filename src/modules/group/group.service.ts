@@ -11,9 +11,11 @@ import { GroupMemberRoleType } from '../../common/constants/group-member-role-ty
 import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
 import { GroupEntity } from '../../entities/group.entity';
 import { UserEntity } from '../../entities/user.entity';
+import { GroupCoverRepository } from '../../repositories/group-cover.repository';
+import { GroupMemberRepository } from '../../repositories/group-member.repository';
 import { GroupRepository } from '../../repositories/group.repository';
-import { GroupMemberRepository } from '../../repositories/groupMember.repository';
 import { ConfigService } from '../../shared/services/config.service';
+import { CreateGroupCoverPayloadDto } from './dto/CreateGroupCoverPayloadDto';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
 import { UpdateGroupPayloadDto } from './dto/UpdateGroupPayloadDto';
 
@@ -25,30 +27,49 @@ export class GroupService {
         private readonly _groupRepository: GroupRepository,
         private readonly _groupMemberRepository: GroupMemberRepository,
         private readonly _configService: ConfigService,
+        private readonly _groupCoverRepository: GroupCoverRepository,
     ) {}
 
-    async retrieve(
-        options: IPaginationOptions,
-    ): Promise<Pagination<GroupEntity>> {
-        // TODO: make subquery
-        /*const groupIds = (
-            await this._groupMemberRepository.find({
-                select: ['groupId'],
-                where: { profileId },
-            })
-        ).map((groupMember) => groupMember.groupId);*/
-
+    async retrieve({
+        options,
+        user,
+        profileId,
+    }: {
+        options: IPaginationOptions;
+        user: UserEntity;
+        profileId?: string;
+    }): Promise<Pagination<GroupEntity>> {
         const groups = this._groupRepository
             .createQueryBuilder('group')
-            /*.where('group.id IN (:...groupIds)', {
-                groupIds: [null, ...groupIds],
-            })*/
+            .leftJoinAndSelect('group.cover', 'cover');
+
+        if (profileId) {
+            const groupIds = (
+                await this._groupMemberRepository.find({
+                    select: ['groupId'],
+                    where: { profileId },
+                })
+            ).map((groupMember) => groupMember.groupId);
+
+            groups
+                .andWhere('group.id IN (:...groupIds)', { groupIds })
+                .orderBy('group.updatedAt', 'DESC');
+
+            if (profileId !== user.id) {
+                groups.andWhere('group.visible = :visible', { visible: true });
+            }
+
+            return paginate<GroupEntity>(groups, options);
+        }
+
+        groups
+            .andWhere('group.visible = :visible', { visible: true })
             .orderBy('group.updatedAt', 'DESC');
 
         return paginate<GroupEntity>(groups, options);
     }
 
-    async retrieveOne(id: string, profileId: string): Promise<GroupEntity> {
+    async retrieveOne(id: string, _profileId: string): Promise<GroupEntity> {
         /*const isProfileInRoom = await this._groupMemberRepository.isProfileInRoom(
             profileId,
             roomId,
@@ -58,10 +79,7 @@ export class GroupService {
             throw new ForbiddenException();
         }*/
 
-        return this._groupRepository
-            .createQueryBuilder('group')
-            .where('group.id = :id', { id })
-            .getOne();
+        return this._groupRepository.findOne(id);
     }
 
     async create(
@@ -88,18 +106,30 @@ export class GroupService {
         updateGroupPayloadDto: UpdateGroupPayloadDto,
         user: UserEntity,
     ): Promise<GroupEntity> {
-        if (!(await this._groupMemberRepository.isAdmin(user.id, id))) {
+        if (
+            !(await this._groupMemberRepository.admin({
+                profileId: user.id,
+                groupId: id,
+            }))
+        ) {
             throw new UnauthorizedException();
         }
 
-        return this._groupRepository.save({
+        await this._groupRepository.save({
             id,
             ...updateGroupPayloadDto,
         });
+
+        return this._groupRepository.findOne(id);
     }
 
     async delete(id: string, user: UserEntity): Promise<void> {
-        if (!(await this._groupMemberRepository.isAdmin(user.id, id))) {
+        if (
+            !(await this._groupMemberRepository.admin({
+                profileId: user.id,
+                groupId: id,
+            }))
+        ) {
             throw new UnauthorizedException();
         }
 
@@ -127,8 +157,7 @@ export class GroupService {
                 this._configService.get('USER_DELETION_MONTHS_OFFSET'),
                 10,
             ) || 6;
-        // from.setMonth(from.getMonth() - offset);
-        from.setHours(from.getHours() - 24);
+        from.setMonth(from.getMonth() - offset);
 
         const to = new Date(from.getTime());
         to.setHours(to.getHours() + 24);
@@ -156,5 +185,39 @@ export class GroupService {
             },
             'GroupsDeletionCron',
         );
+    }
+
+    async updateCover({
+        createGroupCoverPayloadDto,
+        id,
+        user,
+    }: {
+        createGroupCoverPayloadDto: CreateGroupCoverPayloadDto;
+        id?: string;
+        user?: UserEntity;
+    }): Promise<GroupEntity> {
+        if (
+            !(await this._groupMemberRepository.admin({
+                groupId: id,
+                profileId: user.id,
+            }))
+        ) {
+            throw new UnauthorizedException();
+        }
+
+        const preGroupCover = this._groupCoverRepository.create({
+            groupId: id,
+            creatorId: { id: user.id },
+            path: createGroupCoverPayloadDto.fileName,
+            id: createGroupCoverPayloadDto.fileName.split('.')[0],
+        });
+
+        const groupCover = await this._groupCoverRepository.save(preGroupCover);
+
+        const group = await this._groupRepository.findOne(id);
+
+        group.cover = groupCover;
+
+        return this._groupRepository.save(group);
     }
 }
