@@ -44,12 +44,12 @@ export class PostService {
             throw new UnauthorizedException();
         }
 
-        const query = this._postRepository
-            .createQueryBuilder('post')
-            .where('post.groupId = :groupId', { groupId })
-            .orderBy('post.created_at', 'DESC');
-
-        return paginate<PostEntity>(query, options);
+        return paginate<PostEntity>(this._postRepository, options, {
+            where: {
+                groupId,
+            },
+            order: { createdAt: 'DESC' },
+        });
     }
 
     async retrieveOne({

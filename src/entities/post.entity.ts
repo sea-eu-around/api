@@ -19,7 +19,7 @@ export abstract class PostEntity extends AbstractEntity<PostDto> {
     @Column()
     text: string;
 
-    @ManyToOne(() => ProfileEntity, { onDelete: 'CASCADE' })
+    @ManyToOne(() => ProfileEntity, { eager: true, onDelete: 'CASCADE' })
     creator: ProfileEntity;
 
     @ManyToOne(() => GroupEntity, { onDelete: 'CASCADE' })
