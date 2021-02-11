@@ -10,6 +10,7 @@ import { CommentRepository } from '../../../../repositories/comment.repository';
 import { GroupMemberRepository } from '../../../../repositories/group-member.repository';
 import { PostRepository } from '../../../../repositories/post.repository';
 import { CreateCommentPayloadDto } from './dto/CreateCommentPayloadDto';
+import { UpdateCommentPayloadDto } from './dto/UpdateCommentPayloadDto';
 
 @Injectable()
 export class CommentService {
@@ -43,7 +44,8 @@ export class CommentService {
             .createQueryBuilder('comments')
             .leftJoinAndSelect('comments.creator', 'creator')
             .leftJoinAndSelect('creator.avatar', 'avatar')
-            .where('comments.parentId IS NULL');
+            .where('comments.parentId IS NULL')
+            .andWhere('comments.postId = : postId', { postId });
 
         const rootsCommentsPaginate = await paginate<CommentEntity>(
             rootsCommentsQb,
@@ -133,5 +135,44 @@ export class CommentService {
         }
 
         return this._commentRepository.save(preComment);
+    }
+
+    async update({
+        id,
+        profileId,
+        payload,
+    }: {
+        id: string;
+        profileId: string;
+        payload: UpdateCommentPayloadDto;
+    }): Promise<CommentEntity> {
+        const comment = await this._commentRepository.findOne(id);
+
+        if (!(comment.creatorId === profileId)) {
+            throw new UnauthorizedException();
+        }
+
+        const preComment = this._commentRepository.create({
+            id,
+            text: payload.text,
+        });
+
+        return this._commentRepository.save(preComment);
+    }
+
+    async delete({
+        id,
+        profileId,
+    }: {
+        id: string;
+        profileId: string;
+    }): Promise<void> {
+        const comment = await this._commentRepository.findOne(id);
+
+        if (!(comment.creatorId === profileId)) {
+            throw new UnauthorizedException();
+        }
+
+        await this._commentRepository.delete({ id });
     }
 }
