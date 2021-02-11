@@ -29,6 +29,7 @@ import { ProfilePictureEntity } from './profilePicture.entity';
 import { ProfileRoomEntity } from './profileRoom.entity';
 import { ReportEntity } from './report.entity';
 import { UserEntity } from './user.entity';
+import { VoteEntity } from './vote.entity';
 
 @Entity('profile')
 @TableInheritance({ column: { type: 'enum', name: 'type', enum: ProfileType } })
@@ -142,6 +143,9 @@ export abstract class ProfileEntity extends AbstractCompositeEntity<ProfileDto> 
 
     @OneToMany(() => MediaEntity, (media) => media.creator, { cascade: true })
     medias: MediaEntity[];
+
+    @OneToMany(() => VoteEntity, (vote) => vote.fromProfile, { cascade: true })
+    votes: VoteEntity[];
 
     @PolymorphicChildren(() => ReportEntity, {
         eager: false,

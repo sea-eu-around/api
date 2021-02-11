@@ -8,6 +8,7 @@ import { SimplePostRepository } from '../../../repositories/simple-post.reposito
 import { CommentModule } from './comment/comment.module';
 import { PostController } from './post.controller';
 import { PostService } from './post.service';
+import { VoteModule } from './vote/vote.module';
 
 @Module({
     imports: [
@@ -18,6 +19,7 @@ import { PostService } from './post.service';
             SimplePostRepository,
         ]),
         CommentModule,
+        VoteModule,
     ],
     providers: [PostService],
     controllers: [PostController],
