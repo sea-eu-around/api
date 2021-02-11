@@ -154,7 +154,7 @@ export class PostService {
         params: DeletePostParamDto;
     }): Promise<void> {
         const post = await this._postRepository.findOne({
-            id: params.id,
+            where: { id: params.id },
         });
 
         const member = await this._groupMemberRepository.isMember({
