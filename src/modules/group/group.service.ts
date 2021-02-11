@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import {
@@ -24,6 +25,7 @@ export class GroupService {
     private readonly _logger = new Logger(GroupService.name);
 
     constructor(
+        private readonly _mailerService: MailerService,
         private readonly _groupRepository: GroupRepository,
         private readonly _groupMemberRepository: GroupMemberRepository,
         private readonly _configService: ConfigService,
@@ -147,6 +149,25 @@ export class GroupService {
         deletedAt.setMonth(deletedAt.getMonth() + offset);*/
 
         // TODO: send a mail with teh date of the group deletion
+        /*const mailTemplate =
+            user.locale === LanguageType.FR
+                ? 'deleteGroup-fr'
+                : 'deleteGroup-en';
+
+        const time = new Date();
+
+        await this._mailerService.sendMail({
+            to: user.email, // list of receivers
+            from: 'sea-eu.around@univ-brest.fr', // sender address
+            subject:
+                user.locale === LanguageType.FR
+                    ? 'Groupe Supprimé'
+                    : 'Successfuly deleted group', // Subject line
+            template: mailTemplate,
+            context: {
+                time,
+            },
+        });*/
     }
 
     @Cron('0 0 0 * * *')
@@ -171,7 +192,6 @@ export class GroupService {
 
         for (const group of groupsToDelete) {
             promesses.push(this._groupRepository.delete({ id: group.id }));
-
             // TODO: send mail
         }
 
