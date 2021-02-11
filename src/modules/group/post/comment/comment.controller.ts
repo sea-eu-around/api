@@ -1,4 +1,5 @@
 import {
+    Body,
     Controller,
     Delete,
     Get,
@@ -28,6 +29,8 @@ import { AuthGuard } from '../../../../guards/auth.guard';
 import { RolesGuard } from '../../../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../../../interceptors/auth-user-interceptor.service';
 import { CommentService } from './comment.service';
+import { CreateCommentsParamsDto } from './dto/CreateCommentParamsDto';
+import { CreateCommentPayloadDto } from './dto/CreateCommentPayloadDto';
 import { RetrieveCommentsParamsDto } from './dto/RetrieveCommentsParamsDto';
 import { RetrieveCommentsQueryDto } from './dto/RetrieveCommentsQueryDto';
 
@@ -121,8 +124,21 @@ export class CommentController {
         description: 'successefully-created-comment',
         type: CommentDto,
     })
-    create(): PayloadSuccessDto {
-        throw new NotImplementedException();
+    async create(
+        @Param() params: CreateCommentsParamsDto,
+        @Body() payload: CreateCommentPayloadDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const comment = await this._commentService.create({
+            profileId: user.id,
+            ...params,
+            payload,
+        });
+
+        return {
+            description: 'successefully-created-comment',
+            data: comment,
+        };
     }
 
     @Patch('/:id')

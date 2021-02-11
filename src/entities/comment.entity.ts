@@ -16,19 +16,28 @@ import { ProfileEntity } from './profile.entity';
 @Tree('materialized-path')
 export class CommentEntity extends AbstractEntity<CommentDto> {
     @Column()
-    text: string;
+    text!: string;
 
-    @ManyToOne(() => ProfileEntity)
+    @ManyToOne(() => ProfileEntity, { eager: true, onDelete: 'CASCADE' })
     creator: ProfileEntity;
 
-    @ManyToOne(() => PostEntity)
+    @Column()
+    creatorId!: string;
+
+    @ManyToOne(() => PostEntity, { onDelete: 'CASCADE' })
     post: PostEntity;
 
+    @Column()
+    postId!: string;
+
     @TreeChildren()
-    children: CommentEntity[];
+    children?: CommentEntity[];
 
     @TreeParent()
-    parent: CommentEntity;
+    parent?: CommentEntity;
+
+    @Column({ nullable: true })
+    parentId?: string;
 
     dtoClass = CommentDto;
 }
