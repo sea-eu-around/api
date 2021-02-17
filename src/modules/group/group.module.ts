@@ -6,6 +6,7 @@ import { GroupCoverRepository } from '../../repositories/group-cover.repository'
 import { GroupMemberRepository } from '../../repositories/group-member.repository';
 import { GroupRepository } from '../../repositories/group.repository';
 import { PostRepository } from '../../repositories/post.repository';
+import { VoteRepository } from '../../repositories/vote.repository';
 import { GroupMemberModule } from './group-member/group-member.module';
 import { GroupController } from './group.controller';
 import { GroupService } from './group.service';
@@ -19,6 +20,7 @@ import { PostModule } from './post/post.module';
             GroupCoverRepository,
             CommentRepository,
             PostRepository,
+            VoteRepository,
         ]),
         GroupMemberModule,
         PostModule,

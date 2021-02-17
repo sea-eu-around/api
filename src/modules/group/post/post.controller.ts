@@ -20,6 +20,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 
+import { FeedType } from '../../../common/constants/feed-type';
 import { PayloadSuccessDto } from '../../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../../decorators/auth-user.decorator';
 import { GroupDto } from '../../../dto/GroupDto';
@@ -58,6 +59,10 @@ export class PostController {
     @ApiQuery({
         name: 'limit',
     })
+    @ApiQuery({
+        name: 'type',
+        enum: FeedType,
+    })
     @ApiResponse({
         type: PostDto,
         status: HttpStatus.OK,
@@ -76,6 +81,7 @@ export class PostController {
             profileId: user.id,
             groupId: retrievePostParamDto.groupId,
             options: { page, limit },
+            ...retrievePostQueryDto,
         });
 
         return {
