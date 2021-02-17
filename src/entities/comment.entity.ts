@@ -42,6 +42,16 @@ export class CommentEntity extends AbstractEntity<CommentDto> {
     @Column({ nullable: true })
     parentId?: string;
 
+    @Column({
+        default: 0,
+    })
+    upVotesCount?: number;
+
+    @Column({
+        default: 0,
+    })
+    downVotesCount?: number;
+
     @PolymorphicChildren(() => VoteEntity, {
         eager: false,
     })
