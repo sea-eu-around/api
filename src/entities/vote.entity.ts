@@ -1,5 +1,12 @@
 import { Transform } from 'class-transformer';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import {
+    AfterInsert,
+    AfterRemove,
+    Column,
+    Entity,
+    getConnection,
+    ManyToOne,
+} from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { VoteType } from '../common/constants/vote-type';
@@ -43,6 +50,27 @@ export abstract class VoteEntity
 
     @Column()
     fromProfileId: string;
+
+    @AfterInsert()
+    async increaseLikesCounter(): Promise<void> {
+        const id = this.entityId != null ? this.entityId : 0;
+        const query =
+            this.voteType === VoteType.UP
+                ? '" SET "up_votes_count" = up_votes_count + 1 WHERE "id" = $1'
+                : '" SET "down_votes_count" = down_votes_count + 1 WHERE "id" = $1'; // To avoid updated_at to be changed
+        await getConnection().query('UPDATE "' + this.entityType + query, [id]);
+    }
+
+    @AfterRemove()
+    async decreaseLikesCounter(): Promise<void> {
+        const id = this.entityId != null ? this.entityId : 0;
+        const query =
+            this.voteType === VoteType.UP
+                ? '" SET "up_votes_count" = up_votes_count - 1 WHERE "id" = $1'
+                : '" SET "down_votes_count" = down_votes_count - 1 WHERE "id" = $1';
+        // To avoid updated_at to be changed
+        await getConnection().query('UPDATE "' + this.entityType + query, [id]);
+    }
 
     dtoClass = VoteDto;
 }
