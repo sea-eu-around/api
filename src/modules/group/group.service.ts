@@ -8,13 +8,16 @@ import {
 } from 'nestjs-typeorm-paginate';
 import { Between } from 'typeorm';
 
+import { FeedType } from '../../common/constants/feed-type';
 import { GroupMemberRoleType } from '../../common/constants/group-member-role-type';
 import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
 import { GroupEntity } from '../../entities/group.entity';
+import { PostEntity } from '../../entities/post.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { GroupCoverRepository } from '../../repositories/group-cover.repository';
 import { GroupMemberRepository } from '../../repositories/group-member.repository';
 import { GroupRepository } from '../../repositories/group.repository';
+import { PostRepository } from '../../repositories/post.repository';
 import { ConfigService } from '../../shared/services/config.service';
 import { CreateGroupCoverPayloadDto } from './dto/CreateGroupCoverPayloadDto';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
@@ -30,6 +33,7 @@ export class GroupService {
         private readonly _groupMemberRepository: GroupMemberRepository,
         private readonly _configService: ConfigService,
         private readonly _groupCoverRepository: GroupCoverRepository,
+        private readonly _postRepository: PostRepository,
     ) {}
 
     async retrieve({
@@ -230,5 +234,41 @@ export class GroupService {
         group.cover = groupCover;
 
         return this._groupRepository.save(group);
+    }
+
+    async retrieveFeed({
+        options,
+        user,
+        type,
+    }: {
+        options: IPaginationOptions;
+        user: UserEntity;
+        type: FeedType;
+    }): Promise<Pagination<PostEntity>> {
+        const usersGroupsIds = (
+            await this._groupMemberRepository.find({
+                profileId: user.id,
+            })
+        ).map((groupMember) => groupMember.groupId);
+
+        const postsQb = this._postRepository
+            .createQueryBuilder('posts')
+            .leftJoinAndSelect('posts.creator', 'creator')
+            .leftJoinAndSelect('creator.avatar', 'avatar')
+            .leftJoinAndSelect('posts.group', 'group')
+            .addSelect('(posts.upVotesCount - posts.downVotesCount)', 'score')
+            .where('posts.group_id IN (:...groupIds)', {
+                groupIds: [null, ...usersGroupsIds],
+            });
+
+        switch (type) {
+            case FeedType.CHRONOLOGICAL:
+                postsQb.orderBy('posts.createdAt', 'DESC');
+                break;
+            case FeedType.TRENDING:
+                postsQb.orderBy('score', 'DESC');
+        }
+
+        return paginate<PostEntity>(postsQb, options);
     }
 }
