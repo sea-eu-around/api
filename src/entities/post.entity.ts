@@ -7,6 +7,7 @@ import { PostDto } from '../dto/PostDto';
 import { PolymorphicChildren } from '../polymorphic/decorators';
 import { GroupEntity } from './group.entity';
 import { ProfileEntity } from './profile.entity';
+import { ReportEntity } from './report.entity';
 import { VoteEntity } from './vote.entity';
 
 @Entity('post')
@@ -37,6 +38,11 @@ export abstract class PostEntity extends AbstractEntity<PostDto> {
         eager: false,
     })
     receivedVotes: VoteEntity[];
+
+    @PolymorphicChildren(() => ReportEntity, {
+        eager: false,
+    })
+    receivedReports: ReportEntity[];
 
     dtoClass = PostDto;
 }

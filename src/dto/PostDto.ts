@@ -27,6 +27,9 @@ export class PostDto extends AbstractDto {
     @ApiPropertyOptional()
     group: GroupDto;
 
+    @ApiPropertyOptional()
+    groupId: string;
+
     constructor(post: PostEntity) {
         super(post);
         this.createdAt = post.createdAt;
@@ -38,5 +41,6 @@ export class PostDto extends AbstractDto {
         this.creator = UtilsService.isDto(post.creator)
             ? post.creator.toDto()
             : null;
+        this.groupId = post.groupId;
     }
 }

@@ -72,15 +72,6 @@ export class GroupService {
     }
 
     async retrieveOne(id: string, _profileId: string): Promise<GroupEntity> {
-        /*const isProfileInRoom = await this._groupMemberRepository.isProfileInRoom(
-            profileId,
-            roomId,
-        );
-
-        if (!isProfileInRoom) {
-            throw new ForbiddenException();
-        }*/
-
         return this._groupRepository.findOne(id);
     }
 

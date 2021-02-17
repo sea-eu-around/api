@@ -45,13 +45,12 @@ export class CommentService {
             .leftJoinAndSelect('comments.creator', 'creator')
             .leftJoinAndSelect('creator.avatar', 'avatar')
             .where('comments.parentId IS NULL')
-            .andWhere('comments.postId = : postId', { postId });
+            .andWhere('comments.postId = :postId', { postId });
 
         const rootsCommentsPaginate = await paginate<CommentEntity>(
             rootsCommentsQb,
             options,
         );
-
         for (const rootsComment of rootsCommentsPaginate.items) {
             const entitiesAndScalars = await this._commentRepository
                 .createDescendantsQueryBuilder(

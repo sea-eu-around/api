@@ -6,7 +6,9 @@ import { ReportType } from '../common/constants/report-type';
 import { ReportDto } from '../dto/ReportDto';
 import { PolymorphicParent } from '../polymorphic/decorators';
 import { PolymorphicChildInterface } from '../polymorphic/polymorphic.interface';
+import { CommentEntity } from './comment.entity';
 import { MatchingEntity } from './matching.entity';
+import { PostEntity } from './post.entity';
 import { ProfileEntity } from './profile.entity';
 
 @Entity('report')
@@ -26,9 +28,16 @@ export class ReportEntity
     })
     profile: ProfileEntity;
 
-    @PolymorphicParent(() => [ProfileEntity, MatchingEntity])
+    @PolymorphicParent(() => [
+        ProfileEntity,
+        MatchingEntity,
+        PostEntity,
+        CommentEntity,
+    ])
     @Transform(
-        (value: ProfileEntity | MatchingEntity) => ({
+        (
+            value: ProfileEntity | MatchingEntity | PostEntity | CommentEntity,
+        ) => ({
             ...value,
             type: value.constructor.name,
         }),
@@ -36,7 +45,7 @@ export class ReportEntity
             toPlainOnly: true,
         },
     )
-    entity: ProfileEntity | MatchingEntity;
+    entity: ProfileEntity | MatchingEntity | PostEntity | CommentEntity;
 
     @Column()
     @PrimaryColumn()

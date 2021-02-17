@@ -12,6 +12,7 @@ import { CommentDto } from '../dto/CommentDto';
 import { PolymorphicChildren } from '../polymorphic/decorators';
 import { PostEntity } from './post.entity';
 import { ProfileEntity } from './profile.entity';
+import { ReportEntity } from './report.entity';
 import { VoteEntity } from './vote.entity';
 
 @Entity('comment')
@@ -45,6 +46,11 @@ export class CommentEntity extends AbstractEntity<CommentDto> {
         eager: false,
     })
     receivedVotes: VoteEntity[];
+
+    @PolymorphicChildren(() => ReportEntity, {
+        eager: false,
+    })
+    receivedReports: ReportEntity[];
 
     dtoClass = CommentDto;
 }
