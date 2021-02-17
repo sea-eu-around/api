@@ -15,11 +15,19 @@ export class CommentDto extends AbstractDto {
     @ApiPropertyOptional()
     readonly children: CommentDto[];
 
+    @ApiPropertyOptional()
+    upVotesCount: number;
+
+    @ApiPropertyOptional()
+    downVotesCount: number;
+
     constructor(comment: CommentEntity) {
         super(comment);
         this.text = comment.text;
         this.createdAt = comment.createdAt;
         this.updatedAt = comment.updatedAt;
+        this.upVotesCount = comment.upVotesCount;
+        this.downVotesCount = comment.downVotesCount;
         this.creator = UtilsService.isDto(comment.creator)
             ? comment.creator.toDto()
             : null;
