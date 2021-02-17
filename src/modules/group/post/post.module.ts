@@ -5,6 +5,7 @@ import { GroupRepository } from '../../../repositories/group.repository';
 import { GroupMemberRepository } from '../../../repositories/groupMember.repository';
 import { PostRepository } from '../../../repositories/post.repository';
 import { SimplePostRepository } from '../../../repositories/simple-post.repository';
+import { VoteRepository } from '../../../repositories/vote.repository';
 import { CommentModule } from './comment/comment.module';
 import { PostController } from './post.controller';
 import { PostService } from './post.service';
@@ -17,6 +18,7 @@ import { VoteModule } from './vote/vote.module';
             PostRepository,
             GroupMemberRepository,
             SimplePostRepository,
+            VoteRepository,
         ]),
         CommentModule,
         VoteModule,

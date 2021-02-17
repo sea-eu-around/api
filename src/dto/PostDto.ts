@@ -2,6 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 
 import { PostStatusType } from '../common/constants/post-status-type';
 import { PostType } from '../common/constants/post-type';
+import { VoteType } from '../common/constants/vote-type';
 import { AbstractDto } from '../common/dto/AbstractDto';
 import { PostEntity } from '../entities/post.entity';
 import { UtilsService } from '../providers/utils.service';
@@ -31,6 +32,12 @@ export class PostDto extends AbstractDto {
     groupId: string;
 
     @ApiPropertyOptional()
+    isVoted: boolean;
+
+    @ApiPropertyOptional()
+    voteType?: VoteType;
+
+    @ApiPropertyOptional()
     upVotesCount: number;
 
     @ApiPropertyOptional()
@@ -50,5 +57,7 @@ export class PostDto extends AbstractDto {
         this.groupId = post.groupId;
         this.upVotesCount = post.upVotesCount;
         this.downVotesCount = post.downVotesCount;
+        this.isVoted = post.isVoted;
+        this.voteType = post.voteType;
     }
 }

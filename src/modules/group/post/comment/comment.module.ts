@@ -5,6 +5,7 @@ import { ExistsConstraint } from '../../../../decorators/exists-validator.decora
 import { CommentRepository } from '../../../../repositories/comment.repository';
 import { GroupMemberRepository } from '../../../../repositories/group-member.repository';
 import { PostRepository } from '../../../../repositories/post.repository';
+import { VoteRepository } from '../../../../repositories/vote.repository';
 import { CommentController } from './comment.controller';
 import { CommentService } from './comment.service';
 
@@ -14,6 +15,7 @@ import { CommentService } from './comment.service';
             CommentRepository,
             GroupMemberRepository,
             PostRepository,
+            VoteRepository,
         ]),
     ],
     controllers: [CommentController],
