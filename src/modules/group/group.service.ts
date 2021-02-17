@@ -11,6 +11,7 @@ import { Between } from 'typeorm';
 import { FeedType } from '../../common/constants/feed-type';
 import { GroupMemberRoleType } from '../../common/constants/group-member-role-type';
 import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
+import { VoteEntityType } from '../../common/constants/voteEntityType';
 import { GroupEntity } from '../../entities/group.entity';
 import { PostEntity } from '../../entities/post.entity';
 import { UserEntity } from '../../entities/user.entity';
@@ -18,6 +19,7 @@ import { GroupCoverRepository } from '../../repositories/group-cover.repository'
 import { GroupMemberRepository } from '../../repositories/group-member.repository';
 import { GroupRepository } from '../../repositories/group.repository';
 import { PostRepository } from '../../repositories/post.repository';
+import { VoteRepository } from '../../repositories/vote.repository';
 import { ConfigService } from '../../shared/services/config.service';
 import { CreateGroupCoverPayloadDto } from './dto/CreateGroupCoverPayloadDto';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
@@ -34,6 +36,7 @@ export class GroupService {
         private readonly _configService: ConfigService,
         private readonly _groupCoverRepository: GroupCoverRepository,
         private readonly _postRepository: PostRepository,
+        private readonly _voteRepository: VoteRepository,
     ) {}
 
     async retrieve({
@@ -269,6 +272,21 @@ export class GroupService {
                 postsQb.orderBy('score', 'DESC');
         }
 
-        return paginate<PostEntity>(postsQb, options);
+        const posts = await paginate<PostEntity>(postsQb, options);
+
+        for (const post of posts.items) {
+            post.isVoted = false;
+            const vote = await this._voteRepository.findOne({
+                fromProfileId: user.id,
+                entityType: VoteEntityType.POST,
+                entityId: post.id,
+            });
+            if (vote) {
+                post.isVoted = true;
+                post.voteType = vote.voteType;
+            }
+        }
+
+        return posts;
     }
 }

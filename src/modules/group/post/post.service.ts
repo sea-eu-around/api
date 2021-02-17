@@ -5,6 +5,7 @@ import {
     Pagination,
 } from 'nestjs-typeorm-paginate';
 
+import { FeedType } from '../../../common/constants/feed-type';
 import { GroupMemberRoleType } from '../../../common/constants/group-member-role-type';
 import { PostStatusType } from '../../../common/constants/post-status-type';
 import { PostType } from '../../../common/constants/post-type';
@@ -33,10 +34,12 @@ export class PostService {
         profileId,
         groupId,
         options,
+        type,
     }: {
         profileId: string;
         groupId: string;
         options: IPaginationOptions;
+        type: FeedType;
     }): Promise<Pagination<PostEntity>> {
         const member = await this._groupMemberRepository.isMember({
             profileId,
@@ -47,16 +50,25 @@ export class PostService {
             throw new UnauthorizedException();
         }
 
-        const posts = await paginate<PostEntity>(
-            this._postRepository,
-            options,
-            {
-                where: {
-                    groupId,
-                },
-                order: { createdAt: 'DESC' },
-            },
-        );
+        const postsQb = this._postRepository
+            .createQueryBuilder('posts')
+            .leftJoinAndSelect('posts.creator', 'creator')
+            .leftJoinAndSelect('creator.avatar', 'avatar')
+            .leftJoinAndSelect('posts.group', 'group')
+            .addSelect('(posts.upVotesCount - posts.downVotesCount)', 'score')
+            .where('posts.group_id = :groupId', {
+                groupId,
+            });
+
+        switch (type) {
+            case FeedType.CHRONOLOGICAL:
+                postsQb.orderBy('posts.createdAt', 'DESC');
+                break;
+            case FeedType.TRENDING:
+                postsQb.orderBy('score', 'DESC');
+        }
+
+        const posts = await paginate<PostEntity>(postsQb, options);
 
         for (const post of posts.items) {
             post.isVoted = false;
