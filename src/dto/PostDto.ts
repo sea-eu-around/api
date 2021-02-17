@@ -30,6 +30,12 @@ export class PostDto extends AbstractDto {
     @ApiPropertyOptional()
     groupId: string;
 
+    @ApiPropertyOptional()
+    upVotesCount: number;
+
+    @ApiPropertyOptional()
+    downVotesCount: number;
+
     constructor(post: PostEntity) {
         super(post);
         this.createdAt = post.createdAt;
@@ -42,5 +48,7 @@ export class PostDto extends AbstractDto {
             ? post.creator.toDto()
             : null;
         this.groupId = post.groupId;
+        this.upVotesCount = post.upVotesCount;
+        this.downVotesCount = post.downVotesCount;
     }
 }
