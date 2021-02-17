@@ -20,6 +20,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 
+import { FeedType } from '../../common/constants/feed-type';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { GroupDto } from '../../dto/GroupDto';
@@ -32,6 +33,7 @@ import { CreateGroupCoverPayloadDto } from './dto/CreateGroupCoverPayloadDto';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
 import { DeleteGroupParamsDto } from './dto/DeleteGroupParamsDto';
 import { RetrieveGroupParamsDto } from './dto/RetrieveGroupParamsDto';
+import { RetrieveGroupsFeedQueryDto } from './dto/RetrieveGroupsFeedQueryDto';
 import { RetrieveGroupsQueryDto } from './dto/RetrieveGroupsQueryDto';
 import { UpdateGroupParamsDto } from './dto/UpdateGroupParamsDto';
 import { UpdateGroupPayloadDto } from './dto/UpdateGroupPayloadDto';
@@ -80,6 +82,48 @@ export class GroupController {
 
         return {
             description: 'successefully-retrieved-groups',
+            data: rooms.items,
+            meta: rooms.meta,
+            links: rooms.links,
+        };
+    }
+
+    @Get('/feed')
+    @HttpCode(HttpStatus.OK)
+    @ApiBearerAuth()
+    @ApiQuery({
+        name: 'page',
+    })
+    @ApiQuery({
+        name: 'limit',
+    })
+    @ApiQuery({
+        name: 'type',
+        enum: FeedType,
+    })
+    @ApiResponse({
+        type: GroupDto,
+        status: HttpStatus.OK,
+        description: 'successefully-retrieved-groups-feed',
+    })
+    async getFeed(
+        @Query() query: RetrieveGroupsFeedQueryDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const limit = query.limit > 100 ? 100 : query.limit;
+
+        const rooms = await this._groupService.retrieveFeed({
+            user,
+            options: {
+                limit,
+                page: query.page,
+                route: 'http://localhost:3000/groups/feed',
+            },
+            ...query,
+        });
+
+        return {
+            description: 'successefully-retrieved-groups-feed',
             data: rooms.items,
             meta: rooms.meta,
             links: rooms.links,

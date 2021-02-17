@@ -54,6 +54,7 @@ export class PostDto extends AbstractDto {
         this.creator = UtilsService.isDto(post.creator)
             ? post.creator.toDto()
             : null;
+        this.group = UtilsService.isDto(post.group) ? post.group.toDto() : null;
         this.groupId = post.groupId;
         this.upVotesCount = post.upVotesCount;
         this.downVotesCount = post.downVotesCount;
