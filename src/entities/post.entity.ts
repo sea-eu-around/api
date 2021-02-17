@@ -3,6 +3,7 @@ import { Column, Entity, ManyToOne, TableInheritance } from 'typeorm';
 import { AbstractEntity } from '../common/abstract.entity';
 import { PostStatusType } from '../common/constants/post-status-type';
 import { PostType } from '../common/constants/post-type';
+import { VoteType } from '../common/constants/vote-type';
 import { PostDto } from '../dto/PostDto';
 import { PolymorphicChildren } from '../polymorphic/decorators';
 import { GroupEntity } from './group.entity';
@@ -53,6 +54,10 @@ export abstract class PostEntity extends AbstractEntity<PostDto> {
         eager: false,
     })
     receivedReports: ReportEntity[];
+
+    isVoted: boolean;
+
+    voteType?: VoteType;
 
     dtoClass = PostDto;
 }

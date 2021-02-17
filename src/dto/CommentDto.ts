@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
+import { VoteType } from '../common/constants/vote-type';
 import { AbstractDto } from '../common/dto/AbstractDto';
 import { CommentEntity } from '../entities/comment.entity';
 import { UtilsService } from '../providers/utils.service';
@@ -16,10 +17,16 @@ export class CommentDto extends AbstractDto {
     readonly children: CommentDto[];
 
     @ApiPropertyOptional()
-    upVotesCount: number;
+    readonly isVoted: boolean;
 
     @ApiPropertyOptional()
-    downVotesCount: number;
+    readonly voteType?: VoteType;
+
+    @ApiPropertyOptional()
+    readonly upVotesCount: number;
+
+    @ApiPropertyOptional()
+    readonly downVotesCount: number;
 
     constructor(comment: CommentEntity) {
         super(comment);
@@ -34,5 +41,7 @@ export class CommentDto extends AbstractDto {
         this.children = UtilsService.isDtos(comment.children)
             ? comment.children.toDtos()
             : null;
+        this.isVoted = comment.isVoted;
+        this.voteType = comment.voteType;
     }
 }

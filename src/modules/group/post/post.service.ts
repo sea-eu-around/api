@@ -8,11 +8,13 @@ import {
 import { GroupMemberRoleType } from '../../../common/constants/group-member-role-type';
 import { PostStatusType } from '../../../common/constants/post-status-type';
 import { PostType } from '../../../common/constants/post-type';
+import { VoteEntityType } from '../../../common/constants/voteEntityType';
 import { PostEntity } from '../../../entities/post.entity';
 import { GroupRepository } from '../../../repositories/group.repository';
 import { GroupMemberRepository } from '../../../repositories/groupMember.repository';
 import { PostRepository } from '../../../repositories/post.repository';
 import { SimplePostRepository } from '../../../repositories/simple-post.repository';
+import { VoteRepository } from '../../../repositories/vote.repository';
 import { CreatePostPayloadDto } from './dto/CreatePostPayloadDto';
 import { DeletePostParamDto } from './dto/DeletePostParamDto';
 import { UpdatePostParamDto } from './dto/UpdatePostParamDto';
@@ -25,6 +27,7 @@ export class PostService {
         private readonly _postRepository: PostRepository,
         private readonly _groupMemberRepository: GroupMemberRepository,
         private readonly _simplePostRepository: SimplePostRepository,
+        private readonly _voteRepository: VoteRepository,
     ) {}
     async retrieve({
         profileId,
@@ -44,12 +47,30 @@ export class PostService {
             throw new UnauthorizedException();
         }
 
-        return paginate<PostEntity>(this._postRepository, options, {
-            where: {
-                groupId,
+        const posts = await paginate<PostEntity>(
+            this._postRepository,
+            options,
+            {
+                where: {
+                    groupId,
+                },
+                order: { createdAt: 'DESC' },
             },
-            order: { createdAt: 'DESC' },
-        });
+        );
+
+        for (const post of posts.items) {
+            post.isVoted = false;
+            const vote = await this._voteRepository.findOne({
+                fromProfileId: profileId,
+                entityType: VoteEntityType.POST,
+                entityId: post.id,
+            });
+            if (vote) {
+                post.isVoted = true;
+                post.voteType = vote.voteType;
+            }
+        }
+        return posts;
     }
 
     async retrieveOne({
@@ -70,7 +91,20 @@ export class PostService {
             throw new UnauthorizedException();
         }
 
-        return this._postRepository.findOne({ id });
+        const post = await this._postRepository.findOne({ id });
+        post.isVoted = false;
+        const vote = await this._voteRepository.findOne({
+            fromProfileId: profileId,
+            entityType: VoteEntityType.POST,
+            entityId: id,
+        });
+
+        if (vote) {
+            post.isVoted = true;
+            post.voteType = vote.voteType;
+        }
+
+        return post;
     }
 
     async create({

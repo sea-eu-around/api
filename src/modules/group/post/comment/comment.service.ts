@@ -5,10 +5,12 @@ import {
     Pagination,
 } from 'nestjs-typeorm-paginate';
 
+import { VoteEntityType } from '../../../../common/constants/voteEntityType';
 import { CommentEntity } from '../../../../entities/comment.entity';
 import { CommentRepository } from '../../../../repositories/comment.repository';
 import { GroupMemberRepository } from '../../../../repositories/group-member.repository';
 import { PostRepository } from '../../../../repositories/post.repository';
+import { VoteRepository } from '../../../../repositories/vote.repository';
 import { CreateCommentPayloadDto } from './dto/CreateCommentPayloadDto';
 import { UpdateCommentPayloadDto } from './dto/UpdateCommentPayloadDto';
 
@@ -18,6 +20,7 @@ export class CommentService {
         private readonly _postRepository: PostRepository,
         private readonly _commentRepository: CommentRepository,
         private readonly _groupMemberRepository: GroupMemberRepository,
+        private readonly _voteRepository: VoteRepository,
     ) {}
 
     async retrieve({
@@ -52,6 +55,7 @@ export class CommentService {
             options,
         );
         for (const rootsComment of rootsCommentsPaginate.items) {
+            rootsComment.isVoted = false;
             const entitiesAndScalars = await this._commentRepository
                 .createDescendantsQueryBuilder(
                     'treeEntity',
@@ -66,6 +70,17 @@ export class CommentService {
                 'treeEntity',
                 entitiesAndScalars.raw,
             );
+
+            const vote = await this._voteRepository.findOne({
+                fromProfileId: profileId,
+                entityType: VoteEntityType.COMMENT,
+                entityId: rootsComment.id,
+            });
+
+            if (vote) {
+                rootsComment.isVoted = true;
+                rootsComment.voteType = vote.voteType;
+            }
 
             this._commentRepository.buildChildrenEntityTree(
                 rootsComment,
@@ -97,7 +112,22 @@ export class CommentService {
             throw new UnauthorizedException();
         }
 
-        return this._commentRepository.findOne({ where: { id, postId } });
+        const comment = await this._commentRepository.findOne({
+            where: { id, postId },
+        });
+
+        const vote = await this._voteRepository.findOne({
+            fromProfileId: profileId,
+            entityType: VoteEntityType.COMMENT,
+            entityId: id,
+        });
+
+        if (vote) {
+            comment.isVoted = true;
+            comment.voteType = vote.voteType;
+        }
+
+        return comment;
     }
 
     async create({

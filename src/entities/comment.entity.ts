@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
+import { VoteType } from '../common/constants/vote-type';
 import { CommentDto } from '../dto/CommentDto';
 import { PolymorphicChildren } from '../polymorphic/decorators';
 import { PostEntity } from './post.entity';
@@ -61,6 +62,10 @@ export class CommentEntity extends AbstractEntity<CommentDto> {
         eager: false,
     })
     receivedReports: ReportEntity[];
+
+    isVoted: boolean;
+
+    voteType: VoteType;
 
     dtoClass = CommentDto;
 }
