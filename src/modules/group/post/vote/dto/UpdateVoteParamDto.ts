@@ -1,5 +1,6 @@
-import { IsUUID } from 'class-validator';
+import { IsEnum, IsUUID } from 'class-validator';
 
+import { VoteEntityType } from '../../../../../common/constants/voteEntityType';
 import { Exists } from '../../../../../decorators/exists-validator.decorator';
 import { GroupEntity } from '../../../../../entities/group.entity';
 import { VoteEntity } from '../../../../../entities/vote.entity';
@@ -9,7 +10,10 @@ export class UpdateVoteParamDto {
     @Exists<GroupEntity>(GroupEntity, 'id')
     readonly groupId!: string;
 
+    @IsEnum(VoteEntityType)
+    readonly entityType!: VoteEntityType;
+
     @IsUUID()
     @Exists<VoteEntity>(VoteEntity, 'id')
-    readonly id!: string;
+    readonly entityId!: string;
 }
