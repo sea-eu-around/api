@@ -81,12 +81,14 @@ export class VoteService {
     async update({
         profileId,
         groupId,
-        id,
+        entityType,
+        entityId,
         voteType,
     }: {
         profileId: string;
         groupId: string;
-        id: string;
+        entityType: VoteEntityType;
+        entityId: string;
         voteType: VoteType;
     }): Promise<VoteEntity> {
         const member = await this._groupMemberRepository.member({
@@ -98,7 +100,11 @@ export class VoteService {
             throw new UnauthorizedException();
         }
 
-        const vote = await this._voteRepository.findOne({ id });
+        const vote = await this._voteRepository.findOne({
+            entityType,
+            entityId,
+            fromProfileId: profileId,
+        });
 
         if (!(vote.fromProfileId === profileId)) {
             throw new UnauthorizedException();
@@ -112,11 +118,13 @@ export class VoteService {
     async delete({
         profileId,
         groupId,
-        id,
+        entityType,
+        entityId,
     }: {
         profileId: string;
         groupId: string;
-        id: string;
+        entityType: VoteEntityType;
+        entityId: string;
     }): Promise<VoteEntity> {
         const member = await this._groupMemberRepository.member({
             profileId,
@@ -127,7 +135,11 @@ export class VoteService {
             throw new UnauthorizedException();
         }
 
-        const vote = await this._voteRepository.findOne({ id });
+        const vote = await this._voteRepository.findOne({
+            entityType,
+            entityId,
+            fromProfileId: profileId,
+        });
 
         if (!(vote.fromProfileId === profileId)) {
             throw new UnauthorizedException();
