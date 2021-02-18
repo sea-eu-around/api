@@ -135,7 +135,8 @@ export class VoteController {
         const vote = await this._voteService.update({
             profileId: user.id,
             groupId: updateVoteParamDto.groupId,
-            id: updateVoteParamDto.id,
+            entityType: updateVoteParamDto.entityType,
+            entityId: updateVoteParamDto.entityId,
             voteType: updateVotePayloadDto.voteType,
         });
 
@@ -168,7 +169,8 @@ export class VoteController {
         const vote = await this._voteService.delete({
             profileId: user.id,
             groupId: deleteVoteParamDto.groupId,
-            id: deleteVoteParamDto.id,
+            entityType: deleteVoteParamDto.entityType,
+            entityId: deleteVoteParamDto.entityId,
         });
 
         return {
