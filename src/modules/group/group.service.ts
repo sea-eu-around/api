@@ -6,7 +6,7 @@ import {
     paginate,
     Pagination,
 } from 'nestjs-typeorm-paginate';
-import { Between, In } from 'typeorm';
+import { Between } from 'typeorm';
 
 import { GroupMemberRoleType } from '../../common/constants/group-member-role-type';
 import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
@@ -47,11 +47,16 @@ export class GroupService {
         user: UserEntity;
         profileId?: string;
     }): Promise<Pagination<GroupEntity>> {
-        let groups: Pagination<GroupEntity>;
-
         const groupsQb = this._groupRepository
             .createQueryBuilder('group')
-            .leftJoinAndSelect('group.cover', 'cover');
+            .leftJoinAndSelect('group.cover', 'cover')
+            .leftJoinAndSelect(
+                'group.members',
+                'members',
+                'members.profileId = :profileId',
+                { profileId: user.id },
+            )
+            .orderBy('group.updatedAt', 'DESC');
 
         if (profileId) {
             const groupIds = (
@@ -61,39 +66,48 @@ export class GroupService {
                 })
             ).map((groupMember) => groupMember.groupId);
 
-            groupsQb
-                .andWhere('group.id IN (:...groupIds)', { groupIds })
-                .orderBy('group.updatedAt', 'DESC');
-
-            if (profileId !== user.id) {
-                groupsQb.andWhere('group.visible = :visible', {
-                    visible: true,
-                });
-            }
-
-            groups = await paginate<GroupEntity>(groupsQb, options);
+            groupsQb.andWhere('group.id IN (:...groupIds)', { groupIds });
         }
 
-        groupsQb
-            .andWhere('group.visible = :visible', { visible: true })
-            .orderBy('group.updatedAt', 'DESC');
+        if ((profileId && profileId !== user.id) || !profileId) {
+            groupsQb.andWhere('group.visible = :visible', {
+                visible: true,
+            });
+        }
 
-        groups = await paginate<GroupEntity>(groupsQb, options);
+        const groups = await paginate<GroupEntity>(groupsQb, options);
 
-        const groupsIds = groups.items.map((group) => group.id);
-
-        const memberships = await this._groupMemberRepository.find({
-            where: {
-                profileId,
-                id: In(groupsIds),
-            },
+        groups.items.map((group) => {
+            if (group.members.length > 0) {
+                group.isMember = true;
+                group.role = group.members[0].role;
+                group.members = null;
+            }
         });
 
         return groups;
     }
 
-    async retrieveOne(id: string, _profileId: string): Promise<GroupEntity> {
-        return this._groupRepository.findOne(id);
+    async retrieveOne(id: string, profileId: string): Promise<GroupEntity> {
+        const group = await this._groupRepository
+            .createQueryBuilder('group')
+            .leftJoinAndSelect('group.cover', 'cover')
+            .leftJoinAndSelect(
+                'group.members',
+                'members',
+                'members.profileId = :profileId',
+                { profileId },
+            )
+            .where('group.id = :id', { id })
+            .getOne();
+
+        if (group.members.length > 0) {
+            group.isMember = true;
+            group.role = group.members[0].role;
+            group.members = null;
+        }
+
+        return group;
     }
 
     async create(

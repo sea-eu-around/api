@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 
 import { AbstractEntity } from '../common/abstract.entity';
+import { GroupMemberRoleType } from '../common/constants/group-member-role-type';
 import { GroupDto } from '../dto/GroupDto';
 import { GroupCoverEntity } from './group-cover.entity';
 import { GroupMemberEntity } from './groupMember.entity';
@@ -45,6 +46,10 @@ export class GroupEntity extends AbstractEntity<GroupDto> {
     })
     @JoinColumn()
     cover?: GroupCoverEntity;
+
+    isMember?: boolean;
+
+    role?: GroupMemberRoleType;
 
     dtoClass = GroupDto;
 }
