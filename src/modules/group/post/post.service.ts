@@ -5,7 +5,7 @@ import {
     Pagination,
 } from 'nestjs-typeorm-paginate';
 
-import { FeedType } from '../../../common/constants/feed-type';
+import { GroupFeedType } from '../../../common/constants/group-feed-type';
 import { GroupMemberRoleType } from '../../../common/constants/group-member-role-type';
 import { PostStatusType } from '../../../common/constants/post-status-type';
 import { PostType } from '../../../common/constants/post-type';
@@ -39,7 +39,7 @@ export class PostService {
         profileId: string;
         groupId: string;
         options: IPaginationOptions;
-        type: FeedType;
+        type: GroupFeedType;
     }): Promise<Pagination<PostEntity>> {
         const member = await this._groupMemberRepository.isMember({
             profileId,
@@ -61,10 +61,13 @@ export class PostService {
             });
 
         switch (type) {
-            case FeedType.CHRONOLOGICAL:
+            case GroupFeedType.NEWEST:
                 postsQb.orderBy('posts.createdAt', 'DESC');
                 break;
-            case FeedType.TRENDING:
+            case GroupFeedType.OLDEST:
+                postsQb.orderBy('posts.createdAt', 'ASC');
+                break;
+            case GroupFeedType.POPULAR:
                 postsQb.orderBy('score', 'DESC');
         }
 

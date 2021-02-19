@@ -6,9 +6,8 @@ import {
     paginate,
     Pagination,
 } from 'nestjs-typeorm-paginate';
-import { Between } from 'typeorm';
+import { Between, In } from 'typeorm';
 
-import { FeedType } from '../../common/constants/feed-type';
 import { GroupMemberRoleType } from '../../common/constants/group-member-role-type';
 import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
 import { VoteEntityType } from '../../common/constants/voteEntityType';
@@ -48,7 +47,9 @@ export class GroupService {
         user: UserEntity;
         profileId?: string;
     }): Promise<Pagination<GroupEntity>> {
-        const groups = this._groupRepository
+        let groups: Pagination<GroupEntity>;
+
+        const groupsQb = this._groupRepository
             .createQueryBuilder('group')
             .leftJoinAndSelect('group.cover', 'cover');
 
@@ -60,22 +61,35 @@ export class GroupService {
                 })
             ).map((groupMember) => groupMember.groupId);
 
-            groups
+            groupsQb
                 .andWhere('group.id IN (:...groupIds)', { groupIds })
                 .orderBy('group.updatedAt', 'DESC');
 
             if (profileId !== user.id) {
-                groups.andWhere('group.visible = :visible', { visible: true });
+                groupsQb.andWhere('group.visible = :visible', {
+                    visible: true,
+                });
             }
 
-            return paginate<GroupEntity>(groups, options);
+            groups = await paginate<GroupEntity>(groupsQb, options);
         }
 
-        groups
+        groupsQb
             .andWhere('group.visible = :visible', { visible: true })
             .orderBy('group.updatedAt', 'DESC');
 
-        return paginate<GroupEntity>(groups, options);
+        groups = await paginate<GroupEntity>(groupsQb, options);
+
+        const groupsIds = groups.items.map((group) => group.id);
+
+        const memberships = await this._groupMemberRepository.find({
+            where: {
+                profileId,
+                id: In(groupsIds),
+            },
+        });
+
+        return groups;
     }
 
     async retrieveOne(id: string, _profileId: string): Promise<GroupEntity> {
@@ -242,11 +256,9 @@ export class GroupService {
     async retrieveFeed({
         options,
         user,
-        type,
     }: {
         options: IPaginationOptions;
         user: UserEntity;
-        type: FeedType;
     }): Promise<Pagination<PostEntity>> {
         const usersGroupsIds = (
             await this._groupMemberRepository.find({
@@ -262,16 +274,8 @@ export class GroupService {
             .addSelect('(posts.upVotesCount - posts.downVotesCount)', 'score')
             .where('posts.group_id IN (:...groupIds)', {
                 groupIds: [null, ...usersGroupsIds],
-            });
-
-        switch (type) {
-            case FeedType.CHRONOLOGICAL:
-                postsQb.orderBy('posts.createdAt', 'DESC');
-                break;
-            case FeedType.TRENDING:
-                postsQb.orderBy('score', 'DESC');
-        }
-
+            })
+            .orderBy('posts.createdAt', 'DESC');
         const posts = await paginate<PostEntity>(postsQb, options);
 
         for (const post of posts.items) {

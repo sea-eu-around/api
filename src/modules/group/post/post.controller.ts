@@ -20,7 +20,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 
-import { FeedType } from '../../../common/constants/feed-type';
+import { GroupFeedType } from '../../../common/constants/group-feed-type';
 import { PayloadSuccessDto } from '../../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../../decorators/auth-user.decorator';
 import { GroupDto } from '../../../dto/GroupDto';
@@ -61,7 +61,7 @@ export class PostController {
     })
     @ApiQuery({
         name: 'type',
-        enum: FeedType,
+        enum: GroupFeedType,
     })
     @ApiResponse({
         type: PostDto,
