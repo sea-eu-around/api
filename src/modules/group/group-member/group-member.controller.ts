@@ -56,6 +56,10 @@ export class GroupMemberController {
         name: 'limit',
     })
     @ApiQuery({
+        name: 'search',
+        type: 'string',
+    })
+    @ApiQuery({
         name: 'statuses',
         type: 'enum',
         enum: GroupMemberStatusType,
@@ -79,16 +83,17 @@ export class GroupMemberController {
                 ? 100
                 : retrieveGroupMembersQueryDto.limit;
 
-        const members = await this._groupMemberService.retrieveMembers(
-            retrieveGroupMembersParamsDto.groupId,
-            {
+        const members = await this._groupMemberService.retrieveMembers({
+            user,
+            groupId: retrieveGroupMembersParamsDto.groupId,
+            options: {
                 limit,
                 page: retrieveGroupMembersQueryDto.page,
                 route: `http://localhost:3000/groups/${retrieveGroupMembersParamsDto.groupId}/members`,
             },
-            user,
-            retrieveGroupMembersQueryDto.statuses,
-        );
+            statuses: retrieveGroupMembersQueryDto.statuses,
+            ...retrieveGroupMembersQueryDto,
+        });
 
         return {
             description: 'successefully-retrieved-group-members',

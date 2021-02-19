@@ -8,6 +8,7 @@ import {
     paginate,
     Pagination,
 } from 'nestjs-typeorm-paginate';
+import { Brackets } from 'typeorm';
 
 import {
     GroupMemberInvitationStatusType,
@@ -26,12 +27,19 @@ export class GroupMemberService {
         private readonly _groupMemberRepository: GroupMemberRepository,
     ) {}
 
-    async retrieveMembers(
-        groupId: string,
-        options: IPaginationOptions,
-        user: UserEntity,
-        statuses?: GroupMemberStatusType[],
-    ): Promise<Pagination<GroupMemberEntity>> {
+    async retrieveMembers({
+        groupId,
+        options,
+        user,
+        statuses,
+        search,
+    }: {
+        groupId: string;
+        options: IPaginationOptions;
+        user: UserEntity;
+        statuses?: GroupMemberStatusType[];
+        search?: string;
+    }): Promise<Pagination<GroupMemberEntity>> {
         let groupMembers = this._groupMemberRepository
             .createQueryBuilder('groupMember')
             .leftJoinAndSelect('groupMember.profile', 'profile')
@@ -48,6 +56,22 @@ export class GroupMemberService {
                 {
                     statuses: [null, ...statuses],
                 },
+            );
+        }
+
+        if (search && search.length > 0) {
+            const words = search.split(' ');
+            groupMembers.andWhere(
+                new Brackets((qb) => {
+                    for (const word of words) {
+                        qb.andWhere('profile.firstName ilike :search', {
+                            search: `%${word}%`,
+                        });
+                        qb.orWhere('profile.lastName ilike :search', {
+                            search: `%${word}%`,
+                        });
+                    }
+                }),
             );
         }
 
