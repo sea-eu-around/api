@@ -13,4 +13,8 @@ export class RetrieveGroupsQueryDto {
     @IsString()
     @IsOptional()
     readonly profileId?: string;
+
+    @IsOptional()
+    @IsString()
+    readonly search?: string;
 }
