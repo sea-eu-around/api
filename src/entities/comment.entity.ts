@@ -1,6 +1,9 @@
 import {
+    AfterInsert,
+    AfterRemove,
     Column,
     Entity,
+    getConnection,
     ManyToOne,
     Tree,
     TreeChildren,
@@ -62,6 +65,22 @@ export class CommentEntity extends AbstractEntity<CommentDto> {
         eager: false,
     })
     receivedReports: ReportEntity[];
+
+    @AfterInsert()
+    async increaseCommentsCounter(): Promise<void> {
+        const id = this.postId != null ? this.postId : 0;
+        const query =
+            '" SET "comments_count" = comments_count + 1 WHERE "id" = $1'; // To avoid updated_at to be changed
+        await getConnection().query('UPDATE "' + 'post' + query, [id]);
+    }
+
+    @AfterRemove()
+    async decreaseLikesCounter(): Promise<void> {
+        const id = this.postId != null ? this.postId : 0;
+        const query =
+            '" SET "comments_count" = comments_count - 1 WHERE "id" = $1'; // To avoid updated_at to be changed
+        await getConnection().query('UPDATE "' + 'post' + query, [id]);
+    }
 
     isVoted: boolean;
 

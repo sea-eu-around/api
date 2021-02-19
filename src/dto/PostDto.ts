@@ -43,6 +43,9 @@ export class PostDto extends AbstractDto {
     @ApiPropertyOptional()
     downVotesCount: number;
 
+    @ApiPropertyOptional()
+    commentsCount: number;
+
     constructor(post: PostEntity) {
         super(post);
         this.createdAt = post.createdAt;
@@ -60,5 +63,6 @@ export class PostDto extends AbstractDto {
         this.downVotesCount = post.downVotesCount;
         this.isVoted = post.isVoted;
         this.voteType = post.voteType;
+        this.commentsCount = post.commentsCount;
     }
 }
