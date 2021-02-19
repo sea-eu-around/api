@@ -58,6 +58,10 @@ export class GroupController {
         name: 'profileId',
         required: false,
     })
+    @ApiQuery({
+        name: 'search',
+        type: 'string',
+    })
     @ApiResponse({
         type: GroupDto,
         status: HttpStatus.OK,
@@ -77,6 +81,7 @@ export class GroupController {
                 route: 'http://localhost:3000/groups',
             },
             profileId: query.profileId,
+            ...query,
         });
 
         return {
