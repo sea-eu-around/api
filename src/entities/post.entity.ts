@@ -45,6 +45,11 @@ export abstract class PostEntity extends AbstractEntity<PostDto> {
     })
     downVotesCount?: number;
 
+    @Column({
+        default: 0,
+    })
+    commentsCount?: number;
+
     @PolymorphicChildren(() => VoteEntity, {
         eager: false,
     })
