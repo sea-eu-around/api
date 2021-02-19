@@ -6,7 +6,7 @@ import {
     paginate,
     Pagination,
 } from 'nestjs-typeorm-paginate';
-import { Between } from 'typeorm';
+import { Between, Brackets } from 'typeorm';
 
 import { GroupMemberRoleType } from '../../common/constants/group-member-role-type';
 import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
@@ -42,10 +42,12 @@ export class GroupService {
         options,
         user,
         profileId,
+        search,
     }: {
         options: IPaginationOptions;
         user: UserEntity;
         profileId?: string;
+        search?: string;
     }): Promise<Pagination<GroupEntity>> {
         const groupsQb = this._groupRepository
             .createQueryBuilder('group')
@@ -73,6 +75,19 @@ export class GroupService {
             groupsQb.andWhere('group.visible = :visible', {
                 visible: true,
             });
+        }
+
+        if (search && search.length > 0) {
+            const words = search.split(' ');
+            groupsQb.andWhere(
+                new Brackets((qb) => {
+                    for (const word of words) {
+                        qb.andWhere('group.name ILIKE :search', {
+                            search: `%${word}%`,
+                        });
+                    }
+                }),
+            );
         }
 
         const groups = await paginate<GroupEntity>(groupsQb, options);
