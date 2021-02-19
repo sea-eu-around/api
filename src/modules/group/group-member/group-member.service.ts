@@ -9,7 +9,10 @@ import {
     Pagination,
 } from 'nestjs-typeorm-paginate';
 
-import { GroupMemberStatusType } from '../../../common/constants/group-member-status-type';
+import {
+    GroupMemberInvitationStatusType,
+    GroupMemberStatusType,
+} from '../../../common/constants/group-member-status-type';
 import { GroupMemberEntity } from '../../../entities/groupMember.entity';
 import { UserEntity } from '../../../entities/user.entity';
 import { GroupRepository } from '../../../repositories/group.repository';
@@ -54,6 +57,7 @@ export class GroupMemberService {
     async createGroupMember(
         groupId: string,
         profileId: string,
+        status?: GroupMemberInvitationStatusType,
     ): Promise<GroupMemberEntity> {
         const group = await this._groupRepository.findOne({ id: groupId });
 
@@ -64,7 +68,9 @@ export class GroupMemberService {
         const preGroupMember = this._groupMemberRepository.create();
         preGroupMember.groupId = groupId;
         preGroupMember.profileId = profileId;
-        preGroupMember.status = group.requiresApproval
+        preGroupMember.status = status
+            ? <GroupMemberStatusType>(<unknown>status)
+            : group.requiresApproval
             ? GroupMemberStatusType.PENDING
             : GroupMemberStatusType.APPROVED;
 
@@ -82,20 +88,47 @@ export class GroupMemberService {
         updateGroupMemberPayloadDto: UpdateGroupMemberPayloadDto;
         user: UserEntity;
     }): Promise<GroupMemberEntity> {
+        const existingMembership = await this._groupMemberRepository.findOne({
+            groupId,
+            profileId,
+        });
+
+        const isAdmin = await this._groupMemberRepository.isAdmin({
+            groupId,
+            profileId: user.id,
+        });
+
         if (
-            !(await this._groupMemberRepository.isAdmin({
-                groupId,
-                profileId: user.id,
-            }))
+            existingMembership &&
+            existingMembership.status === GroupMemberStatusType.INVITED
         ) {
-            throw new UnauthorizedException();
+            return this._groupMemberRepository.save({
+                profileId,
+                groupId,
+                status: GroupMemberStatusType.PENDING,
+            });
         }
 
-        return this._groupMemberRepository.save({
-            profileId,
-            groupId,
-            ...updateGroupMemberPayloadDto,
-        });
+        if (
+            existingMembership &&
+            existingMembership.status === GroupMemberStatusType.INVITED_BY_ADMIN
+        ) {
+            return this._groupMemberRepository.save({
+                profileId,
+                groupId,
+                status: GroupMemberStatusType.APPROVED,
+            });
+        }
+
+        if (isAdmin) {
+            return this._groupMemberRepository.save({
+                profileId,
+                groupId,
+                ...updateGroupMemberPayloadDto,
+            });
+        }
+
+        throw new UnauthorizedException();
     }
 
     async deleteGroupMember({
