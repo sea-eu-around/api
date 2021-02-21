@@ -20,6 +20,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 
+import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { GroupDto } from '../../dto/GroupDto';
@@ -57,6 +58,14 @@ export class GroupController {
     @ApiQuery({
         name: 'profileId',
         required: false,
+    })
+    @ApiQuery({
+        name: 'statuses',
+        type: 'enum',
+        enum: GroupMemberStatusType,
+        required: false,
+        isArray: true,
+        explode: false,
     })
     @ApiQuery({
         name: 'search',
