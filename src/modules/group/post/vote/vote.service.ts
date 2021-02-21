@@ -141,7 +141,7 @@ export class VoteService {
             fromProfileId: profileId,
         });
 
-        if (!(vote.fromProfileId === profileId)) {
+        if (!vote) {
             throw new UnauthorizedException();
         }
 
