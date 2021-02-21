@@ -111,14 +111,18 @@ export class VoteController {
         };
     }
 
-    @Patch('/:id')
+    @Patch('/:entityType/:entityId')
     @HttpCode(HttpStatus.OK)
     @ApiParam({
         name: 'groupId',
         type: 'string',
     })
     @ApiParam({
-        name: 'id',
+        name: 'entityType',
+        type: 'string',
+    })
+    @ApiParam({
+        name: 'entityId',
         type: 'string',
     })
     @ApiBearerAuth()
@@ -146,14 +150,18 @@ export class VoteController {
         };
     }
 
-    @Delete('/:id')
+    @Delete('/:entityType/:entityId')
     @HttpCode(HttpStatus.OK)
     @ApiParam({
         name: 'groupId',
         type: 'string',
     })
     @ApiParam({
-        name: 'id',
+        name: 'entityType',
+        type: 'string',
+    })
+    @ApiParam({
+        name: 'entityId',
         type: 'string',
     })
     @ApiBearerAuth()
