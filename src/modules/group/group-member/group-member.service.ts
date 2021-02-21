@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+    ConflictException,
+    Injectable,
+    UnauthorizedException,
+} from '@nestjs/common';
 import {
     IPaginationOptions,
     paginate,
@@ -80,6 +84,15 @@ export class GroupMemberService {
         user: UserEntity;
         profileId?: string;
     }): Promise<GroupMemberEntity> {
+        if (
+            await this._groupMemberRepository.findOne({
+                groupId,
+                profileId: profileId ? profileId : user.id,
+            })
+        ) {
+            throw new ConflictException();
+        }
+
         const preGroupMember = this._groupMemberRepository.create();
         preGroupMember.groupId = groupId;
         preGroupMember.profileId = profileId ? profileId : user.id;
