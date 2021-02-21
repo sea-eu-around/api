@@ -167,12 +167,12 @@ export class PostController {
         description: 'successefully-updated-post',
         type: PostDto,
     })
-    update(
+    async update(
         @Param() updatePostParamDto: UpdatePostParamDto,
         @Body() updatePostPayloadDto: UpdatePostPayloadDto,
         @AuthUser() user: UserEntity,
-    ): PayloadSuccessDto {
-        const post = this._postService.update({
+    ): Promise<PayloadSuccessDto> {
+        const post = await this._postService.update({
             profileId: user.id,
             params: updatePostParamDto,
             payload: updatePostPayloadDto,
