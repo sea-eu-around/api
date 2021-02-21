@@ -1,8 +1,4 @@
-import {
-    Injectable,
-    NotFoundException,
-    UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import {
     IPaginationOptions,
     paginate,
@@ -10,10 +6,7 @@ import {
 } from 'nestjs-typeorm-paginate';
 import { Brackets } from 'typeorm';
 
-import {
-    GroupMemberInvitationStatusType,
-    GroupMemberStatusType,
-} from '../../../common/constants/group-member-status-type';
+import { GroupMemberStatusType } from '../../../common/constants/group-member-status-type';
 import { GroupMemberEntity } from '../../../entities/groupMember.entity';
 import { UserEntity } from '../../../entities/user.entity';
 import { GroupRepository } from '../../../repositories/group.repository';
@@ -78,25 +71,35 @@ export class GroupMemberService {
         return paginate<GroupMemberEntity>(groupMembers, options);
     }
 
-    async createGroupMember(
-        groupId: string,
-        profileId: string,
-        status?: GroupMemberInvitationStatusType,
-    ): Promise<GroupMemberEntity> {
-        const group = await this._groupRepository.findOne({ id: groupId });
-
-        if (!group) {
-            throw new NotFoundException();
-        }
-
+    async createGroupMember({
+        groupId,
+        user,
+        profileId,
+    }: {
+        groupId: string;
+        user: UserEntity;
+        profileId?: string;
+    }): Promise<GroupMemberEntity> {
         const preGroupMember = this._groupMemberRepository.create();
         preGroupMember.groupId = groupId;
-        preGroupMember.profileId = profileId;
-        preGroupMember.status = status
-            ? <GroupMemberStatusType>(<unknown>status)
-            : group.requiresApproval
-            ? GroupMemberStatusType.PENDING
-            : GroupMemberStatusType.APPROVED;
+        preGroupMember.profileId = profileId ? profileId : user.id;
+
+        const isAdmin = await this._groupMemberRepository.isAdmin({
+            groupId,
+            profileId,
+        });
+
+        const group = await this._groupRepository.findOne({ id: groupId });
+
+        if (profileId) {
+            preGroupMember.status = isAdmin
+                ? GroupMemberStatusType.INVITED_BY_ADMIN
+                : GroupMemberStatusType.INVITED;
+        } else {
+            preGroupMember.status = group.requiresApproval
+                ? GroupMemberStatusType.PENDING
+                : GroupMemberStatusType.APPROVED;
+        }
 
         return this._groupMemberRepository.save(preGroupMember);
     }

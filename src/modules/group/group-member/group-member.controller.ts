@@ -29,6 +29,7 @@ import { AuthGuard } from '../../../guards/auth.guard';
 import { RolesGuard } from '../../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../../interceptors/auth-user-interceptor.service';
 import { CreateGroupMemberParamsDto } from './dto/CreateGroupMemberParamsDto';
+import { CreateGroupMemberPayloadDto } from './dto/CreateGroupMemberPayloadDto';
 import { DeleteGroupMemberParamsDto } from './dto/DeleteGroupMemberParamsDto';
 import { RetrieveGroupMembersParamsDto } from './dto/RetrieveGroupMembersParamsDto';
 import { GetManyGroupMembersQueryDto } from './dto/RetrieveGroupMembersQueryDto';
@@ -58,6 +59,7 @@ export class GroupMemberController {
     @ApiQuery({
         name: 'search',
         type: 'string',
+        required: false,
     })
     @ApiQuery({
         name: 'statuses',
@@ -116,13 +118,15 @@ export class GroupMemberController {
         type: GroupDto,
     })
     async createGroupMember(
-        @Param() createGroupMemberParamsDto: CreateGroupMemberParamsDto,
+        @Body() payload: CreateGroupMemberPayloadDto,
+        @Param() params: CreateGroupMemberParamsDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        const groupMember = await this._groupMemberService.createGroupMember(
-            createGroupMemberParamsDto.groupId,
-            user.id,
-        );
+        const groupMember = await this._groupMemberService.createGroupMember({
+            user,
+            ...params,
+            ...payload,
+        });
 
         return {
             description: 'successefully-created-group-member',

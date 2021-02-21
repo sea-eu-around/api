@@ -7,8 +7,3 @@ export enum GroupMemberStatusType {
     INVITED = 'invited',
     INVITED_BY_ADMIN = 'invited-by-admin',
 }
-
-export enum GroupMemberInvitationStatusType {
-    INVITED = GroupMemberStatusType.INVITED,
-    INVITED_BY_ADMIN = GroupMemberStatusType.INVITED_BY_ADMIN,
-}

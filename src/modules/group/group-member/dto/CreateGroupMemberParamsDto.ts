@@ -1,11 +1,10 @@
-import { IsEnum, IsUUID } from 'class-validator';
+import { IsUUID } from 'class-validator';
 
-import { GroupMemberInvitationStatusType } from '../../../../common/constants/group-member-status-type';
+import { Exists } from '../../../../decorators/exists-validator.decorator';
+import { GroupEntity } from '../../../../entities/group.entity';
 
 export class CreateGroupMemberParamsDto {
     @IsUUID()
+    @Exists<GroupEntity>(GroupEntity, 'id')
     readonly groupId!: string;
-
-    @IsEnum(GroupMemberInvitationStatusType)
-    readonly status: GroupMemberInvitationStatusType;
 }

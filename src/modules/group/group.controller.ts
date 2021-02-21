@@ -61,6 +61,7 @@ export class GroupController {
     @ApiQuery({
         name: 'search',
         type: 'string',
+        required: false,
     })
     @ApiResponse({
         type: GroupDto,
