@@ -6,7 +6,7 @@ import {
     paginate,
     Pagination,
 } from 'nestjs-typeorm-paginate';
-import { Between, Brackets } from 'typeorm';
+import { Between, Brackets, In } from 'typeorm';
 
 import { GroupMemberRoleType } from '../../common/constants/group-member-role-type';
 import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
@@ -43,11 +43,13 @@ export class GroupService {
         user,
         profileId,
         search,
+        statuses,
     }: {
         options: IPaginationOptions;
         user: UserEntity;
         profileId?: string;
         search?: string;
+        statuses?: GroupMemberStatusType[];
     }): Promise<Pagination<GroupEntity>> {
         const groupsQb = this._groupRepository
             .createQueryBuilder('group')
@@ -61,14 +63,26 @@ export class GroupService {
             .orderBy('group.updatedAt', 'DESC');
 
         if (profileId) {
-            const groupIds = (
-                await this._groupMemberRepository.find({
-                    select: ['groupId'],
-                    where: { profileId },
-                })
-            ).map((groupMember) => groupMember.groupId);
+            let groupIds: string[];
+            if (statuses) {
+                groupIds = (
+                    await this._groupMemberRepository.find({
+                        select: ['groupId'],
+                        where: { profileId, status: In(statuses) },
+                    })
+                ).map((groupMember) => groupMember.groupId);
+            } else {
+                groupIds = (
+                    await this._groupMemberRepository.find({
+                        select: ['groupId'],
+                        where: { profileId },
+                    })
+                ).map((groupMember) => groupMember.groupId);
+            }
 
-            groupsQb.andWhere('group.id IN (:...groupIds)', { groupIds });
+            groupsQb.andWhere('group.id IN (:...groupIds)', {
+                groupIds: [null, ...groupIds],
+            });
         }
 
         if ((profileId && profileId !== user.id) || !profileId) {
