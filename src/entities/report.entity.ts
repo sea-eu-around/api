@@ -7,6 +7,7 @@ import { ReportDto } from '../dto/ReportDto';
 import { PolymorphicParent } from '../polymorphic/decorators';
 import { PolymorphicChildInterface } from '../polymorphic/polymorphic.interface';
 import { CommentEntity } from './comment.entity';
+import { GroupEntity } from './group.entity';
 import { MatchingEntity } from './matching.entity';
 import { PostEntity } from './post.entity';
 import { ProfileEntity } from './profile.entity';
@@ -36,7 +37,12 @@ export class ReportEntity
     ])
     @Transform(
         (
-            value: ProfileEntity | MatchingEntity | PostEntity | CommentEntity,
+            value:
+                | ProfileEntity
+                | MatchingEntity
+                | GroupEntity
+                | PostEntity
+                | CommentEntity,
         ) => ({
             ...value,
             type: value.constructor.name,
@@ -45,7 +51,12 @@ export class ReportEntity
             toPlainOnly: true,
         },
     )
-    entity: ProfileEntity | MatchingEntity | PostEntity | CommentEntity;
+    entity:
+        | ProfileEntity
+        | MatchingEntity
+        | GroupEntity
+        | PostEntity
+        | CommentEntity;
 
     @Column()
     @PrimaryColumn()
