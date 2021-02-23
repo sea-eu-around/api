@@ -308,6 +308,7 @@ export class GroupService {
         const usersGroupsIds = (
             await this._groupMemberRepository.find({
                 profileId: user.id,
+                status: GroupMemberStatusType.APPROVED,
             })
         ).map((groupMember) => groupMember.groupId);
 
@@ -316,6 +317,12 @@ export class GroupService {
             .leftJoinAndSelect('posts.creator', 'creator')
             .leftJoinAndSelect('creator.avatar', 'avatar')
             .leftJoinAndSelect('posts.group', 'group')
+            .leftJoinAndSelect(
+                'group.members',
+                'members',
+                'members.profileId = :profileId',
+                { profileId: user.id },
+            )
             .addSelect('(posts.upVotesCount - posts.downVotesCount)', 'score')
             .where('posts.group_id IN (:...groupIds)', {
                 groupIds: [null, ...usersGroupsIds],
@@ -333,6 +340,13 @@ export class GroupService {
             if (vote) {
                 post.isVoted = true;
                 post.voteType = vote.voteType;
+            }
+
+            if (post.group.members.length > 0) {
+                post.group.isMember = true;
+                post.group.role = post.group.members[0].role;
+                post.group.status = post.group.members[0].status;
+                post.group.members = null;
             }
         }
 
