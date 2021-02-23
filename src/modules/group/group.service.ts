@@ -10,13 +10,16 @@ import { Between, Brackets } from 'typeorm';
 
 import { GroupMemberRoleType } from '../../common/constants/group-member-role-type';
 import { GroupMemberStatusType } from '../../common/constants/group-member-status-type';
+import { MatchingStatusType } from '../../common/constants/matching-status-type';
 import { VoteEntityType } from '../../common/constants/voteEntityType';
 import { GroupEntity } from '../../entities/group.entity';
 import { PostEntity } from '../../entities/post.entity';
+import { ProfileEntity } from '../../entities/profile.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { GroupCoverRepository } from '../../repositories/group-cover.repository';
 import { GroupMemberRepository } from '../../repositories/group-member.repository';
 import { GroupRepository } from '../../repositories/group.repository';
+import { MatchingRepository } from '../../repositories/matching.repository';
 import { PostRepository } from '../../repositories/post.repository';
 import { VoteRepository } from '../../repositories/vote.repository';
 import { ConfigService } from '../../shared/services/config.service';
@@ -36,6 +39,7 @@ export class GroupService {
         private readonly _groupCoverRepository: GroupCoverRepository,
         private readonly _postRepository: PostRepository,
         private readonly _voteRepository: VoteRepository,
+        private readonly _matchingRepository: MatchingRepository,
     ) {}
 
     async retrieve({
@@ -321,5 +325,54 @@ export class GroupService {
         }
 
         return posts;
+    }
+
+    async retrieveAvailableMatches({
+        profileId,
+        groupId,
+    }: {
+        profileId: string;
+        groupId: string;
+    }): Promise<ProfileEntity[]> {
+        const matches = await this._matchingRepository
+            .createQueryBuilder('matching')
+            .leftJoinAndSelect('matching.fromProfile', 'fromProfile')
+            .leftJoinAndSelect('matching.toProfile', 'toProfile')
+            .where('matching.status = :status', {
+                status: MatchingStatusType.MATCH,
+            })
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where('matching.fromProfileId = :id', {
+                        id: profileId,
+                    }).orWhere('matching.toProfileId = :id', { id: profileId });
+                }),
+            )
+            .orderBy('matching.updated_at', 'DESC')
+            .getMany();
+
+        const profiles: ProfileEntity[] = [];
+
+        for (const match of matches) {
+            if (match.fromProfileId !== profileId) {
+                const isIn = await this._groupMemberRepository.findOne({
+                    groupId,
+                    profileId: match.fromProfileId,
+                });
+                if (!isIn) {
+                    profiles.push(match.fromProfile);
+                }
+            } else {
+                const isIn = await this._groupMemberRepository.findOne({
+                    groupId,
+                    profileId: match.toProfileId,
+                });
+                if (!isIn) {
+                    profiles.push(match.toProfile);
+                }
+            }
+        }
+
+        return profiles;
     }
 }
