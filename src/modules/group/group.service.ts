@@ -110,6 +110,7 @@ export class GroupService {
             if (group.members.length > 0) {
                 group.isMember = true;
                 group.role = group.members[0].role;
+                group.status = group.members[0].status;
                 group.members = null;
             }
         });
@@ -133,6 +134,7 @@ export class GroupService {
         if (group.members.length > 0) {
             group.isMember = true;
             group.role = group.members[0].role;
+            group.status = group.members[0].status;
             group.members = null;
         }
 

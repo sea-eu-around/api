@@ -9,6 +9,7 @@ import {
 
 import { AbstractEntity } from '../common/abstract.entity';
 import { GroupMemberRoleType } from '../common/constants/group-member-role-type';
+import { GroupMemberStatusType } from '../common/constants/group-member-status-type';
 import { GroupDto } from '../dto/GroupDto';
 import { GroupCoverEntity } from './group-cover.entity';
 import { GroupMemberEntity } from './groupMember.entity';
@@ -50,6 +51,8 @@ export class GroupEntity extends AbstractEntity<GroupDto> {
     isMember?: boolean;
 
     role?: GroupMemberRoleType;
+
+    status?: GroupMemberStatusType;
 
     dtoClass = GroupDto;
 }
