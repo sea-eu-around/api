@@ -5,6 +5,7 @@ import { CommentRepository } from '../../repositories/comment.repository';
 import { GroupCoverRepository } from '../../repositories/group-cover.repository';
 import { GroupMemberRepository } from '../../repositories/group-member.repository';
 import { GroupRepository } from '../../repositories/group.repository';
+import { MatchingRepository } from '../../repositories/matching.repository';
 import { PostRepository } from '../../repositories/post.repository';
 import { VoteRepository } from '../../repositories/vote.repository';
 import { GroupMemberModule } from './group-member/group-member.module';
@@ -21,6 +22,7 @@ import { PostModule } from './post/post.module';
             CommentRepository,
             PostRepository,
             VoteRepository,
+            MatchingRepository,
         ]),
         GroupMemberModule,
         PostModule,
