@@ -31,6 +31,7 @@ import { AuthUserInterceptor } from '../../../interceptors/auth-user-interceptor
 import { CreateGroupMemberParamsDto } from './dto/CreateGroupMemberParamsDto';
 import { CreateGroupMemberPayloadDto } from './dto/CreateGroupMemberPayloadDto';
 import { DeleteGroupMemberParamsDto } from './dto/DeleteGroupMemberParamsDto';
+import { DeleteGroupMemberQuerydto } from './dto/DeleteGroupMemberQueryDto';
 import { RetrieveGroupMembersParamsDto } from './dto/RetrieveGroupMembersParamsDto';
 import { GetManyGroupMembersQueryDto } from './dto/RetrieveGroupMembersQueryDto';
 import { UpdateGroupMemberParamsDto } from './dto/UpdateGroupMemberParamsDto';
@@ -178,6 +179,10 @@ export class GroupMemberController {
         type: 'string',
         required: false,
     })
+    @ApiQuery({
+        name: 'cascade',
+        type: 'boolean',
+    })
     @ApiBearerAuth()
     @ApiResponse({
         status: HttpStatus.NO_CONTENT,
@@ -185,12 +190,14 @@ export class GroupMemberController {
         type: GroupDto,
     })
     async deleteMember(
+        @Query() query: DeleteGroupMemberQuerydto,
         @Param() deleteGroupMemberParamsDto: DeleteGroupMemberParamsDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         await this._groupMemberService.deleteGroupMember({
             ...deleteGroupMemberParamsDto,
             user,
+            ...query,
         });
 
         return {

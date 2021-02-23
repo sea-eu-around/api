@@ -54,7 +54,6 @@ export class PostService {
             .createQueryBuilder('posts')
             .leftJoinAndSelect('posts.creator', 'creator')
             .leftJoinAndSelect('creator.avatar', 'avatar')
-            .leftJoinAndSelect('posts.group', 'group')
             .addSelect('(posts.upVotesCount - posts.downVotesCount)', 'score')
             .where('posts.group_id = :groupId', {
                 groupId,

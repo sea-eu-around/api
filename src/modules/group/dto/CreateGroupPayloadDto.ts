@@ -12,7 +12,7 @@ export class CreateGroupPayloadDto {
 
     @ApiProperty()
     @IsBoolean()
-    readonly requireApproval!: boolean;
+    readonly requiresApproval!: boolean;
 
     @ApiPropertyOptional()
     @IsString()

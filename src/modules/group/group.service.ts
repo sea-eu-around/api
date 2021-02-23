@@ -321,6 +321,7 @@ export class GroupService {
             .leftJoinAndSelect('posts.creator', 'creator')
             .leftJoinAndSelect('creator.avatar', 'avatar')
             .leftJoinAndSelect('posts.group', 'group')
+            .leftJoinAndSelect('group.cover', 'cover')
             .leftJoinAndSelect(
                 'group.members',
                 'members',

@@ -3,6 +3,7 @@ import {
     Injectable,
     UnauthorizedException,
 } from '@nestjs/common';
+import Expo, { ExpoPushMessage } from 'expo-server-sdk';
 import {
     IPaginationOptions,
     paginate,
@@ -11,17 +12,24 @@ import {
 import { Brackets } from 'typeorm';
 
 import { GroupMemberStatusType } from '../../../common/constants/group-member-status-type';
+import { LanguageType } from '../../../common/constants/language-type';
 import { GroupMemberEntity } from '../../../entities/groupMember.entity';
 import { UserEntity } from '../../../entities/user.entity';
 import { GroupRepository } from '../../../repositories/group.repository';
 import { GroupMemberRepository } from '../../../repositories/groupMember.repository';
+import { PostRepository } from '../../../repositories/post.repository';
+import { UserRepository } from '../../user/user.repository';
 import { UpdateGroupMemberPayloadDto } from './dto/UpdateGroupMemberPayloadDto';
 
 @Injectable()
 export class GroupMemberService {
+    private _expo: Expo = new Expo();
+
     constructor(
         private readonly _groupRepository: GroupRepository,
         private readonly _groupMemberRepository: GroupMemberRepository,
+        private readonly _userRepository: UserRepository,
+        private readonly _postRepository: PostRepository,
     ) {}
 
     async retrieveMembers({
@@ -108,6 +116,26 @@ export class GroupMemberService {
             preGroupMember.status = isAdmin
                 ? GroupMemberStatusType.INVITED_BY_ADMIN
                 : GroupMemberStatusType.INVITED;
+
+            const invitedUser = await this._userRepository.findOne(profileId);
+
+            const notification: ExpoPushMessage = {
+                to: invitedUser.expoPushToken || invitedUser.email,
+                sound: 'default',
+                title:
+                    invitedUser.locale === LanguageType.FR
+                        ? 'Nouvelle invitation !'
+                        : 'New invitation!',
+                body:
+                    invitedUser.locale === LanguageType.FR
+                        ? `Rejoignez le groupe "${group.name}".`
+                        : `Join the group "${group.name}".`,
+                data: {
+                    groupId: group.id,
+                },
+            };
+
+            await this._expo.sendPushNotificationsAsync([notification]);
         } else {
             preGroupMember.status = group.requiresApproval
                 ? GroupMemberStatusType.PENDING
@@ -138,11 +166,13 @@ export class GroupMemberService {
             profileId: user.id,
         });
 
+        let membership: GroupMemberEntity;
+
         if (
             existingMembership &&
             existingMembership.status === GroupMemberStatusType.INVITED
         ) {
-            return this._groupMemberRepository.save({
+            membership = await this._groupMemberRepository.save({
                 profileId,
                 groupId,
                 status: GroupMemberStatusType.PENDING,
@@ -153,7 +183,7 @@ export class GroupMemberService {
             existingMembership &&
             existingMembership.status === GroupMemberStatusType.INVITED_BY_ADMIN
         ) {
-            return this._groupMemberRepository.save({
+            membership = await this._groupMemberRepository.save({
                 profileId,
                 groupId,
                 status: GroupMemberStatusType.APPROVED,
@@ -161,11 +191,37 @@ export class GroupMemberService {
         }
 
         if (isAdmin) {
-            return this._groupMemberRepository.save({
+            membership = await this._groupMemberRepository.save({
                 profileId,
                 groupId,
                 ...updateGroupMemberPayloadDto,
             });
+        }
+
+        if (
+            membership.status === GroupMemberStatusType.APPROVED &&
+            existingMembership.status === GroupMemberStatusType.PENDING
+        ) {
+            const invitedUser = await this._userRepository.findOne(profileId);
+            const group = await this._groupRepository.findOne({ id: groupId });
+
+            const notification: ExpoPushMessage = {
+                to: invitedUser.expoPushToken || invitedUser.email,
+                sound: 'default',
+                title:
+                    invitedUser.locale === LanguageType.FR
+                        ? 'Bienvenue dans le groupe !'
+                        : 'Welcome to the group!',
+                body:
+                    invitedUser.locale === LanguageType.FR
+                        ? `Votre demande pour rejoindre "${group.name}" a été acceptée, venez-vite découvrir ce qu'il s'y passe.`
+                        : `Your demand to join "${group.name}" has been approved, come now and find out what's going on there.`,
+                data: {
+                    groupId: group.id,
+                },
+            };
+
+            await this._expo.sendPushNotificationsAsync([notification]);
         }
 
         throw new UnauthorizedException();
@@ -174,10 +230,12 @@ export class GroupMemberService {
     async deleteGroupMember({
         groupId,
         user,
+        cascade,
         profileId,
     }: {
         groupId: string;
         user: UserEntity;
+        cascade: boolean;
         profileId?: string;
     }): Promise<void> {
         if (
@@ -195,5 +253,12 @@ export class GroupMemberService {
             groupId,
             profileId: profileId || user.id,
         });
+
+        if (cascade) {
+            await this._postRepository.delete({
+                groupId,
+                creatorId: profileId || user.id,
+            });
+        }
     }
 }
