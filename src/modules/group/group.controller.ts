@@ -23,6 +23,7 @@ import {
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { GroupDto } from '../../dto/GroupDto';
+import { ProfileDto } from '../../dto/ProfileDto';
 import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
@@ -255,6 +256,33 @@ export class GroupController {
         return {
             description: 'successefully-created-group-cover',
             data: group,
+        };
+    }
+
+    @Get('/:id/availableMatches')
+    @HttpCode(HttpStatus.CREATED)
+    @ApiBearerAuth()
+    @ApiParam({
+        name: 'id',
+        type: 'string',
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'successefully-retrieved-matches',
+        type: ProfileDto,
+    })
+    async retrieveAvailableMatches(
+        @Param() retrieveAvailableMatches: RetrieveGroupParamsDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const profiles = await this._groupService.retrieveAvailableMatches({
+            profileId: user.id,
+            groupId: retrieveAvailableMatches.id,
+        });
+
+        return {
+            description: 'successefully-retrieved-profiles',
+            data: profiles,
         };
     }
 }
