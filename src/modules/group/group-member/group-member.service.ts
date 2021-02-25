@@ -107,7 +107,7 @@ export class GroupMemberService {
 
         const isAdmin = await this._groupMemberRepository.isAdmin({
             groupId,
-            profileId,
+            profileId: user.id,
         });
 
         const group = await this._groupRepository.findOne({ id: groupId });
