@@ -2,6 +2,7 @@ import { Transform } from 'class-transformer';
 import {
     AfterInsert,
     AfterRemove,
+    AfterUpdate,
     Column,
     Entity,
     getConnection,
@@ -61,6 +62,16 @@ export abstract class VoteEntity
         await getConnection().query('UPDATE "' + this.entityType + query, [id]);
     }
 
+    @AfterUpdate()
+    async updateLikesCounter(): Promise<void> {
+        const id = this.entityId != null ? this.entityId : 0;
+        const query =
+            this.voteType === VoteType.UP
+                ? '" SET "up_votes_count" = up_votes_count + 1, "down_votes_count" = down_votes_count - 1 WHERE "id" = $1'
+                : '" SET "down_votes_count" = down_votes_count + 1, "up_votes_count" = up_votes_count - 1 WHERE "id" = $1';
+        await getConnection().query('UPDATE "' + this.entityType + query, [id]);
+    }
+
     @AfterRemove()
     async decreaseLikesCounter(): Promise<void> {
         const id = this.entityId != null ? this.entityId : 0;
@@ -71,6 +82,5 @@ export abstract class VoteEntity
         // To avoid updated_at to be changed
         await getConnection().query('UPDATE "' + this.entityType + query, [id]);
     }
-
     dtoClass = VoteDto;
 }
