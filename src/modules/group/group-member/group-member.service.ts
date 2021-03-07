@@ -50,9 +50,6 @@ export class GroupMemberService {
             .leftJoinAndSelect('groupMember.profile', 'profile')
             .leftJoinAndSelect('profile.avatar', 'avatar')
             .where('groupMember.groupId = :groupId', { groupId })
-            .andWhere('groupMember.profileId != :profileId', {
-                profileId: user.id,
-            })
             .orderBy('groupMember.createdAt', 'DESC');
 
         if (statuses) {
@@ -66,18 +63,23 @@ export class GroupMemberService {
 
         if (search && search.length > 0) {
             const words = search.split(' ');
-            groupMembers.andWhere(
-                new Brackets((qb) => {
-                    for (const word of words) {
-                        qb.andWhere('profile.firstName ilike :search', {
-                            search: `%${word}%`,
-                        });
-                        qb.orWhere('profile.lastName ilike :search', {
-                            search: `%${word}%`,
-                        });
-                    }
-                }),
-            );
+
+            groupMembers
+                .andWhere('groupMember.profileId != :profileId', {
+                    profileId: user.id,
+                })
+                .andWhere(
+                    new Brackets((qb) => {
+                        for (const word of words) {
+                            qb.andWhere('profile.firstName ilike :search', {
+                                search: `%${word}%`,
+                            });
+                            qb.orWhere('profile.lastName ilike :search', {
+                                search: `%${word}%`,
+                            });
+                        }
+                    }),
+                );
         }
 
         return paginate<GroupMemberEntity>(groupMembers, options);
