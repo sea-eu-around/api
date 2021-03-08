@@ -361,11 +361,13 @@ export class GroupService {
     async retrieveAvailableMatches({
         profileId,
         groupId,
+        search,
     }: {
         profileId: string;
         groupId: string;
+        search?: string;
     }): Promise<ProfileEntity[]> {
-        const matches = await this._matchingRepository
+        const matchesQb = this._matchingRepository
             .createQueryBuilder('matching')
             .leftJoinAndSelect('matching.fromProfile', 'fromProfile')
             .leftJoinAndSelect('matching.toProfile', 'toProfile')
@@ -380,9 +382,31 @@ export class GroupService {
                     }).orWhere('matching.toProfileId = :id', { id: profileId });
                 }),
             )
-            .orderBy('matching.updated_at', 'DESC')
-            .getMany();
+            .orderBy('matching.updated_at', 'DESC');
 
+        if (search && search.length > 0) {
+            const words = search.split(' ');
+            matchesQb.andWhere(
+                new Brackets((qb) => {
+                    for (const word of words) {
+                        qb.andWhere('fromProfile.firstName ILIKE :search', {
+                            search: `%${word}%`,
+                        })
+                            .orWhere('fromProfile.lastName ILIKE :search', {
+                                search: `%${word}%`,
+                            })
+                            .orWhere('toProfile.firstName ILIKE :search', {
+                                search: `%${word}%`,
+                            })
+                            .orWhere('toProfile.lastName ILIKE :search', {
+                                search: `%${word}%`,
+                            });
+                    }
+                }),
+            );
+        }
+
+        const matches = await matchesQb.getMany();
         const profiles: ProfileEntity[] = [];
 
         for (const match of matches) {

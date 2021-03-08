@@ -33,6 +33,8 @@ import { CreateGroupCoverParamsDto } from './dto/CreateGroupCoverParamsDto';
 import { CreateGroupCoverPayloadDto } from './dto/CreateGroupCoverPayloadDto';
 import { CreateGroupPayloadDto } from './dto/CreateGroupPayloadDto';
 import { DeleteGroupParamsDto } from './dto/DeleteGroupParamsDto';
+import { RetrieveAvailableMatchesParamsDto } from './dto/retrieveAvailableMatchesParamsDto';
+import { RetrieveAvailableMatchesQueryDto } from './dto/retrieveAvailableMatchesQueryDto';
 import { RetrieveGroupParamsDto } from './dto/RetrieveGroupParamsDto';
 import { RetrieveGroupsFeedQueryDto } from './dto/RetrieveGroupsFeedQueryDto';
 import { RetrieveGroupsQueryDto } from './dto/RetrieveGroupsQueryDto';
@@ -276,18 +278,25 @@ export class GroupController {
         name: 'id',
         type: 'string',
     })
+    @ApiQuery({
+        name: 'search',
+        type: 'string',
+        required: false,
+    })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'successefully-retrieved-matches',
         type: ProfileDto,
     })
     async retrieveAvailableMatches(
-        @Param() retrieveAvailableMatches: RetrieveGroupParamsDto,
+        @Param() params: RetrieveAvailableMatchesParamsDto,
+        @Query() query: RetrieveAvailableMatchesQueryDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         const profiles = await this._groupService.retrieveAvailableMatches({
             profileId: user.id,
-            groupId: retrieveAvailableMatches.id,
+            groupId: params.id,
+            ...query,
         });
 
         return {
