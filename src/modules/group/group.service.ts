@@ -170,7 +170,7 @@ export class GroupService {
         user: UserEntity,
     ): Promise<GroupEntity> {
         if (
-            !(await this._groupMemberRepository.admin({
+            !(await this._groupMemberRepository.isAdmin({
                 profileId: user.id,
                 groupId: id,
             }))
@@ -188,7 +188,7 @@ export class GroupService {
 
     async delete(id: string, user: UserEntity): Promise<void> {
         if (
-            !(await this._groupMemberRepository.admin({
+            !(await this._groupMemberRepository.isAdmin({
                 profileId: user.id,
                 groupId: id,
             }))
@@ -278,7 +278,7 @@ export class GroupService {
         user?: UserEntity;
     }): Promise<GroupEntity> {
         if (
-            !(await this._groupMemberRepository.admin({
+            !(await this._groupMemberRepository.isAdmin({
                 groupId: id,
                 profileId: user.id,
             }))

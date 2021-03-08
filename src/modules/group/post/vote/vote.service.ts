@@ -24,7 +24,7 @@ export class VoteService {
         entityType: VoteEntityType;
         entityId: string;
     }): Promise<VoteEntity[]> {
-        const member = await this._groupMemberRepository.member({
+        const member = await this._groupMemberRepository.isMember({
             profileId,
             groupId,
         });
@@ -49,7 +49,7 @@ export class VoteService {
         entityId: string;
         voteType: VoteType;
     }): Promise<VoteEntity> {
-        const member = await this._groupMemberRepository.member({
+        const member = await this._groupMemberRepository.isMember({
             profileId,
             groupId,
         });
@@ -91,7 +91,7 @@ export class VoteService {
         entityId: string;
         voteType: VoteType;
     }): Promise<VoteEntity> {
-        const member = await this._groupMemberRepository.member({
+        const member = await this._groupMemberRepository.isMember({
             profileId,
             groupId,
         });
@@ -126,7 +126,7 @@ export class VoteService {
         entityType: VoteEntityType;
         entityId: string;
     }): Promise<VoteEntity> {
-        const member = await this._groupMemberRepository.member({
+        const member = await this._groupMemberRepository.isMember({
             profileId,
             groupId,
         });
