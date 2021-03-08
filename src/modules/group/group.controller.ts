@@ -270,14 +270,14 @@ export class GroupController {
     }
 
     @Get('/:id/availableMatches')
-    @HttpCode(HttpStatus.CREATED)
+    @HttpCode(HttpStatus.OK)
     @ApiBearerAuth()
     @ApiParam({
         name: 'id',
         type: 'string',
     })
     @ApiResponse({
-        status: HttpStatus.CREATED,
+        status: HttpStatus.OK,
         description: 'successefully-retrieved-matches',
         type: ProfileDto,
     })
