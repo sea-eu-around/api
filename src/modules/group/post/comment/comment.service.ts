@@ -5,6 +5,7 @@ import {
     Pagination,
 } from 'nestjs-typeorm-paginate';
 
+import { GroupMemberRoleType } from '../../../../common/constants/group-member-role-type';
 import { VoteEntityType } from '../../../../common/constants/voteEntityType';
 import { CommentEntity } from '../../../../entities/comment.entity';
 import { CommentRepository } from '../../../../repositories/comment.repository';
@@ -34,7 +35,7 @@ export class CommentService {
         profileId: string;
         options: IPaginationOptions;
     }): Promise<Pagination<CommentEntity>> {
-        const member = await this._groupMemberRepository.member({
+        const member = await this._groupMemberRepository.isMember({
             groupId,
             profileId,
         });
@@ -103,7 +104,7 @@ export class CommentService {
         groupId: string;
         profileId: string;
     }): Promise<CommentEntity> {
-        const member = await this._groupMemberRepository.member({
+        const member = await this._groupMemberRepository.isMember({
             groupId,
             profileId,
         });
@@ -141,7 +142,7 @@ export class CommentService {
         postId: string;
         payload: CreateCommentPayloadDto;
     }): Promise<CommentEntity> {
-        const member = await this._groupMemberRepository.member({
+        const member = await this._groupMemberRepository.isMember({
             profileId,
             groupId,
         });
@@ -192,13 +193,25 @@ export class CommentService {
     async delete({
         id,
         profileId,
+        groupId,
     }: {
         id: string;
         profileId: string;
+        groupId: string;
     }): Promise<void> {
         const comment = await this._commentRepository.findOne(id);
 
-        if (!(comment.creatorId === profileId)) {
+        const member = await this._groupMemberRepository.isMember({
+            profileId,
+            groupId,
+        });
+
+        if (
+            !(
+                member.role === GroupMemberRoleType.ADMIN ||
+                comment.creatorId === profileId
+            )
+        ) {
             throw new UnauthorizedException();
         }
 
