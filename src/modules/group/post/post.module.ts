@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { GroupMemberRepository } from '../../../repositories/group-member.repository';
 import { GroupRepository } from '../../../repositories/group.repository';
-import { GroupMemberRepository } from '../../../repositories/groupMember.repository';
 import { PostRepository } from '../../../repositories/post.repository';
 import { SimplePostRepository } from '../../../repositories/simple-post.repository';
 import { VoteRepository } from '../../../repositories/vote.repository';

@@ -15,8 +15,8 @@ import { GroupMemberStatusType } from '../../../common/constants/group-member-st
 import { LanguageType } from '../../../common/constants/language-type';
 import { GroupMemberEntity } from '../../../entities/groupMember.entity';
 import { UserEntity } from '../../../entities/user.entity';
+import { GroupMemberRepository } from '../../../repositories/group-member.repository';
 import { GroupRepository } from '../../../repositories/group.repository';
-import { GroupMemberRepository } from '../../../repositories/groupMember.repository';
 import { PostRepository } from '../../../repositories/post.repository';
 import { UserRepository } from '../../user/user.repository';
 import { UpdateGroupMemberPayloadDto } from './dto/UpdateGroupMemberPayloadDto';
@@ -226,7 +226,11 @@ export class GroupMemberService {
             await this._expo.sendPushNotificationsAsync([notification]);
         }
 
-        throw new UnauthorizedException();
+        if (!membership) {
+            throw new UnauthorizedException();
+        }
+
+        return membership;
     }
 
     async deleteGroupMember({
