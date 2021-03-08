@@ -369,6 +369,7 @@ export class GroupService {
             .createQueryBuilder('matching')
             .leftJoinAndSelect('matching.fromProfile', 'fromProfile')
             .leftJoinAndSelect('matching.toProfile', 'toProfile')
+            .leftJoinAndSelect('toProfile.avatar', 'avatar')
             .where('matching.status = :status', {
                 status: MatchingStatusType.MATCH,
             })
