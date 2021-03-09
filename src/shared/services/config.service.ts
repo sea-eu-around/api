@@ -86,7 +86,7 @@ export class ConfigService {
             database: this.get('DB_DATABASE'),
             subscribers: [UserSubscriber],
             migrationsRun: true,
-            synchronize: false,
+            synchronize: true,
             logging: this.debug,
             namingStrategy: new SnakeNamingStrategy(),
         };

@@ -29,7 +29,9 @@ import { AuthGuard } from '../../../guards/auth.guard';
 import { RolesGuard } from '../../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../../interceptors/auth-user-interceptor.service';
 import { CreateGroupMemberParamsDto } from './dto/CreateGroupMemberParamsDto';
+import { CreateGroupMemberPayloadDto } from './dto/CreateGroupMemberPayloadDto';
 import { DeleteGroupMemberParamsDto } from './dto/DeleteGroupMemberParamsDto';
+import { DeleteGroupMemberQuerydto } from './dto/DeleteGroupMemberQueryDto';
 import { RetrieveGroupMembersParamsDto } from './dto/RetrieveGroupMembersParamsDto';
 import { GetManyGroupMembersQueryDto } from './dto/RetrieveGroupMembersQueryDto';
 import { UpdateGroupMemberParamsDto } from './dto/UpdateGroupMemberParamsDto';
@@ -56,6 +58,11 @@ export class GroupMemberController {
         name: 'limit',
     })
     @ApiQuery({
+        name: 'search',
+        type: 'string',
+        required: false,
+    })
+    @ApiQuery({
         name: 'statuses',
         type: 'enum',
         enum: GroupMemberStatusType,
@@ -79,16 +86,17 @@ export class GroupMemberController {
                 ? 100
                 : retrieveGroupMembersQueryDto.limit;
 
-        const members = await this._groupMemberService.retrieveMembers(
-            retrieveGroupMembersParamsDto.groupId,
-            {
+        const members = await this._groupMemberService.retrieveMembers({
+            user,
+            groupId: retrieveGroupMembersParamsDto.groupId,
+            options: {
                 limit,
                 page: retrieveGroupMembersQueryDto.page,
                 route: `http://localhost:3000/groups/${retrieveGroupMembersParamsDto.groupId}/members`,
             },
-            user,
-            retrieveGroupMembersQueryDto.statuses,
-        );
+            statuses: retrieveGroupMembersQueryDto.statuses,
+            ...retrieveGroupMembersQueryDto,
+        });
 
         return {
             description: 'successefully-retrieved-group-members',
@@ -111,13 +119,15 @@ export class GroupMemberController {
         type: GroupDto,
     })
     async createGroupMember(
-        @Param() createGroupMemberParamsDto: CreateGroupMemberParamsDto,
+        @Body() payload: CreateGroupMemberPayloadDto,
+        @Param() params: CreateGroupMemberParamsDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
-        const groupMember = await this._groupMemberService.createGroupMember(
-            createGroupMemberParamsDto.groupId,
-            user.id,
-        );
+        const groupMember = await this._groupMemberService.createGroupMember({
+            user,
+            ...params,
+            ...payload,
+        });
 
         return {
             description: 'successefully-created-group-member',
@@ -169,6 +179,10 @@ export class GroupMemberController {
         type: 'string',
         required: false,
     })
+    @ApiQuery({
+        name: 'cascade',
+        type: 'boolean',
+    })
     @ApiBearerAuth()
     @ApiResponse({
         status: HttpStatus.NO_CONTENT,
@@ -176,12 +190,14 @@ export class GroupMemberController {
         type: GroupDto,
     })
     async deleteMember(
+        @Query() query: DeleteGroupMemberQuerydto,
         @Param() deleteGroupMemberParamsDto: DeleteGroupMemberParamsDto,
         @AuthUser() user: UserEntity,
     ): Promise<PayloadSuccessDto> {
         await this._groupMemberService.deleteGroupMember({
             ...deleteGroupMemberParamsDto,
             user,
+            ...query,
         });
 
         return {

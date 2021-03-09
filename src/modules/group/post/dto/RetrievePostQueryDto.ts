@@ -1,5 +1,7 @@
 import { Transform } from 'class-transformer';
-import { IsInt } from 'class-validator';
+import { IsEnum, IsInt } from 'class-validator';
+
+import { GroupFeedType } from '../../../../common/constants/group-feed-type';
 
 export class RetrievePostQueryDto {
     @IsInt()
@@ -9,4 +11,7 @@ export class RetrievePostQueryDto {
     @IsInt()
     @Transform(parseInt)
     readonly limit!: number;
+
+    @IsEnum(GroupFeedType)
+    readonly type!: GroupFeedType;
 }

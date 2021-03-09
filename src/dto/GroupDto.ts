@@ -1,5 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
+import { GroupMemberRoleType } from '../common/constants/group-member-role-type';
+import { GroupMemberStatusType } from '../common/constants/group-member-status-type';
 import { AbstractDto } from '../common/dto/AbstractDto';
 import { GroupEntity } from '../entities/group.entity';
 import { UtilsService } from '../providers/utils.service';
@@ -24,6 +26,15 @@ export class GroupDto extends AbstractDto {
     @ApiPropertyOptional()
     cover?: string;
 
+    @ApiPropertyOptional()
+    isMember?: boolean;
+
+    @ApiPropertyOptional()
+    role?: GroupMemberRoleType;
+
+    @ApiPropertyOptional()
+    status?: GroupMemberStatusType;
+
     constructor(group: GroupEntity) {
         super(group);
         this.name = group.name;
@@ -38,5 +49,8 @@ export class GroupDto extends AbstractDto {
                 ? `https://aas-bucket.s3.eu-west-3.amazonaws.com/${group.cover.path}`
                 : group.cover.path
             : null;
+        this.isMember = group.isMember;
+        this.role = group.role;
+        this.status = group.status;
     }
 }
