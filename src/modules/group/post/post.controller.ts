@@ -20,6 +20,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 
+import { GroupFeedType } from '../../../common/constants/group-feed-type';
 import { PayloadSuccessDto } from '../../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../../decorators/auth-user.decorator';
 import { GroupDto } from '../../../dto/GroupDto';
@@ -58,6 +59,10 @@ export class PostController {
     @ApiQuery({
         name: 'limit',
     })
+    @ApiQuery({
+        name: 'type',
+        enum: GroupFeedType,
+    })
     @ApiResponse({
         type: PostDto,
         status: HttpStatus.OK,
@@ -76,6 +81,7 @@ export class PostController {
             profileId: user.id,
             groupId: retrievePostParamDto.groupId,
             options: { page, limit },
+            ...retrievePostQueryDto,
         });
 
         return {
@@ -161,12 +167,12 @@ export class PostController {
         description: 'successefully-updated-post',
         type: PostDto,
     })
-    update(
+    async update(
         @Param() updatePostParamDto: UpdatePostParamDto,
         @Body() updatePostPayloadDto: UpdatePostPayloadDto,
         @AuthUser() user: UserEntity,
-    ): PayloadSuccessDto {
-        const post = this._postService.update({
+    ): Promise<PayloadSuccessDto> {
+        const post = await this._postService.update({
             profileId: user.id,
             params: updatePostParamDto,
             payload: updatePostPayloadDto,

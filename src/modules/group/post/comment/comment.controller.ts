@@ -1,4 +1,5 @@
 import {
+    Body,
     Controller,
     Delete,
     Get,
@@ -28,8 +29,13 @@ import { AuthGuard } from '../../../../guards/auth.guard';
 import { RolesGuard } from '../../../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../../../interceptors/auth-user-interceptor.service';
 import { CommentService } from './comment.service';
+import { CreateCommentsParamsDto } from './dto/CreateCommentParamsDto';
+import { CreateCommentPayloadDto } from './dto/CreateCommentPayloadDto';
+import { DeleteCommentParamsDto } from './dto/DeleteCommentParamsDto';
 import { RetrieveCommentsParamsDto } from './dto/RetrieveCommentsParamsDto';
 import { RetrieveCommentsQueryDto } from './dto/RetrieveCommentsQueryDto';
+import { UpdateCommentParamsDto } from './dto/UpdateCommentParamsDto';
+import { UpdateCommentPayloadDto } from './dto/UpdateCommentPayloadDto';
 
 @Controller('/groups/:groupId/posts/:postId/comments')
 @ApiTags('Comments')
@@ -121,8 +127,21 @@ export class CommentController {
         description: 'successefully-created-comment',
         type: CommentDto,
     })
-    create(): PayloadSuccessDto {
-        throw new NotImplementedException();
+    async create(
+        @Param() params: CreateCommentsParamsDto,
+        @Body() payload: CreateCommentPayloadDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const comment = await this._commentService.create({
+            profileId: user.id,
+            ...params,
+            payload,
+        });
+
+        return {
+            description: 'successefully-created-comment',
+            data: comment,
+        };
     }
 
     @Patch('/:id')
@@ -145,8 +164,21 @@ export class CommentController {
         description: 'successefully-updated-group',
         type: CommentDto,
     })
-    update(): PayloadSuccessDto {
-        throw new NotImplementedException();
+    async update(
+        @Param() params: UpdateCommentParamsDto,
+        @Body() payload: UpdateCommentPayloadDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        const comment = await this._commentService.update({
+            profileId: user.id,
+            ...params,
+            payload,
+        });
+
+        return {
+            description: 'successefully-updated-comment',
+            data: comment,
+        };
     }
 
     @Delete('/:id')
@@ -168,7 +200,18 @@ export class CommentController {
         status: HttpStatus.NO_CONTENT,
         description: 'successefully-deleted-comment',
     })
-    delete(): PayloadSuccessDto {
-        throw new NotImplementedException();
+    async delete(
+        @Param() params: DeleteCommentParamsDto,
+        @AuthUser() user: UserEntity,
+    ): Promise<PayloadSuccessDto> {
+        await this._commentService.delete({
+            profileId: user.id,
+            ...params,
+        });
+
+        return {
+            description: 'successefully-deleted-comment',
+            data: null,
+        };
     }
 }
