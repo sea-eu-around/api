@@ -75,11 +75,11 @@ export class GroupService {
                         where: { profileId, status: In(statuses) },
                     })
                 ).map((groupMember) => groupMember.groupId);
-            }
 
-            groupsQb.andWhere('group.id IN (:...groupIds)', {
-                groupIds: [null, ...groupIds],
-            });
+                groupsQb.andWhere('group.id IN (:...groupIds)', {
+                    groupIds: [null, ...groupIds],
+                });
+            }
         }
 
         if ((profileId && profileId !== user.id) || !profileId) {
