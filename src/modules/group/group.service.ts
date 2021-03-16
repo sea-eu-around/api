@@ -75,13 +75,6 @@ export class GroupService {
                         where: { profileId, status: In(statuses) },
                     })
                 ).map((groupMember) => groupMember.groupId);
-            } else {
-                groupIds = (
-                    await this._groupMemberRepository.find({
-                        select: ['groupId'],
-                        where: { profileId },
-                    })
-                ).map((groupMember) => groupMember.groupId);
             }
 
             groupsQb.andWhere('group.id IN (:...groupIds)', {
