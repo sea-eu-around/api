@@ -88,10 +88,6 @@ export class GroupService {
                         select: ['groupId'],
                         where: {
                             profileId: user.id,
-                            status: In([
-                                GroupMemberStatusType.BANNED,
-                                GroupMemberStatusType.APPROVED,
-                            ]),
                         },
                     })
                 ).map((groupMember) => groupMember.groupId);
