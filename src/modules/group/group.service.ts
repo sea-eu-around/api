@@ -45,15 +45,15 @@ export class GroupService {
     async retrieve({
         options,
         user,
-        profileId,
         search,
         statuses,
+        explore,
     }: {
         options: IPaginationOptions;
         user: UserEntity;
-        profileId?: string;
         search?: string;
         statuses?: GroupMemberStatusType[];
+        explore?: boolean;
     }): Promise<Pagination<GroupEntity>> {
         const groupsQb = this._groupRepository
             .createQueryBuilder('group')
@@ -66,26 +66,52 @@ export class GroupService {
             )
             .orderBy('group.updatedAt', 'DESC');
 
-        if (profileId) {
-            let groupIds: string[];
+        if (!statuses && !explore) {
+            groupsQb.andWhere('group.visible = :visible', { visible: true });
+        } else {
             if (statuses) {
-                groupIds = (
+                const statusesGroupIds = (
                     await this._groupMemberRepository.find({
                         select: ['groupId'],
-                        where: { profileId, status: In(statuses) },
+                        where: { profileId: user.id, status: In(statuses) },
                     })
                 ).map((groupMember) => groupMember.groupId);
 
-                groupsQb.andWhere('group.id IN (:...groupIds)', {
-                    groupIds: [null, ...groupIds],
+                groupsQb.orWhere('group.id IN (:...statusesGroupIds)', {
+                    statusesGroupIds: [null, ...statusesGroupIds],
                 });
             }
-        }
 
-        if ((profileId && profileId !== user.id) || !profileId) {
-            groupsQb.andWhere('group.visible = :visible', {
-                visible: true,
-            });
+            if (explore) {
+                const exploreGroupIds = (
+                    await this._groupMemberRepository.find({
+                        select: ['groupId'],
+                        where: {
+                            profileId: user.id,
+                            status: In([
+                                GroupMemberStatusType.BANNED,
+                                GroupMemberStatusType.APPROVED,
+                            ]),
+                        },
+                    })
+                ).map((groupMember) => groupMember.groupId);
+
+                groupsQb.orWhere(
+                    new Brackets((qb) => {
+                        if (exploreGroupIds) {
+                            qb.andWhere(
+                                'group.id NOT IN (:...exploreGroupIds)',
+                                {
+                                    exploreGroupIds,
+                                },
+                            );
+                        }
+                        qb.andWhere('group.visible = :visible', {
+                            visible: true,
+                        });
+                    }),
+                );
+            }
         }
 
         if (search && search.length > 0) {
