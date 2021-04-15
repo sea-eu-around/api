@@ -40,10 +40,10 @@ services:
       - postgres
       - proxy
     labels:
-      - traefik.http.routers.api-http.rule=Host(`api.ladislas-dellinger.me`)
+      - traefik.http.routers.api-http.rule=Host(`sea-eu-api.univ-brest.fr`)
       - traefik.http.routers.api-http.entrypoints=http
       - traefik.http.routers.api-http.middlewares=redirect
-      - traefik.http.routers.api-https.rule=Host(`api.ladislas-dellinger.me`)
+      - traefik.http.routers.api-https.rule=Host(`sea-eu-api.univ-brest.fr`)
       - traefik.http.routers.api-https.entrypoints=https
       - traefik.http.routers.api-https.tls=true
       - traefik.http.routers.api-https.tls.certresolver=letsencrypt
