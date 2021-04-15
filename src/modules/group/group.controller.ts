@@ -59,10 +59,6 @@ export class GroupController {
         name: 'limit',
     })
     @ApiQuery({
-        name: 'profileId',
-        required: false,
-    })
-    @ApiQuery({
         name: 'statuses',
         type: 'enum',
         enum: GroupMemberStatusType,
@@ -73,6 +69,11 @@ export class GroupController {
     @ApiQuery({
         name: 'search',
         type: 'string',
+        required: false,
+    })
+    @ApiQuery({
+        name: 'explore',
+        type: 'boolean',
         required: false,
     })
     @ApiResponse({
