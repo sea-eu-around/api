@@ -1,26 +1,70 @@
-version: "3"
+version: '3.7'
+
 services:
-  app:
-    env_file:
-      - .development.env
-    container_name: awesome_nest_boilerplate
-    restart: always
+  traefik:
+    image: traefik:2.4
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./traefik.yml:/traefik.yml
+      - ./letsencrypt/acme.json:/acme.json
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - proxy
+    labels:
+      - traefik.http.routers.traefik-http.rule=Host(`traefik.ladislas-dellinger.me`)
+      - traefik.http.routers.traefik-http.entrypoints=http
+      - traefik.http.routers.traefik-http.middlewares=redirect
+      - traefik.http.routers.traefik-https.rule=Host(`traefik.ladislas-dellinger.me`)
+      - traefik.http.routers.traefik-https.entrypoints=https
+      - traefik.http.routers.traefik-https.tls=true
+      - traefik.http.routers.traefik-http.service=api@internal
+      - traefik.http.routers.traefik-https.service=api@internal
+      - traefik.http.middlewares.redirect.redirectscheme.scheme=https
+
+  api:
     build: .
+    env_file:
+      - .production.env
+    container_name: api_sea-eu-around
+    restart: always
     ports:
       - 3000:3000
     links:
+      - db
+    depends_on:
+      - db
+    networks:
       - postgres
-  postgres:
+      - proxy
+    labels:
+      - traefik.http.routers.api-http.rule=Host(`api.ladislas-dellinger.me`)
+      - traefik.http.routers.api-http.entrypoints=http
+      - traefik.http.routers.api-http.middlewares=redirect
+      - traefik.http.routers.api-https.rule=Host(`api.ladislas-dellinger.me`)
+      - traefik.http.routers.api-https.entrypoints=https
+      - traefik.http.routers.api-https.tls=true
+      - traefik.http.routers.api-https.tls.certresolver=letsencrypt
+      - traefik.http.services.api.loadbalancer.server.port=3000
+      - traefik.http.middlewares.redirect.redirectscheme.scheme=https
+
+  db:
     image: postgres
     restart: always
-    environment:
-      DB_PASSWORD: postgres
+    container_name: db_sea-eu-around
+    env_file:
+      - .postgres.env
     ports:
-      - 5433:5432
+      - 5432:5432
     volumes:
       - ./db-data:/var/lib/postgresql/data
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
+    networks:
+      - postgres
+
+networks:
+  postgres:
+    driver: bridge
+  proxy:
+    external: true

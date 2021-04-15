@@ -83,3 +83,5 @@ db-data
 .vscode/
 
 .DS_Store
+
+letsencrypt/
