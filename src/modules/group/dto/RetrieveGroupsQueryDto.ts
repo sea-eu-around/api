@@ -1,5 +1,12 @@
 import { Transform } from 'class-transformer';
-import { IsArray, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import {
+    IsArray,
+    IsBoolean,
+    IsEnum,
+    IsInt,
+    IsOptional,
+    IsString,
+} from 'class-validator';
 
 import { GroupMemberStatusType } from '../../../common/constants/group-member-status-type';
 
@@ -25,4 +32,9 @@ export class RetrieveGroupsQueryDto {
     @IsEnum(GroupMemberStatusType, { each: true })
     @Transform((value: string) => value.split(','))
     readonly statuses?: GroupMemberStatusType[];
+
+    @IsOptional()
+    @IsBoolean()
+    @Transform((value) => value === 'true')
+    readonly explore?: boolean;
 }
