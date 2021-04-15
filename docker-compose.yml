@@ -25,7 +25,7 @@ services:
       - traefik.http.middlewares.redirect.redirectscheme.scheme=https
 
   api:
-    build: .
+    image: ladislas14/sea-eu-around:latest
     env_file:
       - .production.env
     container_name: api_sea-eu-around
