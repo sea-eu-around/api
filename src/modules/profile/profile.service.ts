@@ -1,13 +1,14 @@
 /* eslint-disable complexity */
 import { Injectable, Logger } from '@nestjs/common';
 import { IPaginationOptions } from 'nestjs-typeorm-paginate';
-import { SelectQueryBuilder } from 'typeorm';
+import { In, SelectQueryBuilder } from 'typeorm';
 
 import { DegreeType } from '../../common/constants/degree-type';
 import { GenderType } from '../../common/constants/gender-type';
 import { LanguageType } from '../../common/constants/language-type';
 import { ProfileType } from '../../common/constants/profile-type';
 import { PartnerUniversity } from '../../common/constants/sea';
+import { StaffRoleType } from '../../common/constants/staff-role-type';
 import { EducationFieldEntity } from '../../entities/educationField.entity';
 import { InterestEntity } from '../../entities/interest.entity';
 import { LanguageEntity } from '../../entities/language.entity';
@@ -28,7 +29,6 @@ import { ProfilePictureRepository } from '../../repositories/profilePicture.repo
 import { StaffProfileRepository } from '../../repositories/staffProfile.repository';
 import { StaffRoleRepository } from '../../repositories/staffRole.repository';
 import { StudentProfileRepository } from '../../repositories/studentProfile.repository';
-import { MatchingService } from '../matching/matching.service';
 import { UserRepository } from '../user/user.repository';
 import { AddEducationFieldToProfileDto } from './dto/AddEducationFieldToProfileDto';
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
@@ -52,7 +52,6 @@ export class ProfileService {
         private readonly _profileOfferRepository: ProfileOfferRepository,
         private readonly _educationFieldRepository: EducationFieldRepository,
         private readonly _userRepository: UserRepository,
-        private readonly _matchingServices: MatchingService,
         private readonly _staffRoleRepository: StaffRoleRepository,
         private readonly _profilePictureRepository: ProfilePictureRepository,
         private readonly _profileUtils: ProfileUtils,
@@ -104,6 +103,7 @@ export class ProfileService {
         types: ProfileType[],
         offers: string[],
         options: IPaginationOptions,
+        staffRoles: StaffRoleType[],
     ): Promise<any> {
         const unwantedProfiles = await this._profileUtils.getUnwantedProfileIds(
             profileId,
@@ -156,6 +156,17 @@ export class ProfileService {
             profiles = profiles.andWhere('profile.type IN (:...types)', {
                 types,
             });
+
+            if (staffRoles && staffRoles.length > 0) {
+                const ids = (
+                    await this._staffRoleRepository.find({
+                        id: In(staffRoles),
+                    })
+                ).map((v) => v.profileId);
+                profiles = profiles.andWhere('profile.id IN (:...ids)', {
+                    ids,
+                });
+            }
         }
 
         if (degrees && degrees.length > 0) {
