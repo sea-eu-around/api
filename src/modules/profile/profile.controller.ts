@@ -15,6 +15,7 @@ import {
 import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { DegreeType } from '../../common/constants/degree-type';
+import { EducationFieldType } from '../../common/constants/education-field-type';
 import { GenderType } from '../../common/constants/gender-type';
 import { LanguageType } from '../../common/constants/language-type';
 import { ProfileType } from '../../common/constants/profile-type';
@@ -101,6 +102,13 @@ export class ProfileController {
         required: false,
     })
     @ApiQuery({
+        name: 'educationFields',
+        enum: EducationFieldType,
+        isArray: true,
+        explode: false,
+        required: false,
+    })
+    @ApiQuery({
         name: 'offers',
         isArray: true,
         explode: false,
@@ -124,6 +132,7 @@ export class ProfileController {
             types,
             offers,
             staffRoles,
+            educationFields,
         } = query;
 
         const limit = query.limit > 100 ? 100 : query.limit;
@@ -142,6 +151,7 @@ export class ProfileController {
                 // route: 'http://localhost:3000/profiles',
             },
             staffRoles,
+            educationFields,
         );
 
         return {
