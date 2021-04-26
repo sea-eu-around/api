@@ -163,6 +163,8 @@ export class GroupMemberService {
             profileId,
         });
 
+        const group = await this._groupRepository.findOne({ id: groupId });
+
         const isAdmin = await this._groupMemberRepository.isAdmin({
             groupId,
             profileId: user.id,
@@ -177,7 +179,9 @@ export class GroupMemberService {
             membership = await this._groupMemberRepository.save({
                 profileId,
                 groupId,
-                status: GroupMemberStatusType.PENDING,
+                status: group.requiresApproval
+                    ? GroupMemberStatusType.PENDING
+                    : GroupMemberStatusType.APPROVED,
             });
         }
 
@@ -205,7 +209,6 @@ export class GroupMemberService {
             existingMembership.status === GroupMemberStatusType.PENDING
         ) {
             const invitedUser = await this._userRepository.findOne(profileId);
-            const group = await this._groupRepository.findOne({ id: groupId });
 
             const notification: ExpoPushMessage = {
                 to: invitedUser.expoPushToken || invitedUser.email,
