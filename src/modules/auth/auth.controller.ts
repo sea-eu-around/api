@@ -20,6 +20,7 @@ import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.se
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/ForgotPasswordDto';
+import { GetVerificationLinkDto } from './dto/GetVerificationLinkDto';
 import { LoginPayloadDto } from './dto/LoginPayloadDto';
 import { ResetPasswordDto } from './dto/ResetPasswordDto';
 import { UserLoginDto } from './dto/UserLoginDto';
@@ -68,6 +69,24 @@ export class AuthController {
         return {
             description: 'Successfully Registered',
             data: createdUser,
+        };
+    }
+
+    @Post('verify/resend')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOkResponse({
+        type: UserDto,
+        description: 'successfully-send-verification-link',
+    })
+    async getVerificationLink(
+        @Body() getVerificationLinkDto: GetVerificationLinkDto,
+    ): Promise<PayloadSuccessDto> {
+        await this.userService.sendVerificationLink(
+            getVerificationLinkDto.email,
+        );
+
+        return {
+            description: 'successfully-send-verification-link',
         };
     }
 
