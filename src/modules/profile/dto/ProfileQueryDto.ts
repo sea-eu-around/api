@@ -2,6 +2,7 @@ import { Transform } from 'class-transformer';
 import { IsArray, IsEnum, IsInt, IsOptional } from 'class-validator';
 
 import { DegreeType } from '../../../common/constants/degree-type';
+import { EducationFieldType } from '../../../common/constants/education-field-type';
 import { GenderType } from '../../../common/constants/gender-type';
 import { LanguageType } from '../../../common/constants/language-type';
 import { ProfileType } from '../../../common/constants/profile-type';
@@ -57,4 +58,10 @@ export class ProfileQueryDto {
     @IsEnum(StaffRoleType, { each: true })
     @Transform((value: string) => value.split(','))
     staffRoles?: StaffRoleType[];
+
+    @IsOptional()
+    @IsArray()
+    @IsEnum(EducationFieldType, { each: true })
+    @Transform((value: string) => value.split(','))
+    educationFields?: EducationFieldType[];
 }

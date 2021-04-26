@@ -4,6 +4,7 @@ import { IPaginationOptions } from 'nestjs-typeorm-paginate';
 import { In, SelectQueryBuilder } from 'typeorm';
 
 import { DegreeType } from '../../common/constants/degree-type';
+import { EducationFieldType } from '../../common/constants/education-field-type';
 import { GenderType } from '../../common/constants/gender-type';
 import { LanguageType } from '../../common/constants/language-type';
 import { ProfileType } from '../../common/constants/profile-type';
@@ -104,6 +105,7 @@ export class ProfileService {
         offers: string[],
         options: IPaginationOptions,
         staffRoles: StaffRoleType[],
+        educationFields: EducationFieldType[],
     ): Promise<any> {
         const unwantedProfiles = await this._profileUtils.getUnwantedProfileIds(
             profileId,
@@ -116,6 +118,8 @@ export class ProfileService {
             .leftJoinAndSelect('profile.interests', 'interests')
             .leftJoinAndSelect('profile.languages', 'languages')
             .leftJoinAndSelect('profile.avatar', 'avatar')
+            .leftJoinAndSelect('profile.educationFields', 'educationFields')
+            .leftJoinAndSelect('profile.staffRoles', 'staffRoles')
             .where('profile.id NOT IN (:...unwantedProfiles)', {
                 unwantedProfiles,
             });
@@ -172,6 +176,17 @@ export class ProfileService {
         if (degrees && degrees.length > 0) {
             profiles = profiles.andWhere('profile.degree IN (:...degrees)', {
                 degrees,
+            });
+        }
+
+        if (educationFields && educationFields.length > 0) {
+            const ids = (
+                await this._educationFieldRepository.find({
+                    id: In(educationFields),
+                })
+            ).map((v) => v.profileId);
+            profiles = profiles.andWhere('profile.id IN (:...ids)', {
+                ids: [null, ...ids],
             });
         }
 
