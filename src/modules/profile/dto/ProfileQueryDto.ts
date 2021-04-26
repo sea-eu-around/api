@@ -6,6 +6,7 @@ import { GenderType } from '../../../common/constants/gender-type';
 import { LanguageType } from '../../../common/constants/language-type';
 import { ProfileType } from '../../../common/constants/profile-type';
 import { PartnerUniversity } from '../../../common/constants/sea';
+import { StaffRoleType } from '../../../common/constants/staff-role-type';
 
 export class ProfileQueryDto {
     @IsInt()
@@ -50,4 +51,10 @@ export class ProfileQueryDto {
     @IsArray()
     @Transform((value: string) => value.split(','))
     offers?: string[];
+
+    @IsOptional()
+    @IsArray()
+    @IsEnum(StaffRoleType, { each: true })
+    @Transform((value: string) => value.split(','))
+    staffRoles?: StaffRoleType[];
 }

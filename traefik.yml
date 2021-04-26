@@ -12,9 +12,8 @@ providers:
     network: proxy
 
 certificatesResolvers:
-  letsencrypt:
+  le:
     acme:
       email: sea-eu-around@univ-brest.fr
-      storage: acme.json
-      httpChallenge:
-        entryPoint: http
+      storage: /certificates/acme.json
+      tlschallenge: {}

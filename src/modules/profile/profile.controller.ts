@@ -19,6 +19,7 @@ import { GenderType } from '../../common/constants/gender-type';
 import { LanguageType } from '../../common/constants/language-type';
 import { ProfileType } from '../../common/constants/profile-type';
 import { PartnerUniversity } from '../../common/constants/sea';
+import { StaffRoleType } from '../../common/constants/staff-role-type';
 import { PayloadSuccessDto } from '../../common/dto/PayloadSuccessDto';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { ProfileDto } from '../../dto/ProfileDto';
@@ -93,6 +94,13 @@ export class ProfileController {
         required: false,
     })
     @ApiQuery({
+        name: 'staffRoles',
+        enum: StaffRoleType,
+        isArray: true,
+        explode: false,
+        required: false,
+    })
+    @ApiQuery({
         name: 'offers',
         isArray: true,
         explode: false,
@@ -115,6 +123,7 @@ export class ProfileController {
             genders,
             types,
             offers,
+            staffRoles,
         } = query;
 
         const limit = query.limit > 100 ? 100 : query.limit;
@@ -132,6 +141,7 @@ export class ProfileController {
                 limit,
                 // route: 'http://localhost:3000/profiles',
             },
+            staffRoles,
         );
 
         return {
