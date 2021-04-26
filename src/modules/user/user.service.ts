@@ -101,10 +101,42 @@ export class UserService {
         return user;
     }
 
+    async sendVerificationLink(email: string): Promise<void> {
+        const user = await this._userRepository.findOne({ email });
+
+        const jwtToken = jwt.sign(
+            {
+                userId: user.id,
+            },
+            this._configService.get('JWT_SECRET_KEY'),
+            { expiresIn: this._configService.get('JWT_EXPIRATION_TIME') + 's' },
+        );
+
+        const mailTemplate =
+            user.locale === LanguageType.FR
+                ? 'validateMail-fr'
+                : 'validateMail-en';
+
+        await this._mailerService.sendMail({
+            to: user.email, // list of receivers
+            from: 'sea-eu.around@univ-brest.fr', // sender address
+            subject:
+                user.locale === LanguageType.FR
+                    ? 'Valider votre compte'
+                    : 'Validate your account', // Subject line
+            template: mailTemplate,
+            context: {
+                link: `${this._configService.get(
+                    'CLIENT_URL',
+                )}/validate/${jwtToken}`,
+            },
+        });
+    }
+
     async verifyUser(
         userVerificationQueryDto: UserVerificationQueryDto,
     ): Promise<UserEntity> {
-        const { userId, iat, exp } = <any>(
+        const { userId } = <any>(
             jwt.verify(
                 userVerificationQueryDto.token,
                 this._configService.get('JWT_SECRET_KEY'),
