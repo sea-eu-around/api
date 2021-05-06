@@ -37,7 +37,7 @@ export class CommentEntity extends AbstractEntity<CommentDto> {
     @Column()
     postId!: string;
 
-    @TreeChildren()
+    @TreeChildren({ cascade: true })
     children?: CommentEntity[];
 
     @TreeParent()
