@@ -215,6 +215,18 @@ export class CommentService {
             throw new UnauthorizedException();
         }
 
-        await this._commentRepository.delete({ id });
+        const tree = await this._commentRepository.findDescendantsTree(comment);
+
+        await this.recursiveDelete(tree);
+
+        await this._commentRepository.remove(comment);
+    }
+
+    async recursiveDelete(comment: CommentEntity): Promise<void> {
+        if (comment.children.length === 0) {
+            await this._commentRepository.remove(comment);
+        } else {
+            comment.children.map(async (child) => this.recursiveDelete(child));
+        }
     }
 }
