@@ -60,12 +60,12 @@ services:
       - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       # traefik-http set up only to use the middleware to redirect to https
       # Uses the environment variable DOMAIN
-      - traefik.http.routers.traefik-public-http.rule=Host(`traefik.lad-dev.team`)
+      - traefik.http.routers.traefik-public-http.rule=Host(`traefik.sea-eu-around.univ-brest.fr`)
       - traefik.http.routers.traefik-public-http.entrypoints=http
       - traefik.http.routers.traefik-public-http.middlewares=https-redirect
       # traefik-https the actual router using HTTPS
       # Uses the environment variable DOMAIN
-      - traefik.http.routers.traefik-public-https.rule=Host(`traefik.lad-dev.team`)
+      - traefik.http.routers.traefik-public-https.rule=Host(`traefik.sea-eu-around.univ-brest.fr`)
       - traefik.http.routers.traefik-public-https.entrypoints=https
       - traefik.http.routers.traefik-public-https.tls=true
       # Use the special Traefik service api@internal with the web UI/Dashboard
@@ -80,15 +80,15 @@ services:
   api:
     image: ladislas14/sea-eu-around:latest
     env_file: .production.env
+    ports:
+      - '3000:3000'
+      - '4000:4000'
     restart: always
     healthcheck:
       test: ['CMD', 'node scripts/healthcheck.js']
       timeout: 12s
       interval: 12s
       retries: 3
-    ports:
-      - '3000:3000'
-      - '4000:4000'
     networks:
       - traefik-public
     labels:
