@@ -6,6 +6,7 @@
         "test/**/*.ts"
     ],
     "exclude": [
-        ".eslintrc.js"
+        ".eslintrc.js",
+        "scripts/**/*.js"
     ]
 }
