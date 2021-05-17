@@ -8,7 +8,6 @@ const options = {
 
 const healthCheck = http.request(options, (res) => {
     console.log(`HEALTHCHECK STATUS: ${res.statusCode}`);
-    console.log(res)
     if (res.statusCode == 200) {
         process.exit(0);
     }
