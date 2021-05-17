@@ -22,7 +22,7 @@ WORKDIR /usr/src/app
 
 COPY --from=dist dist /usr/src/app/dist
 COPY --from=node_modules node_modules /usr/src/app/node_modules
-COPY --from=scripts scripts /usr/src/app/scripts
+COPY --from=dist scripts /usr/src/app/scripts
 
 
 COPY . /usr/src/app
