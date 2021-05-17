@@ -19,7 +19,6 @@ import {
     patchTypeORMRepositoryWithBaseRepository,
 } from 'typeorm-transactional-cls-hooked';
 
-import { PostgresIoAdapter } from './adapters/postgres.adapter';
 import { AppModule } from './app.module';
 import { ErrorFilter } from './filters/errors.filter';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
@@ -90,8 +89,6 @@ async function bootstrap() {
     useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
     const configService = app.select(SharedModule).get(ConfigService);
-
-    app.useWebSocketAdapter(new PostgresIoAdapter(app));
 
     if (['development', 'staging'].includes(configService.nodeEnv)) {
         setupSwagger(app);

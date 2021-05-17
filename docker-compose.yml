@@ -80,6 +80,12 @@ services:
   api:
     image: ladislas14/sea-eu-around:latest
     env_file: .production.env
+    restart: always
+    healthcheck:
+      test: ['CMD', 'node scripts/healthcheck.js']
+      timeout: 12s
+      interval: 12s
+      retries: 3
     ports:
       - '3000:3000'
       - '4000:4000'

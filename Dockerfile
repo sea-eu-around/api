@@ -22,13 +22,11 @@ WORKDIR /usr/src/app
 
 COPY --from=dist dist /usr/src/app/dist
 COPY --from=node_modules node_modules /usr/src/app/node_modules
+COPY --from=scripts scripts /usr/src/app/scripts
 
 
 COPY . /usr/src/app
 
 EXPOSE $PORT
-
-HEALTHCHECK --interval=12s --timeout=12s --start-period=30s \  
-    CMD node scripts/healthcheck.js
 
 CMD yarn start:$NODE_ENV
