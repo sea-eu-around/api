@@ -29,6 +29,6 @@ COPY . /usr/src/app
 EXPOSE $PORT
 
 HEALTHCHECK --interval=12s --timeout=12s --start-period=30s \  
-    CMD node healthcheck.js
+    CMD node scripts/healthcheck.js
 
 CMD yarn start:$NODE_ENV
