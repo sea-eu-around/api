@@ -37,6 +37,9 @@ export class UserEntity extends AbstractEntity<UserDto> {
     @Column({ nullable: true })
     expoPushToken: string;
 
+    @Column({ nullable: true })
+    lastConnection: Date;
+
     // TODO: remove
     verificationToken?: string;
 
