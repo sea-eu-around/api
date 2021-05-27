@@ -4,6 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { UserEntity } from '../../entities/user.entity';
 import { ConfigService } from '../../shared/services/config.service';
+import { UserRepository } from '../user/user.repository';
 import { UserService } from '../user/user.service';
 
 @Injectable()
@@ -11,6 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(
         public readonly configService: ConfigService,
         public readonly userService: UserService,
+        private readonly _userRepository: UserRepository,
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -28,6 +30,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         if (!user) {
             throw new UnauthorizedException();
         }
-        return user;
+
+        user.lastConnection = new Date();
+
+        return this._userRepository.save(user);
     }
 }
