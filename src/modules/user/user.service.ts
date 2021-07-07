@@ -14,8 +14,8 @@ import { UserNotVerifiedException } from '../../exceptions/user-not-verified.exc
 import { UtilsService } from '../../providers/utils.service';
 import { MediaRepository } from '../../repositories/media.repository';
 import { ProfileRepository } from '../../repositories/profile.repository';
-import { AwsS3Service } from '../../shared/services/aws-s3.service';
 import { ConfigService } from '../../shared/services/config.service';
+import { MinioService } from '../../shared/services/minio.service';
 import { UserRegisterDto } from '../auth/dto/UserRegisterDto';
 import { UserVerificationQueryDto } from '../auth/dto/UserVerificationQueryDto';
 import { UserDeleteDto } from './dto/UserDeleteDto';
@@ -30,7 +30,7 @@ export class UserService {
         private readonly _configService: ConfigService,
         private readonly _mailerService: MailerService,
         private readonly _mediaRepository: MediaRepository,
-        private readonly _awsS3Service: AwsS3Service,
+        private readonly _minioService: MinioService,
     ) {}
 
     /**
@@ -249,7 +249,7 @@ export class UserService {
             });
 
             for (const media of medias) {
-                promesses.push(this._awsS3Service.deleteFile(media.path));
+                promesses.push(this._minioService.deleteFile(media.path));
             }
 
             promesses.push(this._userRepository.delete({ id: user.id }));

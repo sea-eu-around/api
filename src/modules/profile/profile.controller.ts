@@ -28,7 +28,6 @@ import { UserEntity } from '../../entities/user.entity';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptor.service';
-import { AwsS3Service } from '../../shared/services/aws-s3.service';
 import { MatchingService } from '../matching/matching.service';
 import { AddInterestsToProfileDto } from './dto/AddInterestsToProfileDto';
 import { AddLanguageToProfileDto } from './dto/AddLanguageToProfileDto';
@@ -46,7 +45,6 @@ import { ProfileService } from './profile.service';
 export class ProfileController {
     constructor(
         private _profileService: ProfileService,
-        private _awsS3Service: AwsS3Service,
         private _matchingService: MatchingService,
     ) {}
 
