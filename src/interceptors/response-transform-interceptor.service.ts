@@ -24,6 +24,7 @@ export class ResponseTransformInterceptor<T>
     ): Observable<IResponse<T>> {
         return next.handle().pipe(
             map(({ description, data, ...rest }) => ({
+                apiVersion: 1,
                 success: true,
                 description,
                 data: UtilsService.isEntity(data)
