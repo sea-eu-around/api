@@ -2,6 +2,7 @@ import { MailerOptions } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
+import { ClientOptions } from 'minio';
 
 import { IAwsConfig } from '../../interfaces/IAwsConfig';
 import { SnakeNamingStrategy } from '../../snake-naming.strategy';
@@ -99,6 +100,19 @@ export class ConfigService {
             bucketName: this.get('S3_BUCKET_NAME'),
             bucketRegion: this.get('S3_BUCKET_REGION'),
         };
+    }
+
+    get minioConfig(): ClientOptions {
+        return {
+            endPoint: this.get('MINIO_ENDPOINT'),
+            useSSL: true,
+            accessKey: this.get('MINIO_ACCESS_KEY'),
+            secretKey: this.get('MINIO_SECRET_KEY'),
+        };
+    }
+
+    get bucketName(): string {
+        return this.get('MINIO_BUCKET_NAME');
     }
 
     get mailerConfig(): MailerOptions {

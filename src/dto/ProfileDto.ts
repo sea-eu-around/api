@@ -78,7 +78,7 @@ export class ProfileDto extends AbstractCompositeDto {
             : null;
         this.avatar = UtilsService.isDto(profile.avatar)
             ? UtilsService.isImageFilename(profile.avatar.path)
-                ? `https://aas-bucket.s3.eu-west-3.amazonaws.com/${profile.avatar.path}`
+                ? `https://cdn.sea-eu-around.univ-brest.fr/sea-eu-around/public/${profile.avatar.path}`
                 : profile.avatar.path
             : null;
         this.score = profile.score;

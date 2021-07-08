@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
 import { FileType } from '../../common/constants/file-type';
-import { AwsS3Service } from '../../shared/services/aws-s3.service';
+import { MinioService } from '../../shared/services/minio.service';
 
 @Injectable()
 export class CommonService {
-    constructor(private readonly _awsS3Service: AwsS3Service) {}
+    constructor(private readonly _minioService: MinioService) {}
 
     async getSignedUrl(contentType: FileType): Promise<any> {
-        return this._awsS3Service.getSignedUrl(contentType);
+        return this._minioService.getSignedUrl(contentType);
     }
 }
