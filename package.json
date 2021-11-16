@@ -46,7 +46,7 @@
         "@nestjsx/crud": "^4.6.2",
         "@types/cron": "^1.7.2",
         "@types/moment": "^2.13.0",
-        "aws-sdk": "~2.683.0",
+        "aws-sdk": "~2.814.0",
         "bcrypt": "~5.0.0",
         "class-transformer": "^0.3.1",
         "class-validator": "^0.12.2",
