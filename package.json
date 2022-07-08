@@ -63,7 +63,7 @@
         "lodash": "^4.17.15",
         "mime-types": "~2.1.27",
         "minio": "^7.0.18",
-        "moment": "^2.29.1",
+        "moment": "^2.29.4",
         "morgan": "^1.10.0",
         "nestjs-i18n": "^8.0.6",
         "nestjs-typeorm-paginate": "^2.2.1",
